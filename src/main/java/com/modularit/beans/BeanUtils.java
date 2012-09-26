@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 /**
  * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
+ * 
  * @author Stewart Bissett
  */
 public abstract class BeanUtils {
@@ -27,7 +28,7 @@ public abstract class BeanUtils {
 	 * 
 	 * <pre> List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject); </pre>
 	 * @param instance
-	 *            an object to get the properties for
+	 *            an object to get the properties list from
 	 */
 	public static List<BeanProperty> getProperties(final Object instance) {
 		return convertToList(getPropertyMap(instance).values());
@@ -77,9 +78,7 @@ public abstract class BeanUtils {
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
 	 * <pre>
-	 * 
-	 * 
-	 * 
+	 * if ( property("surname").valueOn(myUser)
 	 * BeanProperty surname = BeanUtils.getProperty(myUser, &quot;surname&quot;); </pre>
 	 * @param instance
 	 *            an object to get the property from
@@ -190,6 +189,19 @@ public abstract class BeanUtils {
 			return property.isType(type);
 		}
 		return false;
+	}
+
+	/**
+	 * Return a {@link BeanPropertyDescriptor} instance which allows for re-usable inspection and mutation of objects for a given property name. For Example:
+	 * 
+	 * <pre>
+	 * if ( property("surname").existsOn(aPerson) ) {
+	 *  System.out.println("Hello " + property("surname").from(aPerson) 
+	 * }
+	 * </pre>
+	 */
+	public static BeanPropertyDescriptor property(final String propertyName) {
+		return new BeanPropertyDescriptor(propertyName);
 	}
 
 	/**
