@@ -26,7 +26,16 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example:
 	 * 
-	 * <pre> List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject); </pre>
+	 * <pre>
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject);
+	 * </pre>
 	 * @param instance
 	 *            an object to get the properties list from
 	 */
@@ -41,7 +50,15 @@ public abstract class BeanUtils {
 	 * 
 	 * <pre>
 	 * 
-	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.mapProperties(myObject); </pre>
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.mapProperties(myObject);
+	 * </pre>
 	 * @param instance
 	 *            an object to get the properties for
 	 */
@@ -62,7 +79,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> BeanUtils.hasProperty(user, "surname")) == true; </pre>
+	 * <pre>
+	 * BeanUtils.hasProperty(user, "surname")) == true;
+	 * </pre>
 	 * @param instance
 	 *            an object to test against
 	 * @param name
@@ -79,7 +98,8 @@ public abstract class BeanUtils {
 	 * 
 	 * <pre>
 	 * if ( property("surname").valueOn(myUser)
-	 * BeanProperty surname = BeanUtils.getProperty(myUser, &quot;surname&quot;); </pre>
+	 * BeanProperty surname = BeanUtils.getProperty(myUser, &quot;surname&quot;);
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -96,7 +116,8 @@ public abstract class BeanUtils {
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
 	 * <pre>
-	 * BeanUtils.setProperty(myUser, &quot;surname&quot;,&quot;Smith&quot;); </pre>
+	 * BeanUtils.setProperty(myUser, &quot;surname&quot;, &quot;Smith&quot;);
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -119,7 +140,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;)); </pre>
+	 * <pre>
+	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;));
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -138,7 +161,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> String.class.equals(BeanUtils.getPropertyType(myUser, &quot;surname&quot;)); </pre>
+	 * <pre>
+	 * String.class.equals(BeanUtils.getPropertyType(myUser, &quot;surname&quot;));
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -157,7 +182,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;, String.class)); </pre>
+	 * <pre>
+	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;, String.class));
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -175,7 +202,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> BeanUtils.isPropertyType(myUser, &quot;surname&quot;, String.class) == true; </pre>
+	 * <pre>
+	 * BeanUtils.isPropertyType(myUser, &quot;surname&quot;, String.class) == true;
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -201,16 +230,34 @@ public abstract class BeanUtils {
 	 * </pre>
 	 */
 	public static BeanPropertyDescriptor property(final String propertyName) {
-		return new BeanPropertyDescriptor(propertyName);
+		return BeanPropertyDescriptor.property(propertyName);
+	}
+
+	/**
+	 * Return a {@link TypeSafeBeanPropertyDescriptor} instance which allows for re-usable inspection and mutation of objects for a given property name. For Example:
+	 * 
+	 * <pre>
+	 * if ( property("surname").existsOn(aPerson) ) {
+	 *  System.out.println("Hello " + property("surname").from(aPerson) 
+	 * }
+	 * </pre>
+	 */
+	public static <T, P> TypeSafeBeanPropertyDescriptor<T, P> property(final String propertyName, final Class<T> instanceType, final Class<P> propertyType) {
+		return TypeSafeBeanPropertyDescriptor.property(propertyName, instanceType, propertyType);
 	}
 
 	/**
 	 * Visit the supplied bean instance and notify the visitor for each bean property found. This method not recurse into the object graph by looping over collections or by
 	 * visiting assosciated objects. For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre> BeanUtils.visit(myUser, new BeanPropertyVisitor() {
+	 * <pre>
+	 * BeanUtils.visit(myUser, new BeanPropertyVisitor() {
 	 * 
-	 * public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) { printer.println(&quot;Hello &quot; + property); } }); </pre>
+	 * 	public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) {
+	 * 		printer.println(&quot;Hello &quot; + property);
+	 * 	}
+	 * });
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param visitor
@@ -227,9 +274,14 @@ public abstract class BeanUtils {
 	 * This method has no protection against stack overflows caused whee the object graph refers to other elements in itself
 	 * </p>
 	 * 
-	 * <pre> BeanUtils.visitAllAllowOverflow(myUser, new BeanPropertyVisitor() {
+	 * <pre>
+	 * BeanUtils.visitAllAllowOverflow(myUser, new BeanPropertyVisitor() {
 	 * 
-	 * public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) { printer.println(&quot;Hello &quot; + property); } }); </pre>
+	 * 	public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) {
+	 * 		printer.println(&quot;Hello &quot; + property);
+	 * 	}
+	 * });
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param visitor
@@ -246,9 +298,14 @@ public abstract class BeanUtils {
 	 * This method will at most visit each object once even when the object refers to iteself
 	 * </p>
 	 * 
-	 * <pre> BeanUtils.visitAll(myUser, new BeanPropertyVisitor() {
+	 * <pre>
+	 * BeanUtils.visitAll(myUser, new BeanPropertyVisitor() {
 	 * 
-	 * public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) { printer.println(&quot;Hello &quot; + property); } }); </pre>
+	 * 	public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) {
+	 * 		printer.println(&quot;Hello &quot; + property);
+	 * 	}
+	 * });
+	 * </pre>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param visitor
