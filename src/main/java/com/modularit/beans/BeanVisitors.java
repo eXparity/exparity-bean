@@ -29,7 +29,7 @@ public abstract class BeanVisitors {
 		final PrintWriter printer = new PrintWriter(writer);
 		return new BeanVisitor() {
 
-			public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) {
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 				printer.println(path + " (" + property.getTypeCanonicalName() + ")");
 				printer.flush();
 			}
@@ -50,7 +50,7 @@ public abstract class BeanVisitors {
 		final PrintWriter printer = new PrintWriter(writer);
 		return new BeanVisitor() {
 
-			public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property) {
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 				printer.println(path + " (" + property.getTypeCanonicalName() + ":" + property.getValue(current) + ")");
 				printer.flush();
 			}

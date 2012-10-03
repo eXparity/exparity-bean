@@ -3,7 +3,15 @@ package com.modularit.beans;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -14,15 +22,23 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class BeanProperty {
 
-	private final Method accessor, mutator;
+	private final Class<?> declaringType;
 	private final String name;
 	private final Class<?> type;
+	private final Class<?>[] params;
+	private final Method accessor, mutator;
+
+	public BeanProperty(final String propertyName, final Class<?> declaringType) {
+		this(propertyName, BeanUtils.getAccessor(propertyName, declaringType), BeanUtils.getMutator(propertyName, declaringType));
+	}
 
 	public BeanProperty(final String propertyName, final Method accessor, final Method mutator) {
+		this.declaringType = accessor.getDeclaringClass();
 		this.name = propertyName;
 		this.accessor = accessor;
 		this.mutator = mutator;
 		this.type = accessor.getReturnType();
+		this.params = genericArgs(accessor);
 	}
 
 	/**
@@ -36,13 +52,17 @@ public class BeanProperty {
 	 * Return the accessor or getter {@link Method} for this property
 	 */
 	public Method getAccessor() {
+		synchronized (new Integer(1)) {
+
+		}
 		return accessor;
 	}
 
 	/**
 	 * Return the value of this property from the given object instance. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 * 
-	 * @param instance an object to get the value for this property
+	 * @param instance
+	 *            an object to get the value for this property
 	 */
 	public Object getValue(final Object instance) {
 		try {
@@ -60,8 +80,10 @@ public class BeanProperty {
 	/**
 	 * Return the value of this property from the given object cast to the given type. Will throw a {@link ClassCastException} if the value is not of the given type.
 	 * 
-	 * @param instance an object to get the value for this property
-	 * @param type the type to return the value as
+	 * @param instance
+	 *            an object to get the value for this property
+	 * @param type
+	 *            the type to return the value as
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getValue(final Object instance, final Class<T> type) {
@@ -79,8 +101,10 @@ public class BeanProperty {
 	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
 	 * property was successfullly set.
 	 * 
-	 * @param instance an object to get the value for this property
-	 * @param value the value to set this property to on the instance
+	 * @param instance
+	 *            an object to get the value for this property
+	 * @param value
+	 *            the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object instance, final Object value) {
 		try {
@@ -93,6 +117,20 @@ public class BeanProperty {
 			throw new BeanPropertyException("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e.getCause());
 		}
 		return true;
+	}
+
+	/**
+	 * Return the declaring type of the property
+	 */
+	public Class<?> getDeclaringType() {
+		return declaringType;
+	}
+
+	/**
+	 * Return the declaring type of the property
+	 */
+	public String getDeclaringTypeSimpleName() {
+		return declaringType.getSimpleName();
 	}
 
 	/**
@@ -117,6 +155,24 @@ public class BeanProperty {
 	}
 
 	/**
+	 * Return the nth type parameter or throw {@link IllegalArgumentException} if there is no nth type parameter
+	 */
+	public Class<?> getTypeParameter(final int n) {
+		if (params.length > n) {
+			return params[n];
+		} else {
+			throw new IllegalArgumentException("Unknown type parameter with index '" + n + "'");
+		}
+	}
+
+	/**
+	 * Return the collection of type paramaters or an empty {@link List} if this property is not generic
+	 */
+	public List<Class<?>> getTypeParameters() {
+		return Arrays.asList(params);
+	}
+
+	/**
 	 * Test if the property implements {@link Iterable}
 	 */
 	public boolean isIterable() {
@@ -126,10 +182,40 @@ public class BeanProperty {
 	/**
 	 * Test if the property type is assignable from the supplied type
 	 * 
-	 * @param type any type to check to see if this properties type is assignable to it
+	 * @param type
+	 *            any type to check to see if this properties type is assignable to it
 	 */
 	public boolean isType(final Class<?> type) {
 		return type.isAssignableFrom(this.type);
+	}
+
+	/**
+	 * Test if the property type is assignable from any one of the supplied types
+	 * 
+	 * @param types
+	 *            types to check to see if this properties type is assignable to it
+	 */
+	public boolean isType(final Class<?>... types) {
+		for (Class<?> type : types) {
+			if (type.isAssignableFrom(this.type)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Test if the property is a generic type
+	 */
+	public boolean isGeneric() {
+		return this.params.length > 0;
+	}
+
+	/**
+	 * Test if the property is primitive
+	 */
+	public boolean isPrimitive() {
+		return type.isPrimitive();
 	}
 
 	/**
@@ -140,10 +226,102 @@ public class BeanProperty {
 	}
 
 	/**
+	 * Test if the property is an array
+	 */
+	public boolean isString() {
+		return isType(String.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Integer} or int
+	 */
+	public boolean isInteger() {
+		return isType(Integer.class, int.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Double} or double
+	 */
+	public boolean isDouble() {
+		return isType(Double.class, double.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Float} or float
+	 */
+	public boolean isFloat() {
+		return isType(Float.class, float.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Short} or short
+	 */
+	public boolean isShort() {
+		return isType(Short.class, short.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Long} or long
+	 */
+	public boolean isLong() {
+		return isType(Long.class, long.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Boolean} or boolean
+	 */
+	public boolean isBoolean() {
+		return isType(Boolean.class, boolean.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Date} or long
+	 */
+	public boolean isDate() {
+		return isType(Date.class);
+	}
+
+	/**
 	 * Test if the property implements {@link Map}
 	 */
 	public boolean isMap() {
 		return isType(Map.class);
+	}
+
+	/**
+	 * Test if the property implements {@link List}
+	 */
+	public boolean isList() {
+		return isType(List.class);
+	}
+
+	/**
+	 * Test if the property implements {@link Set}
+	 */
+	public boolean isSet() {
+		return isType(Set.class);
+	}
+
+	/**
+	 * Test if the property implements {@link Collection}
+	 */
+	public boolean isCollection() {
+		return isType(Collection.class);
+	}
+
+	private Class<?>[] genericArgs(final Method accessor) {
+		Type type = accessor.getGenericReturnType();
+		if (type instanceof ParameterizedType) {
+			List<Class<?>> params = new ArrayList<Class<?>>();
+			for (Type arg : ((ParameterizedType) type).getActualTypeArguments()) {
+				if (arg instanceof Class<?>) {
+					params.add((Class<?>) arg);
+				}
+			}
+			return params.toArray(new Class<?>[0]);
+		} else {
+			return new Class<?>[0];
+		}
 	}
 
 	@Override
@@ -165,6 +343,6 @@ public class BeanProperty {
 
 	@Override
 	public String toString() {
-		return "BeanProperty [" + name + ":" + type.getCanonicalName() + "]";
+		return "BeanProperty [" + declaringType.getSimpleName() + "." + name + "]";
 	}
 }

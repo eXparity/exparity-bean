@@ -14,10 +14,14 @@ public interface BeanVisitor {
 	/**
 	 * Callback fired for each {@link BeanProperty} found on an object
 	 * 
-	 * @param stack a stack of the objects that have been visited to get to the current object. The latest object is last in the array.
-	 * @param path a dot notation path of the properties navigated to get to this property
-	 * @param current the object currently being visited
-	 * @param property the property being visited
+	 * @param property
+	 *            the property being visited
+	 * @param current
+	 *            the object currently being visited
+	 * @param path
+	 *            a dot notation path of the properties navigated to get to this property
+	 * @param stack
+	 *            a stack of the objects that have been visited to get to the current object. The latest object is last in the array.
 	 */
-	public void visit(final Object[] stack, final String path, final Object current, final BeanProperty property);
+	public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack);
 }

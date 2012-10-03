@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import com.modularit.beans.BeanBuilder.BeanPropertyValue;
 
 /**
  * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
@@ -31,9 +32,6 @@ public abstract class BeanUtils {
 	 * 
 	 * 
 	 * 
-	 * 
-	 * 
-	 * 
 	 * List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject);
 	 * </pre>
 	 * @param instance
@@ -49,11 +47,6 @@ public abstract class BeanUtils {
 	 * For example:
 	 * 
 	 * <pre>
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
 	 * 
 	 * 
 	 * 
@@ -198,6 +191,20 @@ public abstract class BeanUtils {
 	}
 
 	/**
+	 * Return the accessor method for the given property
+	 */
+	public static Method getAccessor(final String propertyName, final Class<?> declaringType) {
+		return getAccessorMap(declaringType).get(propertyName);
+	}
+
+	/**
+	 * Return the mutator method for the given property
+	 */
+	public static Method getMutator(final String propertyName, final Class<?> declaringType) {
+		return getMutatorMap(declaringType).get(propertyName);
+	}
+
+	/**
 	 * Test if the property on the supplied instance is of the supplied type.
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
@@ -315,21 +322,49 @@ public abstract class BeanUtils {
 		safeInspector.inspect(instance, visitor);
 	}
 
+	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
+	 * 
+	 * <pre>
+	 * BeanUtils.anInstanceOf(Person.class).populatedWith(BeanValues.randomValues()).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 */
+	public static <T> BeanBuilder<T> instanceOf(final Class<T> type) {
+		return BeanBuilder.anInstanceOf(type);
+	}
+
+	/**
+	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
+	 */
+	public static BeanPropertyValue randomValues() {
+		return new RandomBeanPropertyValue();
+	}
+
 	private static BeanProperty createBeanProperty(final Map.Entry<String, Method> mutator, final Method accessor) {
 		return new BeanProperty(mutator.getKey(), accessor, mutator.getValue());
 	}
 
 	private static Map<String, Method> getAccessorMap(final Object o) {
-		return getPropertyMapWithPrefix(o, 0, "is", "get");
+		return getAccessorMap(o.getClass());
+	}
+
+	private static Map<String, Method> getAccessorMap(final Class<?> type) {
+		return getPropertyMap(type, 0, "is", "get");
 	}
 
 	private static Map<String, Method> getMutatorMap(final Object o) {
-		return getPropertyMapWithPrefix(o, 1, "set");
+		return getMutatorMap(o.getClass());
 	}
 
-	private static Map<String, Method> getPropertyMapWithPrefix(final Object o, final int numParams, final String... prefixes) {
+	private static Map<String, Method> getMutatorMap(final Class<?> type) {
+		return getPropertyMap(type, 1, "set");
+	}
+
+	private static Map<String, Method> getPropertyMap(final Class<?> type, final int numParams, final String... prefixes) {
 		SortedMap<String, Method> propertyMap = new TreeMap<String, Method>();
-		for (Method method : o.getClass().getMethods()) {
+		for (Method method : type.getMethods()) {
 			String methodName = method.getName();
 			for (String prefix : prefixes) {
 				if (methodName.startsWith(prefix) && method.getParameterTypes().length == numParams) {
