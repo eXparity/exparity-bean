@@ -1,6 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
 
 package com.modularit.beans;
 
@@ -9,52 +6,31 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- * Factory for instances of commonly used {@link BeanVisitor} implementations
+ * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
  * 
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart Bissett
  */
 public abstract class BeanVisitors {
 
 	/**
 	 * Print all the properties visited to {@link System#out}
 	 */
-	public static BeanVisitor printProperties() {
-		return printPropeties(new OutputStreamWriter(System.out));
+	public static BeanVisitor print() {
+		return print(new OutputStreamWriter(System.out));
 	}
 
 	/**
 	 * Print all the properties visited to the {@link Writer}
 	 */
-	public static BeanVisitor printPropeties(final Writer writer) {
-		final PrintWriter printer = new PrintWriter(writer);
+	public static BeanVisitor print(final Writer writer) {
 		return new BeanVisitor() {
 
+			final PrintWriter printer = new PrintWriter(writer);
+
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				printer.println(path + " (" + property.getTypeCanonicalName() + ")");
+				printer.println("'" + path + "' = '" + property.getValue(current) + "'");
 				printer.flush();
 			}
 		};
 	}
-
-	/**
-	 * Print all the properties visited to {@link System#out}
-	 */
-	public static BeanVisitor printPropertyValues() {
-		return printPropertyValues(new OutputStreamWriter(System.out));
-	}
-
-	/**
-	 * Print all the properties visited to the {@link Writer}
-	 */
-	public static BeanVisitor printPropertyValues(final Writer writer) {
-		final PrintWriter printer = new PrintWriter(writer);
-		return new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				printer.println(path + " (" + property.getTypeCanonicalName() + ":" + property.getValue(current) + ")");
-				printer.flush();
-			}
-		};
-	}
-
 }

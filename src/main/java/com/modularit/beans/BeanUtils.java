@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import com.modularit.beans.BeanBuilder.BeanPropertyValue;
 
 /**
  * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
@@ -23,17 +22,11 @@ public abstract class BeanUtils {
 	private static final BeanInspector safeInspector = new BeanInspector(true, true);
 
 	/**
-	 * Return a list of the publicly exposes get/set properties on the Bean
+	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
 	 * <p/>
-	 * For example:
-	 * 
-	 * <pre>
-	 * 
-	 * 
-	 * 
-	 * 
+	 * <code>
 	 * List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject);
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the properties list from
 	 */
@@ -42,16 +35,12 @@ public abstract class BeanUtils {
 	}
 
 	/**
-	 * Return a map of the publicly exposes get/set properties on the Bean with the property name as the key and the initial character lowercased
+	 * Return a map of the publicly exposes get/set properties on the Bean with the property name as the key and the initial character lowercased For example:
 	 * <p/>
-	 * For example:
 	 * 
-	 * <pre>
-	 * 
-	 * 
-	 * 
+	 * <code>
 	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.mapProperties(myObject);
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the properties for
 	 */
@@ -72,9 +61,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * BeanUtils.hasProperty(user, "surname")) == true;
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to test against
 	 * @param name
@@ -89,10 +78,10 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * if ( property("surname").valueOn(myUser)
 	 * BeanProperty surname = BeanUtils.getProperty(myUser, &quot;surname&quot;);
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -108,9 +97,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * BeanUtils.setProperty(myUser, &quot;surname&quot;, &quot;Smith&quot;);
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -133,9 +122,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;));
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -154,9 +143,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * String.class.equals(BeanUtils.getPropertyType(myUser, &quot;surname&quot;));
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -175,9 +164,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;, String.class));
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -209,9 +198,9 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
-	 * <pre>
+	 * <code>
 	 * BeanUtils.isPropertyType(myUser, &quot;surname&quot;, String.class) == true;
-	 * </pre>
+	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
@@ -228,34 +217,8 @@ public abstract class BeanUtils {
 	}
 
 	/**
-	 * Return a {@link BeanPropertyDescriptor} instance which allows for re-usable inspection and mutation of objects for a given property name. For Example:
-	 * 
-	 * <pre>
-	 * if ( property("surname").existsOn(aPerson) ) {
-	 *  System.out.println("Hello " + property("surname").from(aPerson) 
-	 * }
-	 * </pre>
-	 */
-	public static BeanPropertyDescriptor property(final String propertyName) {
-		return BeanPropertyDescriptor.property(propertyName);
-	}
-
-	/**
-	 * Return a {@link TypeSafeBeanPropertyDescriptor} instance which allows for re-usable inspection and mutation of objects for a given property name. For Example:
-	 * 
-	 * <pre>
-	 * if ( property("surname").existsOn(aPerson) ) {
-	 *  System.out.println("Hello " + property("surname").from(aPerson) 
-	 * }
-	 * </pre>
-	 */
-	public static <T, P> TypeSafeBeanPropertyDescriptor<T, P> property(final String propertyName, final Class<T> instanceType, final Class<P> propertyType) {
-		return TypeSafeBeanPropertyDescriptor.property(propertyName, instanceType, propertyType);
-	}
-
-	/**
 	 * Visit the supplied bean instance and notify the visitor for each bean property found. This method not recurse into the object graph by looping over collections or by
-	 * visiting assosciated objects. For example, a class with a property getSurname() and setSurname(...):
+	 * visiting assosciated objects. For example, a class with a property getSurname() and setSurname(...):</p>
 	 * 
 	 * <pre>
 	 * BeanUtils.visit(myUser, new BeanPropertyVisitor() {
@@ -320,26 +283,6 @@ public abstract class BeanUtils {
 	 */
 	public static void visitAll(final Object instance, final BeanVisitor visitor) {
 		safeInspector.inspect(instance, visitor);
-	}
-
-	/**
-	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
-	 * 
-	 * <pre>
-	 * BeanUtils.anInstanceOf(Person.class).populatedWith(BeanValues.randomValues()).build();
-	 * </pre>
-	 * @param type
-	 *            the type to return the {@link BeanBuilder} for
-	 */
-	public static <T> BeanBuilder<T> instanceOf(final Class<T> type) {
-		return BeanBuilder.anInstanceOf(type);
-	}
-
-	/**
-	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
-	 */
-	public static BeanPropertyValue randomValues() {
-		return new RandomBeanPropertyValue();
 	}
 
 	private static BeanProperty createBeanProperty(final Map.Entry<String, Method> mutator, final Method accessor) {

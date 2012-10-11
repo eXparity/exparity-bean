@@ -27,7 +27,7 @@ class BeanInspector {
 	private final boolean stopOverflow;
 	private final Integer overflowLimit = 0;
 
-	public BeanInspector(final boolean recurse, final boolean stopOverflow) {
+	BeanInspector(final boolean recurse, final boolean stopOverflow) {
 		this.recurse = recurse;
 		this.stopOverflow = stopOverflow;
 	}
@@ -40,7 +40,7 @@ class BeanInspector {
 	 * @param visitor
 	 *            the visitor to raise events when Java Bean properties are found
 	 */
-	public void inspect(final Object instance, final BeanVisitor visitor) {
+	void inspect(final Object instance, final BeanVisitor visitor) {
 		inspect(instance, "", visitor);
 	}
 
@@ -57,7 +57,7 @@ class BeanInspector {
 	 * @param visitor
 	 *            the visitor to raise events when Java Bean properties are found
 	 */
-	public void inspect(final Object instance, final String rootPath, final BeanVisitor visitor) {
+	void inspect(final Object instance, final String rootPath, final BeanVisitor visitor) {
 		try {
 			inspectObject(new ArrayList<Object>(), rootPath, instance, visitor);
 		} finally {

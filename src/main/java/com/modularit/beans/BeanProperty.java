@@ -12,11 +12,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Value object to encapsulate a property on an Object which follows the get/set Java beans standard
+ * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard
  * 
  * @author Stewart Bissett
  */
@@ -46,6 +47,13 @@ public class BeanProperty {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * Test the name of the property to see if it matches the supplied name
+	 */
+	public boolean hasName(final String name) {
+		return StringUtils.equals(name, this.name);
 	}
 
 	/**

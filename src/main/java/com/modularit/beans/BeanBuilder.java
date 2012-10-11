@@ -35,6 +35,13 @@ public class BeanBuilder<T> {
 	}
 
 	/**
+	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
+	 */
+	public static BeanPropertyValue randomValues() {
+		return new RandomBeanPropertyValue();
+	}
+
+	/**
 	 * Interface to be implement by classes which can return values to the requested types
 	 * 
 	 * @author Stewart Bissett

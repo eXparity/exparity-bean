@@ -4,9 +4,10 @@
 
 package com.modularit.beans;
 
+import static com.modularit.beans.BeanBuilder.anInstanceOf;
+import static com.modularit.beans.BeanBuilder.randomValues;
 import static com.modularit.beans.BeanPropertyMatchers.aBeanProperty;
 import static com.modularit.beans.BeanUtils.getProperty;
-import static com.modularit.beans.BeanUtils.instanceOf;
 import static com.modularit.beans.BeanUtils.visitAll;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
@@ -250,7 +251,7 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canInstantiateASimpleObject() {
-		AllTypes allTypes = instanceOf(AllTypes.class).populatedWith(BeanUtils.randomValues()).build();
+		AllTypes allTypes = anInstanceOf(AllTypes.class).populatedWith(randomValues()).build();
 		visitAll(allTypes, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
@@ -261,7 +262,7 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canInstantiateAndFillAComplexObject() {
-		Car car = instanceOf(Car.class).populatedWith(BeanUtils.randomValues()).build();
+		Car car = anInstanceOf(Car.class).populatedWith(randomValues()).build();
 		assertThat(car.getEngine(), Matchers.notNullValue());
 		assertThat(car.getEngine().getCapacity(), Matchers.notNullValue());
 		assertThat(car.getWheels().size(), Matchers.greaterThan(0));
