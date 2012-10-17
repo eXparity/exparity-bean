@@ -255,7 +255,7 @@ public class BeanUtilsTest {
 		visitAll(allTypes, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				assertThat("Expected " + property + " to not be null", property.getValue(current), Matchers.notNullValue());
+				assertThat("Expected " + property + " to not be null", property.getValue(), Matchers.notNullValue());
 			}
 		});
 	}

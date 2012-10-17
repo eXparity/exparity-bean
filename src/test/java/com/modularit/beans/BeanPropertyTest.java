@@ -34,7 +34,8 @@ public class BeanPropertyTest {
 
 		Method accessor = Sample.class.getMethod("getProperty"), mutator = Sample.class.getMethod("setProperty", String.class);
 		String propertyName = "property";
-		BeanProperty property = new BeanProperty(propertyName, accessor, mutator);
+		Sample instance = new Sample();
+		BeanProperty property = new BeanProperty(instance, propertyName);
 
 		assertThat(property.getName(), equalTo(propertyName));
 		assertThat(property.getType(), equalTo((Class) String.class));
@@ -48,73 +49,11 @@ public class BeanPropertyTest {
 		assertThat(property.isIterable(), equalTo(false));
 		assertThat(property.isMap(), equalTo(false));
 
-		Sample instance = new Sample();
 		String newValue = "sample";
 
-		assertThat(property.getValue(instance), nullValue());
-		assertThat(property.setValue(instance, newValue), equalTo(true));
-		assertThat(property.getValue(instance), equalTo((Object) newValue));
-		assertThat(property.getValue(instance, String.class), equalTo(newValue));
-	}
-
-	@Test(expected = BeanPropertyException.class)
-	public void throwsIfInvokedOnWrongObject() throws Exception {
-
-		@SuppressWarnings("unused")
-		class Sample {
-
-			private String property;
-
-			public String getProperty() {
-				return property;
-			}
-
-			public void setProperty(final String property) {
-				this.property = property;
-			}
-		}
-
-		Method accessor = Sample.class.getMethod("getProperty"), mutator = Sample.class.getMethod("setProperty", String.class);
-		String propertyName = "property";
-		BeanProperty property = new BeanProperty(propertyName, accessor, mutator);
-		property.getValue(new String(""));
-	}
-
-	@Test(expected = BeanPropertyException.class)
-	public void throwsIfInvokedOnWrongObjectWithSameMethodName() throws Exception {
-
-		@SuppressWarnings("unused")
-		class Sample {
-
-			private String property;
-
-			public String getProperty() {
-				return property;
-			}
-
-			public void setProperty(final String property) {
-				this.property = property;
-			}
-		}
-
-		Method accessor = Sample.class.getMethod("getProperty"), mutator = Sample.class.getMethod("setProperty", String.class);
-		String propertyName = "property";
-		BeanProperty property = new BeanProperty(propertyName, accessor, mutator);
-
-		@SuppressWarnings("unused")
-		class NotSample {
-
-			private String property;
-
-			public String getProperty() {
-				return property;
-			}
-
-			public void setProperty(final String property) {
-				this.property = property;
-			}
-		}
-
-		property.getValue(new NotSample());
+		assertThat(property.getValue(), nullValue());
+		assertThat(property.setValue(newValue), equalTo(true));
+		assertThat(property.getValue(), equalTo((Object) newValue));
+		assertThat(property.getValue(String.class), equalTo(newValue));
 	}
 }
