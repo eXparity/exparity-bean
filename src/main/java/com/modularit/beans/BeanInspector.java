@@ -103,22 +103,22 @@ class BeanInspector {
 					String nextPath = nextPath(path, property);
 					visitor.visit(property, instance, nextPath, stack.toArray());
 					if (property.isArray()) {
-						Object value = property.getValue(instance);
+						Object value = property.getValue();
 						if (value != null) {
 							inspectArray(stack, nextPath, value, visitor);
 						}
 					} else if (property.isIterable()) {
-						Iterable value = property.getValue(instance, Iterable.class);
+						Iterable value = property.getValue(Iterable.class);
 						if (value != null) {
 							inspectIterable(stack, nextPath, value, visitor);
 						}
 					} else if (property.isMap()) {
-						Map value = property.getValue(instance, Map.class);
+						Map value = property.getValue(Map.class);
 						if (value != null) {
 							inspectMap(stack, nextPath, value, visitor);
 						}
 					} else {
-						Object propertyValue = property.getValue(instance);
+						Object propertyValue = property.getValue();
 						if (propertyValue != null) {
 							inspectObject(stack, nextPath, propertyValue, visitor);
 						}

@@ -18,9 +18,11 @@ import static com.modularit.beans.BeanUtils.hasProperty;
 public class BeanPropertyDescriptor<P> {
 
 	private final String name;
+	private final Class<P> type;
 
-	public BeanPropertyDescriptor(final String name) {
+	public BeanPropertyDescriptor(final String name, final Class<P> type) {
 		this.name = name;
+		this.type = type;
 	}
 
 	/**
@@ -28,6 +30,13 @@ public class BeanPropertyDescriptor<P> {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * Return the type of the property
+	 */
+	public Class<P> getType() {
+		return type;
 	}
 
 	/**
@@ -63,7 +72,7 @@ public class BeanPropertyDescriptor<P> {
 	public P getValue(final Object instance) {
 		BeanProperty property = getProperty(instance, name);
 		if (property != null) {
-			return (P) property.getValue(instance);
+			return (P) property.getValue();
 		}
 		return null;
 	}
@@ -85,7 +94,7 @@ public class BeanPropertyDescriptor<P> {
 	public void setValue(final Object instance, final P value) {
 		BeanProperty property = getProperty(instance, name);
 		if (property != null) {
-			property.setValue(instance, value);
+			property.setValue(value);
 		} else {
 			throw new BeanPropertyNotFound("Property '" + name + " was not found on '" + instance + "'");
 		}

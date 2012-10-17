@@ -23,17 +23,19 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class BeanProperty {
 
+	private final Object instance;;
 	private final Class<?> declaringType;
 	private final String name;
 	private final Class<?> type;
 	private final Class<?>[] params;
 	private final Method accessor, mutator;
 
-	public BeanProperty(final String propertyName, final Class<?> declaringType) {
-		this(propertyName, BeanUtils.getAccessor(propertyName, declaringType), BeanUtils.getMutator(propertyName, declaringType));
+	public BeanProperty(final Object instance, final String propertyName) {
+		this(instance, propertyName, BeanUtils.getAccessor(propertyName, instance.getClass()), BeanUtils.getMutator(propertyName, instance.getClass()));
 	}
 
-	public BeanProperty(final String propertyName, final Method accessor, final Method mutator) {
+	public BeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
+		this.instance = instance;
 		this.declaringType = accessor.getDeclaringClass();
 		this.name = propertyName;
 		this.accessor = accessor;
@@ -67,12 +69,9 @@ public class BeanProperty {
 	}
 
 	/**
-	 * Return the value of this property from the given object instance. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
-	 * 
-	 * @param instance
-	 *            an object to get the value for this property
+	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
-	public Object getValue(final Object instance) {
+	public Object getValue() {
 		try {
 			return accessor.invoke(instance);
 		} catch (IllegalArgumentException e) {
@@ -88,14 +87,12 @@ public class BeanProperty {
 	/**
 	 * Return the value of this property from the given object cast to the given type. Will throw a {@link ClassCastException} if the value is not of the given type.
 	 * 
-	 * @param instance
-	 *            an object to get the value for this property
 	 * @param type
 	 *            the type to return the value as
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getValue(final Object instance, final Class<T> type) {
-		return (T) getValue(instance);
+	public <T> T getValue(final Class<T> type) {
+		return (T) getValue();
 	}
 
 	/**
@@ -109,12 +106,10 @@ public class BeanProperty {
 	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
 	 * property was successfullly set.
 	 * 
-	 * @param instance
-	 *            an object to get the value for this property
 	 * @param value
 	 *            the value to set this property to on the instance
 	 */
-	public boolean setValue(final Object instance, final Object value) {
+	public boolean setValue(final Object value) {
 		try {
 			mutator.invoke(instance, value);
 		} catch (IllegalArgumentException e) {
@@ -341,16 +336,16 @@ public class BeanProperty {
 			return false;
 		}
 		BeanProperty rhs = (BeanProperty) obj;
-		return new EqualsBuilder().append(type, rhs.type).append(name, rhs.name).isEquals();
+		return new EqualsBuilder().append(instance, rhs.instance).append(name, rhs.name).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(23, 35).append(this.type).append(this.name).toHashCode();
+		return new HashCodeBuilder(23, 35).append(instance).append(this.name).toHashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "BeanProperty [" + declaringType.getSimpleName() + "." + name + "]";
+		return "BeanProperty [" + instance + "." + name + "]";
 	}
 }

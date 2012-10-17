@@ -147,7 +147,7 @@ public class BeanBuilder<T> {
 						value = createValue(property);
 					}
 				}
-				property.setValue(current, value);
+				property.setValue(value);
 			}
 		});
 		return instance;

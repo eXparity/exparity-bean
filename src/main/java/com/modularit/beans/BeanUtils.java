@@ -50,7 +50,7 @@ public abstract class BeanUtils {
 		for (Map.Entry<String, Method> mutator : mutatorMap.entrySet()) {
 			Method accessor = accessorMap.get(mutator.getKey());
 			if (accessor != null) {
-				propertyMap.put(mutator.getKey(), createBeanProperty(mutator, accessor));
+				propertyMap.put(mutator.getKey(), createBeanProperty(instance, mutator, accessor));
 			}
 		}
 		return propertyMap;
@@ -110,7 +110,7 @@ public abstract class BeanUtils {
 	public static boolean setPropertyValue(final Object instance, final String name, final Object value) {
 		BeanProperty property = getProperty(instance, name);
 		if (property != null) {
-			property.setValue(instance, value);
+			property.setValue(value);
 			return true;
 		} else {
 			return false;
@@ -133,7 +133,7 @@ public abstract class BeanUtils {
 	public static Object getPropertyValue(final Object o, final String propertyName) {
 		BeanProperty property = getProperty(o, propertyName);
 		if (property != null) {
-			return property.getValue(o);
+			return property.getValue();
 		}
 		return null;
 	}
@@ -285,8 +285,8 @@ public abstract class BeanUtils {
 		safeInspector.inspect(instance, visitor);
 	}
 
-	private static BeanProperty createBeanProperty(final Map.Entry<String, Method> mutator, final Method accessor) {
-		return new BeanProperty(mutator.getKey(), accessor, mutator.getValue());
+	private static BeanProperty createBeanProperty(final Object instance, final Map.Entry<String, Method> mutator, final Method accessor) {
+		return new BeanProperty(instance, mutator.getKey(), accessor, mutator.getValue());
 	}
 
 	private static Map<String, Method> getAccessorMap(final Object o) {
