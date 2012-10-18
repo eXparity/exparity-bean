@@ -6,11 +6,13 @@ package com.modularit.beans;
 
 import static com.modularit.beans.BeanBuilder.anInstanceOf;
 import static com.modularit.beans.BeanBuilder.randomValues;
-import static com.modularit.beans.BeanPropertyMatchers.aBeanProperty;
 import static com.modularit.beans.BeanUtils.getProperty;
 import static com.modularit.beans.BeanUtils.visitAll;
+import static com.modularit.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
@@ -32,10 +34,10 @@ import java.util.Map;
 import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import com.modularit.beans.BeanUtilTestFixture.AllTypes;
-import com.modularit.beans.BeanUtilTestFixture.Car;
-import com.modularit.beans.BeanUtilTestFixture.Engine;
-import com.modularit.beans.BeanUtilTestFixture.Wheel;
+import com.modularit.beans.testutils.BeanUtilTestFixture.AllTypes;
+import com.modularit.beans.testutils.BeanUtilTestFixture.Car;
+import com.modularit.beans.testutils.BeanUtilTestFixture.Engine;
+import com.modularit.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
  * Unit Tests for Bean Utils
@@ -47,66 +49,117 @@ public class BeanUtilsTest {
 	@Test
 	public void canReadStringProperty() {
 		doGetPropertyTests(new AllTypes(), "stringValue", String.class, null, "sample");
+		assertTrue(getProperty(new AllTypes(), "stringValue").isString());
+		assertFalse(getProperty(new AllTypes(), "stringValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadShortProperty() {
+
 		doGetPropertyTests(new AllTypes(), "shortValue", short.class, (short) 0, Short.MAX_VALUE);
+		assertTrue(getProperty(new AllTypes(), "shortValue").isShort());
+		assertTrue(getProperty(new AllTypes(), "shortValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "shortObjectValue", Short.class, null, Short.MAX_VALUE);
+		assertTrue(getProperty(new AllTypes(), "shortObjectValue").isShort());
+		assertFalse(getProperty(new AllTypes(), "shortObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadIntegerProperty() {
+
 		doGetPropertyTests(new AllTypes(), "integerValue", int.class, 0, 12345);
+		assertTrue(getProperty(new AllTypes(), "integerValue").isInteger());
+		assertTrue(getProperty(new AllTypes(), "integerValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "integerObjectValue", Integer.class, null, 12345);
+		assertTrue(getProperty(new AllTypes(), "integerObjectValue").isInteger());
+		assertFalse(getProperty(new AllTypes(), "integerObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadLongProperty() {
+
 		doGetPropertyTests(new AllTypes(), "longValue", long.class, 0L, 12345L);
+		assertTrue(getProperty(new AllTypes(), "longValue").isLong());
+		assertTrue(getProperty(new AllTypes(), "longValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "longObjectValue", Long.class, null, 12345L);
+		assertTrue(getProperty(new AllTypes(), "longObjectValue").isLong());
+		assertFalse(getProperty(new AllTypes(), "longObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadDoubleProperty() {
+
 		doGetPropertyTests(new AllTypes(), "doubleValue", double.class, 0.0, 1.1);
+		assertTrue(getProperty(new AllTypes(), "doubleValue").isDouble());
+		assertTrue(getProperty(new AllTypes(), "doubleValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "doubleObjectValue", Double.class, null, 1.1);
+		assertTrue(getProperty(new AllTypes(), "doubleObjectValue").isDouble());
+		assertFalse(getProperty(new AllTypes(), "doubleObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadFloatProperty() {
+
 		doGetPropertyTests(new AllTypes(), "floatValue", float.class, 0.0f, 1.1f);
+		assertTrue(getProperty(new AllTypes(), "floatValue").isFloat());
+		assertTrue(getProperty(new AllTypes(), "floatValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "floatObjectValue", Float.class, null, 1.1f);
+		assertTrue(getProperty(new AllTypes(), "floatObjectValue").isFloat());
+		assertFalse(getProperty(new AllTypes(), "floatObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadBooleanProperty() {
+
 		doGetPropertyTests(new AllTypes(), "booleanValue", boolean.class, false, true);
+		assertTrue(getProperty(new AllTypes(), "booleanValue").isBoolean());
+		assertTrue(getProperty(new AllTypes(), "booleanValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "booleanObjectValue", Boolean.class, null, Boolean.TRUE);
+		assertTrue(getProperty(new AllTypes(), "booleanObjectValue").isBoolean());
+		assertFalse(getProperty(new AllTypes(), "booleanObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadByteProperty() {
+
 		doGetPropertyTests(new AllTypes(), "byteValue", byte.class, (byte) 0, (byte) 1);
+		assertTrue(getProperty(new AllTypes(), "byteValue").isByte());
+		assertTrue(getProperty(new AllTypes(), "byteValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "byteObjectValue", Byte.class, null, Byte.MAX_VALUE);
+		assertTrue(getProperty(new AllTypes(), "byteObjectValue").isByte());
+		assertFalse(getProperty(new AllTypes(), "byteObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadCharProperty() {
+
 		doGetPropertyTests(new AllTypes(), "charValue", char.class, (char) 0, 'a');
+		assertTrue(getProperty(new AllTypes(), "charValue").isCharacter());
+		assertTrue(getProperty(new AllTypes(), "charValue").isPrimitive());
+
 		doGetPropertyTests(new AllTypes(), "charObjectValue", Character.class, null, Character.MAX_VALUE);
+		assertTrue(getProperty(new AllTypes(), "charObjectValue").isCharacter());
+		assertFalse(getProperty(new AllTypes(), "charObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadDateProperty() {
 		doGetPropertyTests(new AllTypes(), "dateValue", Date.class, null, new Date());
-		;
+		assertTrue(getProperty(new AllTypes(), "dateValue").isDate());
+		assertFalse(getProperty(new AllTypes(), "dateValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadBigDecimalProperty() {
 		doGetPropertyTests(new AllTypes(), "bigDecimalValue", BigDecimal.class, null, new BigDecimal(0.0));
-		;
+		assertFalse(getProperty(new AllTypes(), "bigDecimalValue").isPrimitive());
 	}
 
 	@Test

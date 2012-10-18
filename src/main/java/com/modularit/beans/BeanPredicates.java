@@ -67,4 +67,16 @@ public abstract class BeanPredicates {
 			}
 		};
 	}
+
+	/**
+	 * Return a {@link BeanPredicates} which returns <code>true</code> if the property value matches the supplied argument
+	 */
+	public static BeanPropertyPredicate hasValue(final Object value) {
+		return new BeanPropertyPredicate() {
+
+			public boolean matches(final BeanProperty property) {
+				return value.equals(property.getValue());
+			}
+		};
+	}
 }

@@ -17,8 +17,8 @@ public abstract class Numbers {
 	/**
 	 * Sum all numbers in a collection of Integers
 	 */
-	public static Number sum(final Number... numbers) {
-		return sum(asList(numbers), new NumberOperator());
+	public static Double sum(final Number... numbers) {
+		return sum(asList(numbers), new NumberOperator()).doubleValue();
 	}
 
 	/**
@@ -258,7 +258,8 @@ public abstract class Numbers {
 		}
 
 		public Double divide(final Integer lhs, final int rhs) {
-			return divide(lhs, rhs);
+			checkForNull(lhs, rhs);
+			return lhs.doubleValue() / rhs;
 		}
 	}
 
@@ -288,7 +289,7 @@ public abstract class Numbers {
 		}
 
 		public Double divide(final Long lhs, final int rhs) {
-			return divide(lhs, rhs);
+			return lhs.doubleValue() / rhs;
 		}
 	}
 
@@ -318,7 +319,7 @@ public abstract class Numbers {
 		}
 
 		public Double divide(final Double lhs, final int rhs) {
-			return divide(lhs, rhs);
+			return lhs / rhs;
 		}
 	}
 
@@ -348,7 +349,7 @@ public abstract class Numbers {
 		}
 
 		public BigDecimal divide(final BigDecimal lhs, final int rhs) {
-			return divide(lhs, rhs);
+			return lhs.divide(new BigDecimal(rhs));
 		}
 	}
 

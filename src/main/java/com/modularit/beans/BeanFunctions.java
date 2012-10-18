@@ -98,6 +98,43 @@ public abstract class BeanFunctions {
 	}
 
 	/**
+	 * Find the last instance of the property which matches the given descriptor. For example</p>
+	 * 
+	 * <code>
+	 * BeanProperty lastRelativesName = BeanUtils.last(myFamilyTree, BeanUtils.stringProperty(&quot;name&quot;));
+	 * </code></p>
+	 */
+	public static BeanProperty last(final Object instance, final BeanPropertyDescriptor<?> descriptor) {
+		return last(instance, isProperty(descriptor));
+	}
+
+	/**
+	 * Find the last instance of the property which matches the given predicate and descriptor. For example</p>
+	 * 
+	 * <code>
+	 * BeanProperty lastRelativeCalledBob = BeanUtils.last(myFamilyTree, BeanUtils.stringProperty(&quot;name&quot;), BeanPredicates.contains("Bob"));
+	 * </code></p>
+	 */
+	public static <P> BeanProperty last(final Object instance, final BeanPropertyDescriptor<P> descriptor, final BeanPropertyPredicate predicate) {
+		return last(instance, matchesAll(isProperty(descriptor), predicate));
+	}
+
+	/**
+	 * Find the first instance of the property which matches the given predicate. For example</p>
+	 * 
+	 * <code>
+	 * BeanPropery lastRelativeCalledBob = BeanUtils.last(myFamilyTree, BeanPredicates.contains("Bob"));
+	 * </code></p>
+	 */
+	public static <P> BeanProperty last(final Object instance, final BeanPropertyPredicate predicate) {
+		List<BeanProperty> properties = find(instance, predicate);
+		if (!properties.isEmpty()) {
+			return properties.get(properties.size() - 1);
+		}
+		return null;
+	}
+
+	/**
 	 * Find all instances of the supplied property on the object and it's assosciates. For example</p>
 	 * 
 	 * <code>

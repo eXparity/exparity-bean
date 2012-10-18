@@ -52,6 +52,13 @@ public class BeanProperty {
 	}
 
 	/**
+	 * Return the object instance this property is bound to
+	 */
+	public Object getInstance() {
+		return instance;
+	}
+
+	/**
 	 * Test the name of the property to see if it matches the supplied name
 	 */
 	public boolean hasName(final String name) {
@@ -229,10 +236,24 @@ public class BeanProperty {
 	}
 
 	/**
-	 * Test if the property is an array
+	 * Test if the property is a {@link String}
 	 */
 	public boolean isString() {
 		return isType(String.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Character} or char
+	 */
+	public boolean isCharacter() {
+		return isType(Character.class, char.class);
+	}
+
+	/**
+	 * Test if the property is an {@link Byte} or char
+	 */
+	public boolean isByte() {
+		return isType(Byte.class, byte.class);
 	}
 
 	/**
