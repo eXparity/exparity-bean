@@ -35,6 +35,12 @@ public class BeanProperty {
 	}
 
 	public BeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
+		if (accessor == null) {
+			throw new BeanPropertyException("Unknown accessor property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
+		}
+		if (mutator == null) {
+			throw new BeanPropertyException("Unknown mutator property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
+		}
 		this.instance = instance;
 		this.declaringType = accessor.getDeclaringClass();
 		this.name = propertyName;
@@ -66,16 +72,6 @@ public class BeanProperty {
 	}
 
 	/**
-	 * Return the accessor or getter {@link Method} for this property
-	 */
-	public Method getAccessor() {
-		synchronized (new Integer(1)) {
-
-		}
-		return accessor;
-	}
-
-	/**
 	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
 	public Object getValue() {
@@ -103,13 +99,6 @@ public class BeanProperty {
 	}
 
 	/**
-	 * Return the mutator or setter {@link Method} for this property
-	 */
-	public Method getMutator() {
-		return mutator;
-	}
-
-	/**
 	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
 	 * property was successfullly set.
 	 * 
@@ -120,7 +109,12 @@ public class BeanProperty {
 		try {
 			mutator.invoke(instance, value);
 		} catch (IllegalArgumentException e) {
-			throw new BeanPropertyException("Mutator property '" + name + " on '" + instance.getClass().getCanonicalName() + "' expect arguments", e);
+			throw new BeanPropertyException("Mutator property '" + name
+					+ " on '"
+					+ instance.getClass().getCanonicalName()
+					+ "' expected a '"
+					+ this.getTypeSimpleName()
+					+ "' argument", e);
 		} catch (IllegalAccessException e) {
 			throw new BeanPropertyException("Illegal Access exception encountered whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e);
 		} catch (InvocationTargetException e) {
