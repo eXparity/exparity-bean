@@ -1,11 +1,14 @@
 
 package com.modularit.beans;
 
+import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder object for instantiating and populating objects which follow the Java beans standards conventions for getter/setters
@@ -20,6 +25,8 @@ import org.apache.commons.lang.ObjectUtils;
  * @author Stewart Bissett
  */
 public class BeanBuilder<T> {
+
+	private static final Logger LOG = LoggerFactory.getLogger(BeanBuilder.class);
 
 	/**
 	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
@@ -31,7 +38,22 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type);
+		return anInstanceOf(type, type.getSimpleName().toLowerCase());
+	}
+
+	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
+	 * 
+	 * <pre>
+	 * BeanUtils.anInstanceOf(Person.class).populatedWith(BeanUtils.randomValues()).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 * @param rootName
+	 *            the name given to the root of the object graph for use in the path
+	 */
+	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type, final String rootName) {
+		return new BeanBuilder<T>(type, rootName);
 	}
 
 	/**
@@ -105,13 +127,17 @@ public class BeanBuilder<T> {
 	}
 
 	private final Map<String, Object> properties = new HashMap<String, Object>();
+	private final Set<String> excludedProperties = new HashSet<String>();
 	private final Map<String, Object> paths = new HashMap<String, Object>();
+	private final Set<String> excludedPaths = new HashSet<String>();
 	private final Class<T> type;
 	private BeanPropertyValue values;
 	private int minCollectionSize = 1, maxCollectionSize = 5;
+	private String rootName;
 
-	public BeanBuilder(final Class<T> type) {
+	public BeanBuilder(final Class<T> type, final String rootName) {
 		this.type = type;
+		this.rootName = rootName;
 	}
 
 	public BeanBuilder<T> populatedWith(final BeanPropertyValue values) {
@@ -119,13 +145,30 @@ public class BeanBuilder<T> {
 		return this;
 	}
 
+	/**
+	 * Populated the bean with random values
+	 */
+	public BeanBuilder<T> populatedWithRandomValues() {
+		return populatedWith(randomValues());
+	}
+
 	public BeanBuilder<T> withPropertyValue(final String propertyName, final Object value) {
 		this.properties.put(propertyName, value);
 		return this;
 	}
 
+	public BeanBuilder<T> excludeProperty(final String propertyName) {
+		this.excludedProperties.add(propertyName);
+		return this;
+	}
+
 	public BeanBuilder<T> withPathValue(final String path, final Object value) {
 		this.paths.put(path, value);
+		return this;
+	}
+
+	public BeanBuilder<T> excludePath(final String path) {
+		this.excludedPaths.add(path);
 		return this;
 	}
 
@@ -140,17 +183,63 @@ public class BeanBuilder<T> {
 		BeanUtils.visitAll(instance, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				Object value = paths.get(path);
-				if (value == null) {
-					value = properties.get(property.getName());
-					if (value == null) {
-						value = createValue(property);
-					}
+
+				String pathWithRoot = isNotBlank(path) ? rootName + "." + path : rootName;
+				String pathNoIndexes = pathWithRoot.replaceAll("\\[\\w*\\]\\.", ".");
+
+				if (excludedPaths.contains(pathNoIndexes) || excludedProperties.contains(property.getName())) {
+					LOG.trace("Ignore  Path [{}]. Explicity excluded", pathWithRoot);
+					return;
 				}
-				property.setValue(value);
+
+				Object value = null;
+				if (paths.containsKey(pathNoIndexes)) {
+					value = paths.get(pathNoIndexes);
+				} else if (properties.containsKey(property.getName())) {
+					value = properties.get(property.getName());
+				} else {
+					for (String assignedPath : paths.keySet()) {
+						if (pathNoIndexes.startsWith(assignedPath)) {
+							LOG.trace("Ignore  Path [{}]. Child of assigned path {}", pathWithRoot, assignedPath);
+							return;
+						}
+					}
+					for (Object object : stack) {
+						if (property.isType(object.getClass())) {
+							LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", pathWithRoot, object.getClass().getSimpleName());
+							return;
+						}
+					}
+					Object currentPropertyValue = property.getValue();
+					if (currentPropertyValue != null && !isEmptyCollection(currentPropertyValue)) {
+						LOG.trace("Ignore  Path [{}]. Already set", pathWithRoot);
+						return;
+					}
+					value = createValue(property);
+				}
+
+				if (value != null) {
+					LOG.trace("Assign  Path [{}] value [{}:{}]", new Object[] {
+							pathWithRoot, value.getClass().getSimpleName(), identityHashCode(value)
+					});
+					property.setValue(value);
+				} else {
+					LOG.trace("Assign  Path [{}] value [null]", pathWithRoot);
+				}
 			}
 		});
 		return instance;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean isEmptyCollection(final Object obj) {
+		if (obj instanceof Collection) {
+			return ((Collection) obj).isEmpty();
+		} else if (obj instanceof Map) {
+			return ((Map) obj).isEmpty();
+		} else {
+			return false;
+		}
 	}
 
 	private T createNewInstance() {
@@ -217,6 +306,13 @@ public class BeanBuilder<T> {
 			return (V) values.dateValue();
 		} else if (isType(type, BigDecimal.class)) {
 			return (V) values.bigDecimalValue();
+		} else if (type.isEnum()) {
+			V[] enumerationValues = type.getEnumConstants();
+			if (enumerationValues.length == 0) {
+				return null;
+			} else {
+				return enumerationValues[nextInt(enumerationValues.length)];
+			}
 		} else {
 			try {
 				return type.newInstance();
@@ -275,5 +371,4 @@ public class BeanBuilder<T> {
 		}
 		return false;
 	}
-
 }

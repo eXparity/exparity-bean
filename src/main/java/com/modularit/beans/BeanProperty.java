@@ -1,6 +1,8 @@
 
 package com.modularit.beans;
 
+import static com.modularit.beans.BeanUtils.getAccessor;
+import static com.modularit.beans.BeanUtils.getMutator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -15,6 +17,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard
@@ -23,7 +27,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class BeanProperty {
 
-	private final Object instance;;
+	private static final Logger LOG = LoggerFactory.getLogger(BeanProperty.class);
+
+	private final Object instance;
 	private final Class<?> declaringType;
 	private final String name;
 	private final Class<?> type;
@@ -31,7 +37,19 @@ public class BeanProperty {
 	private final Method accessor, mutator;
 
 	public BeanProperty(final Object instance, final String propertyName) {
-		this(instance, propertyName, BeanUtils.getAccessor(propertyName, instance.getClass()), BeanUtils.getMutator(propertyName, instance.getClass()));
+		this.accessor = getAccessor(propertyName, instance.getClass());
+		if (accessor == null) {
+			throw new BeanPropertyException("Unknown accessor property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
+		}
+		this.mutator = getMutator(propertyName, instance.getClass(), accessor.getReturnType());
+		if (mutator == null) {
+			throw new BeanPropertyException("Unknown mutator property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
+		}
+		this.instance = instance;
+		this.declaringType = accessor.getDeclaringClass();
+		this.name = propertyName;
+		this.type = accessor.getReturnType();
+		this.params = genericArgs(accessor);
 	}
 
 	public BeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
@@ -114,11 +132,14 @@ public class BeanProperty {
 					+ instance.getClass().getCanonicalName()
 					+ "' expected a '"
 					+ this.getTypeSimpleName()
-					+ "' argument", e);
+					+ "' argument but was supplied a '"
+					+ value.getClass().getSimpleName(), e);
 		} catch (IllegalAccessException e) {
 			throw new BeanPropertyException("Illegal Access exception encountered whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e);
 		} catch (InvocationTargetException e) {
-			throw new BeanPropertyException("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e.getCause());
+			LOG.warn("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e);
+			throw new BeanPropertyException("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'",
+					e.getTargetException());
 		}
 		return true;
 	}

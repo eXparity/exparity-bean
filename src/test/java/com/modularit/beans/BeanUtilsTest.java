@@ -291,6 +291,30 @@ public class BeanUtilsTest {
 		verifyNoMoreInteractions(visitor);
 	}
 
+	@Test
+	public void canSetAPropertyWithOverloadedProperties() {
+
+		@SuppressWarnings("unused")
+		class MixedUp {
+
+			private Boolean value;
+
+			public void setValue(final String value) {
+				this.value = Boolean.valueOf(value);
+			}
+
+			public void setValue(final Boolean value) {
+				this.value = value;
+			}
+
+			public Boolean getValue() {
+				return value;
+			}
+		}
+
+		doGetPropertyTests(new MixedUp(), "value", Boolean.class, null, Boolean.TRUE);
+	}
+
 	@Test(expected = StackOverflowError.class)
 	public void visitAllAllowOverflowWillOverflow() {
 

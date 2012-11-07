@@ -1,12 +1,15 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanUtils.*;
+import static com.modularit.beans.BeanUtils.getProperties;
+import static java.lang.System.identityHashCode;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
@@ -14,6 +17,8 @@ import java.util.Map;
  * @author Stewart Bissett
  */
 class BeanInspector {
+
+	private static final Logger LOG = LoggerFactory.getLogger(BeanInspector.class);
 
 	private final ThreadLocal<Map<Object, Integer>> inspected = new ThreadLocal<Map<Object, Integer>>() {
 
@@ -66,22 +71,26 @@ class BeanInspector {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void inspectObject(final List<Object> stack, final String path, final Object instance, final BeanVisitor visitor) {
+	private void inspectObject(final List<Object> currentStack, final String path, final Object instance, final BeanVisitor visitor) {
+
+		final List<Object> stack = new ArrayList<Object>(currentStack);
+		logInspection(path, "Object", instance);
 
 		if (instance == null) {
 			return;
 		}
 
 		if (stopOverflow) {
-			Integer hits = inspected.get().get(instance);
+			int instanceKey = identityHashCode(instance);
+			Integer hits = inspected.get().get(instanceKey);
 			if (hits != null) {
 				if (hits > overflowLimit) {
 					return;
 				} else {
-					inspected.get().put(instance, ++hits);
+					inspected.get().put(instanceKey, ++hits);
 				}
 			} else {
-				inspected.get().put(instance, 1);
+				inspected.get().put(instanceKey, 1);
 			}
 		}
 
@@ -133,24 +142,33 @@ class BeanInspector {
 	}
 
 	private void inspectMap(final List<Object> stack, final String path, final Map<?, ?> instance, final BeanVisitor visitor) {
+		logInspection(path, "Map", instance);
 		for (Map.Entry<?, ?> entry : instance.entrySet()) {
 			String nextPath = path.isEmpty() ? "map" : path;
 			inspectObject(stack, nextPath + "[" + entry.getKey() + "]", entry.getValue(), visitor);
 		}
 	}
 
-	private void inspectArray(final List<Object> stack, final String path, final Object array, final BeanVisitor visitor) {
-		for (int i = 0; i < Array.getLength(array); ++i) {
+	private void inspectArray(final List<Object> stack, final String path, final Object instance, final BeanVisitor visitor) {
+		logInspection(path, "Array", instance);
+		for (int i = 0; i < Array.getLength(instance); ++i) {
 			String nextPath = path.isEmpty() ? "array" : path;
-			inspectObject(stack, nextPath + "[" + i + "]", Array.get(array, i), visitor);
+			inspectObject(stack, nextPath + "[" + i + "]", Array.get(instance, i), visitor);
 		}
 	}
 
 	private void inspectIterable(final List<Object> stack, final String path, final Iterable<?> instance, final BeanVisitor visitor) {
+		logInspection(path, "Iterable", instance);
 		int seq = 0;
 		for (Object object : instance) {
 			String nextPath = path.isEmpty() ? "collection" : path;
 			inspectObject(stack, nextPath + "[" + (seq++) + "]", object, visitor);
 		}
+	}
+
+	private void logInspection(final String path, final String loggedType, final Object instance) {
+		LOG.trace("Inspect Path [{}]. {} [{}:{}]", new Object[] {
+				path, loggedType, instance.getClass().getSimpleName(), identityHashCode(instance)
+		});
 	}
 }

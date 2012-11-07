@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -17,6 +18,10 @@ import java.util.TreeMap;
  */
 public abstract class BeanUtils {
 
+	private static final String MUTATOR_PROPERTY_NAME = "set";
+	private static final String[] ACCESSOR_PROPERTY_NAMES = new String[] {
+			"is", "get"
+	};
 	private static final BeanInspector shallowInspector = new BeanInspector(false, false);
 	private static final BeanInspector unsafeInspector = new BeanInspector(true, false);
 	private static final BeanInspector safeInspector = new BeanInspector(true, true);
@@ -45,15 +50,31 @@ public abstract class BeanUtils {
 	 *            an object to get the properties for
 	 */
 	public static Map<String, BeanProperty> getPropertyMap(final Object instance) {
-		Map<String, Method> mutatorMap = getMutatorMap(instance), accessorMap = getAccessorMap(instance);
+
+		Map<String, Method> accessorMap = getAccessorMap(instance);
+		Map<String, List<Method>> mutatorMap = getMutatorMap(instance);
+
 		Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
-		for (Map.Entry<String, Method> mutator : mutatorMap.entrySet()) {
-			Method accessor = accessorMap.get(mutator.getKey());
-			if (accessor != null) {
-				propertyMap.put(mutator.getKey(), createBeanProperty(instance, mutator, accessor));
+		for (Entry<String, Method> accessorEntry : accessorMap.entrySet()) {
+			Method mutator = getMutatorForAccessor(instance, mutatorMap, accessorEntry);
+			if (mutator != null) {
+				propertyMap.put(accessorEntry.getKey(), createBeanProperty(instance, accessorEntry.getKey(), accessorEntry.getValue(), mutator));
 			}
 		}
 		return propertyMap;
+	}
+
+	private static Method getMutatorForAccessor(final Object instance, final Map<String, List<Method>> mutatorMap, final Entry<String, Method> accessorEntry) {
+		List<Method> mutatorList = mutatorMap.get(accessorEntry.getKey());
+		if (mutatorList != null && !mutatorList.isEmpty()) {
+			for (Method mutator : mutatorList) {
+				Method accessor = accessorEntry.getValue();
+				if (mutator.getParameterTypes()[0].isAssignableFrom(accessor.getReturnType())) {
+					return mutator;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -189,8 +210,13 @@ public abstract class BeanUtils {
 	/**
 	 * Return the mutator method for the given property
 	 */
-	public static Method getMutator(final String propertyName, final Class<?> declaringType) {
-		return getMutatorMap(declaringType).get(propertyName);
+	public static Method getMutator(final String propertyName, final Class<?> declaringType, final Class<?> propertyType) {
+		for (Method method : getMutatorMap(declaringType).get(propertyName)) {
+			if (method.getParameterTypes()[0].equals(propertyType)) {
+				return method;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -285,8 +311,8 @@ public abstract class BeanUtils {
 		safeInspector.inspect(instance, visitor);
 	}
 
-	private static BeanProperty createBeanProperty(final Object instance, final Map.Entry<String, Method> mutator, final Method accessor) {
-		return new BeanProperty(instance, mutator.getKey(), accessor, mutator.getValue());
+	private static BeanProperty createBeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
+		return new BeanProperty(instance, propertyName, accessor, mutator);
 	}
 
 	private static Map<String, Method> getAccessorMap(final Object o) {
@@ -294,24 +320,35 @@ public abstract class BeanUtils {
 	}
 
 	private static Map<String, Method> getAccessorMap(final Class<?> type) {
-		return getPropertyMap(type, 0, "is", "get");
-	}
-
-	private static Map<String, Method> getMutatorMap(final Object o) {
-		return getMutatorMap(o.getClass());
-	}
-
-	private static Map<String, Method> getMutatorMap(final Class<?> type) {
-		return getPropertyMap(type, 1, "set");
-	}
-
-	private static Map<String, Method> getPropertyMap(final Class<?> type, final int numParams, final String... prefixes) {
 		SortedMap<String, Method> propertyMap = new TreeMap<String, Method>();
 		for (Method method : type.getMethods()) {
 			String methodName = method.getName();
-			for (String prefix : prefixes) {
-				if (methodName.startsWith(prefix) && method.getParameterTypes().length == numParams) {
+			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
+				if (methodName.startsWith(prefix) && method.getParameterTypes().length == 0) {
 					propertyMap.put(convertToPropertyName(methodName, prefix.length()), method);
+				}
+			}
+		}
+		return propertyMap;
+	}
+
+	private static Map<String, List<Method>> getMutatorMap(final Object o) {
+		return getMutatorMap(o.getClass());
+	}
+
+	private static Map<String, List<Method>> getMutatorMap(final Class<?> type) {
+		SortedMap<String, List<Method>> propertyMap = new TreeMap<String, List<Method>>();
+		for (Method method : type.getMethods()) {
+			String methodName = method.getName();
+			if (methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1) {
+				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());
+				List<Method> list = propertyMap.get(propertyName);
+				if (list == null) {
+					list = new ArrayList<Method>();
+					list.add(method);
+					propertyMap.put(propertyName, list);
+				} else {
+					list.add(method);
 				}
 			}
 		}
