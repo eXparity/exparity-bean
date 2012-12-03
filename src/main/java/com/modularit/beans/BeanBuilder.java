@@ -57,6 +57,34 @@ public class BeanBuilder<T> {
 	}
 
 	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which is populated with random values. For example:
+	 * 
+	 * <pre>
+	 * BeanUtils.aRandomInstanceOf(Person.class).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 */
+	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type) {
+		return aRandomInstanceOf(type, type.getSimpleName().toLowerCase());
+	}
+
+	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with random values. For example:
+	 * 
+	 * <pre>
+	 * BeanUtils.aRandomInstanceOf(Person.class, &quot;person&quot;).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 * @param rootName
+	 *            the name given to the root of the object graph for use in the path
+	 */
+	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type, final String rootName) {
+		return new BeanBuilder<T>(type, rootName).populatedWithRandomValues();
+	}
+
+	/**
 	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
 	 */
 	public static BeanPropertyValue randomValues() {
