@@ -158,6 +158,7 @@ public class BeanBuilder<T> {
 	private final Set<String> excludedProperties = new HashSet<String>();
 	private final Map<String, Object> paths = new HashMap<String, Object>();
 	private final Set<String> excludedPaths = new HashSet<String>();
+	private final Map<Class<?>, List<Class<?>>> subtypes = new HashMap<Class<?>, List<Class<?>>>();
 	private final Class<T> type;
 	private BeanPropertyValue values;
 	private int minCollectionSize = 1, maxCollectionSize = 5;
@@ -203,6 +204,13 @@ public class BeanBuilder<T> {
 	public BeanBuilder<T> withCollectionSize(final int min, final int max) {
 		this.minCollectionSize = min;
 		this.maxCollectionSize = max;
+		return this;
+	}
+
+	public <X> BeanBuilder<T> withSubtype(final Class<X> klass, final Class<? extends X> subtype) {
+		List<Class<?>> list = new ArrayList<Class<?>>();
+		list.add(subtype);
+		this.subtypes.put(klass, list);
 		return this;
 	}
 
@@ -342,11 +350,20 @@ public class BeanBuilder<T> {
 				return enumerationValues[nextInt(enumerationValues.length)];
 			}
 		} else {
-			try {
-				return type.newInstance();
-			} catch (Exception e) {
-				throw new BeanBuilderException("Failed to instantiate instance of '" + type.getCanonicalName() + "'", e);
+			List<Class<?>> candidates = subtypes.get(type);
+			if (candidates != null && !candidates.isEmpty()) {
+				return (V) newInstance(candidates.get(nextInt(candidates.size())));
+			} else {
+				return newInstance(type);
 			}
+		}
+	}
+
+	private <I> I newInstance(final Class<I> type) {
+		try {
+			return type.newInstance();
+		} catch (Exception e) {
+			throw new BeanBuilderException("Failed to instantiate instance of '" + type.getCanonicalName() + "'", e);
 		}
 	}
 
