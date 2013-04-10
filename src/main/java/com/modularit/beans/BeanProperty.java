@@ -1,8 +1,6 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanUtils.getAccessor;
-import static com.modularit.beans.BeanUtils.getMutator;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -29,28 +27,19 @@ public class BeanProperty {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BeanProperty.class);
 
+	/**
+	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given instance.</p> Returns <code>null</code> if the property is not present.</p>
+	 */
+	public static final BeanProperty propertyOn(final Object instance, final String name) {
+		return BeanUtils.property(instance, name);
+	}
+
 	private final Object instance;
 	private final Class<?> declaringType;
 	private final String name;
 	private final Class<?> type;
 	private final Class<?>[] params;
 	private final Method accessor, mutator;
-
-	public BeanProperty(final Object instance, final String propertyName) {
-		this.accessor = getAccessor(propertyName, instance.getClass());
-		if (accessor == null) {
-			throw new BeanPropertyException("Unknown accessor property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
-		}
-		this.mutator = getMutator(propertyName, instance.getClass(), accessor.getReturnType());
-		if (mutator == null) {
-			throw new BeanPropertyException("Unknown mutator property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
-		}
-		this.instance = instance;
-		this.declaringType = accessor.getDeclaringClass();
-		this.name = propertyName;
-		this.type = accessor.getReturnType();
-		this.params = genericArgs(accessor);
-	}
 
 	public BeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
 		if (accessor == null) {
@@ -80,6 +69,20 @@ public class BeanProperty {
 	 */
 	public Object getInstance() {
 		return instance;
+	}
+
+	/**
+	 * Return the accessor {@link Method} for this property
+	 */
+	public Method getAccessor() {
+		return accessor;
+	}
+
+	/**
+	 * Return the mutator {@link Method} for this property
+	 */
+	public Method getMutator() {
+		return mutator;
 	}
 
 	/**
@@ -149,6 +152,13 @@ public class BeanProperty {
 	 */
 	public Class<?> getDeclaringType() {
 		return declaringType;
+	}
+
+	/**
+	 * Return the declaring type of the property
+	 */
+	public String getDeclaringTypeCanonicalName() {
+		return declaringType.getCanonicalName();
 	}
 
 	/**

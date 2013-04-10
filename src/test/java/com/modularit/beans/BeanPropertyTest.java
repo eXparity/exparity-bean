@@ -26,77 +26,77 @@ public class BeanPropertyTest {
 
 	@Test
 	public void canAccessStringProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "stringValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "stringValue");
 		doPropertyTest(property, String.class, "sample");
 		assertTrue(property.isString());
 	}
 
 	@Test
 	public void canAccessDateProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "dateValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "dateValue");
 		doPropertyTest(property, Date.class, new Date());
 		assertTrue(property.isDate());
 	}
 
 	@Test
 	public void canAccessLongProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "longObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "longObjectValue");
 		doPropertyTest(property, Long.class, 1L);
 		assertTrue(property.isLong());
 	}
 
 	@Test
 	public void canAccessBooleanProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "booleanObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "booleanObjectValue");
 		doPropertyTest(property, Boolean.class, false);
 		assertTrue(property.isBoolean());
 	}
 
 	@Test
 	public void canAccessIntegerProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "integerObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "integerObjectValue");
 		doPropertyTest(property, Integer.class, 1);
 		assertTrue(property.isInteger());
 	}
 
 	@Test
 	public void canAccessShortProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "shortObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "shortObjectValue");
 		doPropertyTest(property, Short.class, Short.MIN_VALUE);
 		assertTrue(property.isShort());
 	}
 
 	@Test
 	public void canAccessDoubleProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "doubleObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "doubleObjectValue");
 		doPropertyTest(property, Double.class, 1.0);
 		assertTrue(property.isDouble());
 	}
 
 	@Test
 	public void canAccessFloatProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "floatObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "floatObjectValue");
 		doPropertyTest(property, Float.class, Float.MIN_VALUE);
 		assertTrue(property.isFloat());
 	}
 
 	@Test
 	public void canAccessCharacterProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "charObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "charObjectValue");
 		doPropertyTest(property, Character.class, 'a');
 		assertTrue(property.isCharacter());
 	}
 
 	@Test
 	public void canAccessByteProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "byteObjectValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "byteObjectValue");
 		doPropertyTest(property, Byte.class, Byte.MIN_VALUE);
 		assertTrue(property.isByte());
 	}
 
 	@Test
 	public void canAccessArrayProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "array");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "array");
 		doPropertyTest(property, int[].class, new int[] {
 			0
 		});
@@ -105,7 +105,7 @@ public class BeanPropertyTest {
 
 	@Test
 	public void canAccessListProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "list");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "list");
 		doPropertyTest(property, List.class, singletonList(""));
 		assertTrue(property.isCollection());
 		assertTrue(property.isIterable());
@@ -116,7 +116,7 @@ public class BeanPropertyTest {
 
 	@Test
 	public void canAccessSetProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "set");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "set");
 		doPropertyTest(property, Set.class, Collections.singleton(""));
 		assertTrue(property.isCollection());
 		assertTrue(property.isIterable());
@@ -127,7 +127,7 @@ public class BeanPropertyTest {
 
 	@Test
 	public void canAccessMapProperty() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "map");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "map");
 		doPropertyTest(property, Map.class, Collections.singletonMap(1L, ""));
 		assertTrue(property.isMap());
 		assertTrue(property.isGeneric());
@@ -153,16 +153,16 @@ public class BeanPropertyTest {
 	public void areEqualIfSamePropertyOnSameInstance() throws Exception {
 		String propertyName = "stringValue";
 		AllTypes instance = new AllTypes();
-		BeanProperty property = new BeanProperty(instance, propertyName);
-		BeanProperty other = new BeanProperty(instance, propertyName);
+		BeanProperty property = BeanUtils.property(instance, propertyName);
+		BeanProperty other = BeanUtils.property(instance, propertyName);
 		assertThat(property, equalTo(other));
 		assertThat(property.hashCode(), equalTo(other.hashCode()));
 	}
 
 	@Test
 	public void areUnequalIfSamePropertyOnDifferentInstance() throws Exception {
-		BeanProperty property = new BeanProperty(new AllTypes(), "stringValue");
-		BeanProperty other = new BeanProperty(new AllTypes(), "stringValue");
+		BeanProperty property = BeanUtils.property(new AllTypes(), "stringValue");
+		BeanProperty other = BeanUtils.property(new AllTypes(), "stringValue");
 		assertThat(property, not(equalTo(other)));
 		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
 	}
@@ -170,15 +170,15 @@ public class BeanPropertyTest {
 	@Test
 	public void areUnequalIfDifferentPropertyOnSameInstance() throws Exception {
 		AllTypes instance = new AllTypes();
-		BeanProperty property = new BeanProperty(instance, "stringValue");
-		BeanProperty other = new BeanProperty(instance, "longValue");
+		BeanProperty property = BeanUtils.property(instance, "stringValue");
+		BeanProperty other = BeanUtils.property(instance, "longValue");
 		assertThat(property, not(equalTo(other)));
 		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
 	}
 
 	@Test(expected = BeanPropertyException.class)
 	public void throwsExceptionIfSetWithWrongType() throws Exception {
-		new BeanProperty(new AllTypes(), "stringValue").setValue(1L);
+		BeanUtils.property(new AllTypes(), "stringValue").setValue(1L);
 	}
 
 }

@@ -6,7 +6,7 @@ package com.modularit.beans;
 
 import static com.modularit.beans.BeanBuilder.anInstanceOf;
 import static com.modularit.beans.BeanBuilder.randomValues;
-import static com.modularit.beans.BeanUtils.getProperty;
+import static com.modularit.beans.BeanUtils.property;
 import static com.modularit.beans.BeanUtils.visitAll;
 import static com.modularit.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import static java.util.Arrays.asList;
@@ -49,117 +49,117 @@ public class BeanUtilsTest {
 	@Test
 	public void canReadStringProperty() {
 		doGetPropertyTests(new AllTypes(), "stringValue", String.class, null, "sample");
-		assertTrue(getProperty(new AllTypes(), "stringValue").isString());
-		assertFalse(getProperty(new AllTypes(), "stringValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "stringValue").isString());
+		assertFalse(property(new AllTypes(), "stringValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadShortProperty() {
 
 		doGetPropertyTests(new AllTypes(), "shortValue", short.class, (short) 0, Short.MAX_VALUE);
-		assertTrue(getProperty(new AllTypes(), "shortValue").isShort());
-		assertTrue(getProperty(new AllTypes(), "shortValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "shortValue").isShort());
+		assertTrue(property(new AllTypes(), "shortValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "shortObjectValue", Short.class, null, Short.MAX_VALUE);
-		assertTrue(getProperty(new AllTypes(), "shortObjectValue").isShort());
-		assertFalse(getProperty(new AllTypes(), "shortObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "shortObjectValue").isShort());
+		assertFalse(property(new AllTypes(), "shortObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadIntegerProperty() {
 
 		doGetPropertyTests(new AllTypes(), "integerValue", int.class, 0, 12345);
-		assertTrue(getProperty(new AllTypes(), "integerValue").isInteger());
-		assertTrue(getProperty(new AllTypes(), "integerValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "integerValue").isInteger());
+		assertTrue(property(new AllTypes(), "integerValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "integerObjectValue", Integer.class, null, 12345);
-		assertTrue(getProperty(new AllTypes(), "integerObjectValue").isInteger());
-		assertFalse(getProperty(new AllTypes(), "integerObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "integerObjectValue").isInteger());
+		assertFalse(property(new AllTypes(), "integerObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadLongProperty() {
 
 		doGetPropertyTests(new AllTypes(), "longValue", long.class, 0L, 12345L);
-		assertTrue(getProperty(new AllTypes(), "longValue").isLong());
-		assertTrue(getProperty(new AllTypes(), "longValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "longValue").isLong());
+		assertTrue(property(new AllTypes(), "longValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "longObjectValue", Long.class, null, 12345L);
-		assertTrue(getProperty(new AllTypes(), "longObjectValue").isLong());
-		assertFalse(getProperty(new AllTypes(), "longObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "longObjectValue").isLong());
+		assertFalse(property(new AllTypes(), "longObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadDoubleProperty() {
 
 		doGetPropertyTests(new AllTypes(), "doubleValue", double.class, 0.0, 1.1);
-		assertTrue(getProperty(new AllTypes(), "doubleValue").isDouble());
-		assertTrue(getProperty(new AllTypes(), "doubleValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "doubleValue").isDouble());
+		assertTrue(property(new AllTypes(), "doubleValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "doubleObjectValue", Double.class, null, 1.1);
-		assertTrue(getProperty(new AllTypes(), "doubleObjectValue").isDouble());
-		assertFalse(getProperty(new AllTypes(), "doubleObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "doubleObjectValue").isDouble());
+		assertFalse(property(new AllTypes(), "doubleObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadFloatProperty() {
 
 		doGetPropertyTests(new AllTypes(), "floatValue", float.class, 0.0f, 1.1f);
-		assertTrue(getProperty(new AllTypes(), "floatValue").isFloat());
-		assertTrue(getProperty(new AllTypes(), "floatValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "floatValue").isFloat());
+		assertTrue(property(new AllTypes(), "floatValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "floatObjectValue", Float.class, null, 1.1f);
-		assertTrue(getProperty(new AllTypes(), "floatObjectValue").isFloat());
-		assertFalse(getProperty(new AllTypes(), "floatObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "floatObjectValue").isFloat());
+		assertFalse(property(new AllTypes(), "floatObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadBooleanProperty() {
 
 		doGetPropertyTests(new AllTypes(), "booleanValue", boolean.class, false, true);
-		assertTrue(getProperty(new AllTypes(), "booleanValue").isBoolean());
-		assertTrue(getProperty(new AllTypes(), "booleanValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "booleanValue").isBoolean());
+		assertTrue(property(new AllTypes(), "booleanValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "booleanObjectValue", Boolean.class, null, Boolean.TRUE);
-		assertTrue(getProperty(new AllTypes(), "booleanObjectValue").isBoolean());
-		assertFalse(getProperty(new AllTypes(), "booleanObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "booleanObjectValue").isBoolean());
+		assertFalse(property(new AllTypes(), "booleanObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadByteProperty() {
 
 		doGetPropertyTests(new AllTypes(), "byteValue", byte.class, (byte) 0, (byte) 1);
-		assertTrue(getProperty(new AllTypes(), "byteValue").isByte());
-		assertTrue(getProperty(new AllTypes(), "byteValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "byteValue").isByte());
+		assertTrue(property(new AllTypes(), "byteValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "byteObjectValue", Byte.class, null, Byte.MAX_VALUE);
-		assertTrue(getProperty(new AllTypes(), "byteObjectValue").isByte());
-		assertFalse(getProperty(new AllTypes(), "byteObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "byteObjectValue").isByte());
+		assertFalse(property(new AllTypes(), "byteObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadCharProperty() {
 
 		doGetPropertyTests(new AllTypes(), "charValue", char.class, (char) 0, 'a');
-		assertTrue(getProperty(new AllTypes(), "charValue").isCharacter());
-		assertTrue(getProperty(new AllTypes(), "charValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "charValue").isCharacter());
+		assertTrue(property(new AllTypes(), "charValue").isPrimitive());
 
 		doGetPropertyTests(new AllTypes(), "charObjectValue", Character.class, null, Character.MAX_VALUE);
-		assertTrue(getProperty(new AllTypes(), "charObjectValue").isCharacter());
-		assertFalse(getProperty(new AllTypes(), "charObjectValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "charObjectValue").isCharacter());
+		assertFalse(property(new AllTypes(), "charObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadDateProperty() {
 		doGetPropertyTests(new AllTypes(), "dateValue", Date.class, null, new Date());
-		assertTrue(getProperty(new AllTypes(), "dateValue").isDate());
-		assertFalse(getProperty(new AllTypes(), "dateValue").isPrimitive());
+		assertTrue(property(new AllTypes(), "dateValue").isDate());
+		assertFalse(property(new AllTypes(), "dateValue").isPrimitive());
 	}
 
 	@Test
 	public void canReadBigDecimalProperty() {
 		doGetPropertyTests(new AllTypes(), "bigDecimalValue", BigDecimal.class, null, new BigDecimal(0.0));
-		assertFalse(getProperty(new AllTypes(), "bigDecimalValue").isPrimitive());
+		assertFalse(property(new AllTypes(), "bigDecimalValue").isPrimitive());
 	}
 
 	@Test
@@ -349,24 +349,24 @@ public class BeanUtilsTest {
 	@SuppressWarnings("rawtypes")
 	private <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
 
-		List<BeanProperty> properties = BeanUtils.getProperties(sample);
+		List<BeanProperty> properties = BeanUtils.propertyList(sample);
 		assertThat(properties, hasItem(aBeanProperty(name, type)));
 
-		Map<String, BeanProperty> propertyMap = BeanUtils.getPropertyMap(sample);
+		Map<String, BeanProperty> propertyMap = BeanUtils.propertyMap(sample);
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanProperty(name, type)));
 
 		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
-		assertThat(BeanUtils.getProperty(sample, name), aBeanProperty(name, type));
+		assertThat(BeanUtils.property(sample, name), aBeanProperty(name, type));
 		assertThat(BeanUtils.isPropertyType(sample, name, type), equalTo(true));
-		assertThat(BeanUtils.getPropertyType(sample, name), equalTo((Class) type));
-		assertThat(BeanUtils.getPropertyValue(sample, name, type), equalTo(currentValue));
-		assertThat(BeanUtils.setPropertyValue(sample, name, newValue), equalTo(true));
-		assertThat(BeanUtils.getPropertyValue(sample, name, type), equalTo(newValue));
+		assertThat(BeanUtils.propertyType(sample, name), equalTo((Class) type));
+		assertThat(BeanUtils.propertyValue(sample, name, type), equalTo(currentValue));
+		assertThat(BeanUtils.setProperty(sample, name, newValue), equalTo(true));
+		assertThat(BeanUtils.propertyValue(sample, name, type), equalTo(newValue));
 	}
 
 	private <T> void doGetGenericPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue, final Class<?>... genericTypes) {
 		doGetPropertyTests(sample, name, type, currentValue, newValue);
-		BeanProperty property = getProperty(new AllTypes(), name);
+		BeanProperty property = property(new AllTypes(), name);
 		assertThat(property.isGeneric(), equalTo(true));
 		assertThat(property.getTypeParameters(), hasSize(genericTypes.length));
 		for (Class<?> genericType : genericTypes) {

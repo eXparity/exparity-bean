@@ -1,7 +1,7 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanUtils.getProperty;
+import static com.modularit.beans.BeanUtils.property;
 import static com.modularit.beans.BeanUtils.hasProperty;
 
 /**
@@ -70,7 +70,7 @@ public class BeanPropertyDescriptor<P> {
 	 */
 	@SuppressWarnings("unchecked")
 	public P getValue(final Object instance) {
-		BeanProperty property = getProperty(instance, name);
+		BeanProperty property = property(instance, name);
 		if (property != null) {
 			return (P) property.getValue();
 		}
@@ -92,7 +92,7 @@ public class BeanPropertyDescriptor<P> {
 	 *            the value to set
 	 */
 	public void setValue(final Object instance, final P value) {
-		BeanProperty property = getProperty(instance, name);
+		BeanProperty property = property(instance, name);
 		if (property != null) {
 			property.setValue(value);
 		} else {

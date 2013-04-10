@@ -30,13 +30,13 @@ public abstract class BeanUtils {
 	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
 	 * <p/>
 	 * <code>
-	 * List&lt;BeanProperty&gt; properties = BeanUtils.getProperties(myObject);
+	 * List&lt;BeanProperty&gt; properties = BeanUtils.propertyList(myObject);
 	 * </code>
 	 * @param instance
 	 *            an object to get the properties list from
 	 */
-	public static List<BeanProperty> getProperties(final Object instance) {
-		return convertToList(getPropertyMap(instance).values());
+	public static List<BeanProperty> propertyList(final Object instance) {
+		return convertToList(propertyMap(instance).values());
 	}
 
 	/**
@@ -44,12 +44,12 @@ public abstract class BeanUtils {
 	 * <p/>
 	 * 
 	 * <code>
-	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.mapProperties(myObject);
+	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.propertyMap(myObject);
 	 * </code>
 	 * @param instance
 	 *            an object to get the properties for
 	 */
-	public static Map<String, BeanProperty> getPropertyMap(final Object instance) {
+	public static Map<String, BeanProperty> propertyMap(final Object instance) {
 
 		Map<String, Method> accessorMap = getAccessorMap(instance);
 		Map<String, List<Method>> mutatorMap = getMutatorMap(instance);
@@ -62,19 +62,6 @@ public abstract class BeanUtils {
 			}
 		}
 		return propertyMap;
-	}
-
-	private static Method getMutatorForAccessor(final Object instance, final Map<String, List<Method>> mutatorMap, final Entry<String, Method> accessorEntry) {
-		List<Method> mutatorList = mutatorMap.get(accessorEntry.getKey());
-		if (mutatorList != null && !mutatorList.isEmpty()) {
-			for (Method mutator : mutatorList) {
-				Method accessor = accessorEntry.getValue();
-				if (mutator.getParameterTypes()[0].isAssignableFrom(accessor.getReturnType())) {
-					return mutator;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -91,7 +78,7 @@ public abstract class BeanUtils {
 	 *            the property name
 	 */
 	public static boolean hasProperty(final Object instance, final String name) {
-		return getPropertyMap(instance).containsKey(name);
+		return propertyMap(instance).containsKey(name);
 	}
 
 	/**
@@ -100,16 +87,15 @@ public abstract class BeanUtils {
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
 	 * <code>
-	 * if ( property("surname").valueOn(myUser)
-	 * BeanProperty surname = BeanUtils.getProperty(myUser, &quot;surname&quot;);
+	 * BeanProperty surname = BeanUtils.property(myUser, &quot;surname&quot;);
 	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
 	 *            the property name
 	 */
-	public static BeanProperty getProperty(final Object instance, final String name) {
-		return getPropertyMap(instance).get(name);
+	public static BeanProperty property(final Object instance, final String name) {
+		return propertyMap(instance).get(name);
 	}
 
 	/**
@@ -128,8 +114,8 @@ public abstract class BeanUtils {
 	 * @param value
 	 *            the value to set the property to
 	 */
-	public static boolean setPropertyValue(final Object instance, final String name, final Object value) {
-		BeanProperty property = getProperty(instance, name);
+	public static boolean setProperty(final Object instance, final String name, final Object value) {
+		BeanProperty property = property(instance, name);
 		if (property != null) {
 			property.setValue(value);
 			return true;
@@ -144,15 +130,15 @@ public abstract class BeanUtils {
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
 	 * <code>
-	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;));
+	 * &quot;Smith&quot;.equals(BeanUtils.propertyValue(myUser, &quot;surname&quot;));
 	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
 	 *            the property name
 	 */
-	public static Object getPropertyValue(final Object o, final String propertyName) {
-		BeanProperty property = getProperty(o, propertyName);
+	public static Object propertyValue(final Object o, final String propertyName) {
+		BeanProperty property = property(o, propertyName);
 		if (property != null) {
 			return property.getValue();
 		}
@@ -165,15 +151,15 @@ public abstract class BeanUtils {
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
 	 * <code>
-	 * String.class.equals(BeanUtils.getPropertyType(myUser, &quot;surname&quot;));
+	 * String.class.equals(BeanUtils.propertyType(myUser, &quot;surname&quot;));
 	 * </code>
 	 * @param instance
 	 *            an object to get the property from
 	 * @param name
 	 *            the property name
 	 */
-	public static Class<?> getPropertyType(final Object o, final String propertyName) {
-		BeanProperty property = getProperty(o, propertyName);
+	public static Class<?> propertyType(final Object o, final String propertyName) {
+		BeanProperty property = property(o, propertyName);
 		if (property != null) {
 			return property.getType();
 		}
@@ -196,27 +182,8 @@ public abstract class BeanUtils {
 	 *            the type to return the property as
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T getPropertyValue(final Object o, final String propertyName, final Class<T> type) {
-		return (T) getPropertyValue(o, propertyName);
-	}
-
-	/**
-	 * Return the accessor method for the given property
-	 */
-	public static Method getAccessor(final String propertyName, final Class<?> declaringType) {
-		return getAccessorMap(declaringType).get(propertyName);
-	}
-
-	/**
-	 * Return the mutator method for the given property
-	 */
-	public static Method getMutator(final String propertyName, final Class<?> declaringType, final Class<?> propertyType) {
-		for (Method method : getMutatorMap(declaringType).get(propertyName)) {
-			if (method.getParameterTypes()[0].equals(propertyType)) {
-				return method;
-			}
-		}
-		return null;
+	public static <T> T propertyValue(final Object o, final String propertyName, final Class<T> type) {
+		return (T) propertyValue(o, propertyName);
 	}
 
 	/**
@@ -235,7 +202,7 @@ public abstract class BeanUtils {
 	 *            the expected type of the property
 	 */
 	public static boolean isPropertyType(final Object o, final String propertyName, final Class<?> type) {
-		BeanProperty property = getProperty(o, propertyName);
+		BeanProperty property = property(o, propertyName);
 		if (property != null) {
 			return property.isType(type);
 		}
@@ -317,6 +284,19 @@ public abstract class BeanUtils {
 
 	private static Map<String, Method> getAccessorMap(final Object o) {
 		return getAccessorMap(o.getClass());
+	}
+
+	private static Method getMutatorForAccessor(final Object instance, final Map<String, List<Method>> mutatorMap, final Entry<String, Method> accessorEntry) {
+		List<Method> mutatorList = mutatorMap.get(accessorEntry.getKey());
+		if (mutatorList != null && !mutatorList.isEmpty()) {
+			for (Method mutator : mutatorList) {
+				Method accessor = accessorEntry.getValue();
+				if (mutator.getParameterTypes()[0].isAssignableFrom(accessor.getReturnType())) {
+					return mutator;
+				}
+			}
+		}
+		return null;
 	}
 
 	private static Map<String, Method> getAccessorMap(final Class<?> type) {

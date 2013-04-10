@@ -1,7 +1,7 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanUtils.getProperties;
+import static com.modularit.beans.BeanUtils.propertyList;
 import static java.lang.System.identityHashCode;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ class BeanInspector {
 		}
 
 		if (!recurse) {
-			for (BeanProperty property : getProperties(instance)) {
+			for (BeanProperty property : propertyList(instance)) {
 				visitor.visit(property, instance, nextPath(path, property), stack.toArray());
 			}
 		} else {
@@ -107,7 +107,7 @@ class BeanInspector {
 			} else if (Map.class.isAssignableFrom(type)) {
 				inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 			} else {
-				for (BeanProperty property : getProperties(instance)) {
+				for (BeanProperty property : propertyList(instance)) {
 					stack.add(instance);
 					String nextPath = nextPath(path, property);
 					visitor.visit(property, instance, nextPath, stack.toArray());
