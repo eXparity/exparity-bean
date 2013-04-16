@@ -1,15 +1,12 @@
 
 package com.modularit.beans;
 
-import java.lang.reflect.Method;
+import static com.modularit.beans.BeanPredicates.anyProperty;
+import static com.modularit.beans.BeanPredicates.withName;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
@@ -18,10 +15,6 @@ import java.util.TreeMap;
  */
 public abstract class BeanUtils {
 
-	private static final String MUTATOR_PROPERTY_NAME = "set";
-	private static final String[] ACCESSOR_PROPERTY_NAMES = new String[] {
-			"is", "get"
-	};
 	private static final BeanInspector shallowInspector = new BeanInspector(false, false);
 	private static final BeanInspector unsafeInspector = new BeanInspector(true, false);
 	private static final BeanInspector safeInspector = new BeanInspector(true, true);
@@ -36,7 +29,7 @@ public abstract class BeanUtils {
 	 *            an object to get the properties list from
 	 */
 	public static List<BeanProperty> propertyList(final Object instance) {
-		return convertToList(propertyMap(instance).values());
+		return property(instance, anyProperty());
 	}
 
 	/**
@@ -50,17 +43,13 @@ public abstract class BeanUtils {
 	 *            an object to get the properties for
 	 */
 	public static Map<String, BeanProperty> propertyMap(final Object instance) {
+		final Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
+		visit(instance, new BeanVisitor() {
 
-		Map<String, Method> accessorMap = getAccessorMap(instance);
-		Map<String, List<Method>> mutatorMap = getMutatorMap(instance);
-
-		Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
-		for (Entry<String, Method> accessorEntry : accessorMap.entrySet()) {
-			Method mutator = getMutatorForAccessor(instance, mutatorMap, accessorEntry);
-			if (mutator != null) {
-				propertyMap.put(accessorEntry.getKey(), createBeanProperty(instance, accessorEntry.getKey(), accessorEntry.getValue(), mutator));
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				propertyMap.put(property.getName(), property);
 			}
-		}
+		});
 		return propertyMap;
 	}
 
@@ -78,7 +67,7 @@ public abstract class BeanUtils {
 	 *            the property name
 	 */
 	public static boolean hasProperty(final Object instance, final String name) {
-		return propertyMap(instance).containsKey(name);
+		return property(instance, withName(name)) != null;
 	}
 
 	/**
@@ -95,12 +84,11 @@ public abstract class BeanUtils {
 	 *            the property name
 	 */
 	public static BeanProperty property(final Object instance, final String name) {
-		return propertyMap(instance).get(name);
+		return findProperty(instance, BeanPredicates.withName(name));
 	}
 
 	/**
-	 * Set the property value on the instance to the supplied value and return <code>true</code> if the value was successfullly set. Returns <code>false</code> if the property was
-	 * not present on the instance
+	 * Set the property value on the instance to the supplied value.
 	 * <p/>
 	 * For example, a class with a property getSurname() and setSurname(...):
 	 * 
@@ -115,13 +103,17 @@ public abstract class BeanUtils {
 	 *            the value to set the property to
 	 */
 	public static boolean setProperty(final Object instance, final String name, final Object value) {
-		BeanProperty property = property(instance, name);
-		if (property != null) {
-			property.setValue(value);
-			return true;
-		} else {
-			return false;
-		}
+		final List<BeanProperty> valuesSet = new ArrayList<BeanProperty>();
+		visit(instance, new BeanVisitor() {
+
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				if (withName(name).matches(property)) {
+					property.setValue(value);
+					valuesSet.add(property);
+				}
+			}
+		});
+		return !valuesSet.isEmpty();
 	}
 
 	/**
@@ -210,6 +202,164 @@ public abstract class BeanUtils {
 	}
 
 	/**
+	 * Find all property instances which match the predicate. For example</p>
+	 * 
+	 * <code>
+	 * List<BeanPropery> relativesCalledBob = BeanUtils.find(myFamilyTree, BeanPredicates.stringProperty(&quot;name&quot; "Bob"));
+	 * </code></p>
+	 */
+	public static List<BeanProperty> property(final Object instance, final BeanPropertyPredicate predicate) {
+		final List<BeanProperty> collection = new ArrayList<BeanProperty>();
+		visit(instance, new BeanVisitor() {
+
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					collection.add(property);
+				}
+			}
+		});
+		return collection;
+	}
+
+	/**
+	 * Find all property instances which match the predicate in the supplied instance and it's assosciates. For example</p>
+	 * 
+	 * <code>
+	 * List<BeanPropery> relativesCalledBob = BeanUtils.find(myFamilyTree, BeanPredicates.stringProperty(&quot;name&quot; "Bob"));
+	 * </code></p>
+	 */
+	public static List<BeanProperty> allGraphProperties(final Object instance, final BeanPropertyPredicate predicate) {
+		final List<BeanProperty> collection = new ArrayList<BeanProperty>();
+		visitGraph(instance, new BeanVisitor() {
+
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					collection.add(property);
+				}
+			}
+		});
+		return collection;
+	}
+
+	/**
+	 * Apply the {@link BeanPropertyFunction} to all properties which match the predicate For example</p>
+	 * 
+	 * <code>
+	 * BeanUtils.apply(myFamilyTree, deletePerson(), isDeceased()));
+	 * </code></p>
+	 */
+	public static void apply(final Object instance, final BeanPropertyFunction function, final BeanPropertyPredicate predicate) {
+		visit(instance, new BeanVisitor() {
+
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					function.apply(property);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Apply the {@link BeanPropertyFunction} to all properties in the supplied instance. For example</p>
+	 * 
+	 * <code>
+	 * BeanUtils.apply(myFamilyTree, pruneDeceased()));
+	 * </code></p>
+	 */
+	public static void apply(final Object instance, final BeanPropertyFunction function) {
+		apply(instance, function, anyProperty());
+	}
+
+	/**
+	 * Apply the {@link BeanPropertyFunction} to all properties which match the predicate in the supplied instance and in any of the objects assosciates. For example</p>
+	 * 
+	 * <code>
+	 * BeanUtils.applyToGraph(myFamilyTree, deletePerson(), isDeceased()));
+	 * </code></p>
+	 */
+	public static void applyToGraph(final Object instance, final BeanPropertyFunction function, final BeanPropertyPredicate predicate) {
+		visitGraph(instance, new BeanVisitor() {
+
+			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					function.apply(property);
+				}
+			}
+		});
+	}
+
+	/**
+	 * Apply the {@link BeanPropertyFunction} to all properties in the supplied instance and in any of the objects assosciates. For example</p>
+	 * 
+	 * <code>
+	 * BeanUtils.applyToGraph(myFamilyTree, pruneDeceased()));
+	 * </code></p>
+	 */
+	public static void applyToGraph(final Object instance, final BeanPropertyFunction function) {
+		applyToGraph(instance, function, anyProperty());
+	}
+
+	/**
+	 * Find the first instance of the property which matches the given predicate in the given instance. For example</p>
+	 * 
+	 * <code>
+	 * BeanPropery property = BeanUtils.findProperty(myFamilyTree, BeanPredicates.withProperty(&quot;name&quot; "Bob"));
+	 * </code></p>
+	 */
+	public static BeanProperty findProperty(final Object instance, final BeanPropertyPredicate predicate) {
+
+		@SuppressWarnings("serial")
+		class HaltVisitException extends RuntimeException {
+		}
+
+		final List<BeanProperty> collection = new ArrayList<BeanProperty>();
+		try {
+			visit(instance, new BeanVisitor() {
+
+				public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+					if (predicate.matches(property)) {
+						collection.add(property);
+						throw new HaltVisitException();
+					}
+				}
+			});
+		} catch (HaltVisitException e) {
+			return collection.get(0);
+		}
+		return null;
+	}
+
+	/**
+	 * Find the first instance of the property which matches the given predicate in the given instance and it's assosciates. For example</p>
+	 * 
+	 * <code>
+	 * BeanPropery property = BeanUtils.findPropertyInGraph(myFamilyTree, BeanPredicates.withProperty(&quot;name&quot; "Bob"));
+	 * </code></p>
+	 */
+	public static BeanProperty findPropertyInGraph(final Object instance, final BeanPropertyPredicate predicate) {
+
+		@SuppressWarnings("serial")
+		class HaltVisitException extends RuntimeException {
+		}
+
+		final List<BeanProperty> collection = new ArrayList<BeanProperty>();
+		try {
+			visit(instance, new BeanVisitor() {
+
+				public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+					if (predicate.matches(property)) {
+						collection.add(property);
+						throw new HaltVisitException();
+					}
+				}
+			});
+		} catch (HaltVisitException e) {
+			return collection.get(0);
+		}
+		return null;
+	}
+
+	/**
 	 * Visit the supplied bean instance and notify the visitor for each bean property found. This method not recurse into the object graph by looping over collections or by
 	 * visiting assosciated objects. For example, a class with a property getSurname() and setSurname(...):</p>
 	 * 
@@ -250,7 +400,7 @@ public abstract class BeanUtils {
 	 * @param visitor
 	 *            the visitor which will be notified of every bean property encountered
 	 */
-	public static void visitAllAllowOverflow(final Object instance, final BeanVisitor visitor) {
+	public static void visitGraphAllowOverflow(final Object instance, final BeanVisitor visitor) {
 		unsafeInspector.inspect(instance, visitor);
 	}
 
@@ -274,73 +424,7 @@ public abstract class BeanUtils {
 	 * @param visitor
 	 *            the visitor which will be notified of every bean property encountered
 	 */
-	public static void visitAll(final Object instance, final BeanVisitor visitor) {
+	public static void visitGraph(final Object instance, final BeanVisitor visitor) {
 		safeInspector.inspect(instance, visitor);
 	}
-
-	private static BeanProperty createBeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
-		return new BeanProperty(instance, propertyName, accessor, mutator);
-	}
-
-	private static Map<String, Method> getAccessorMap(final Object o) {
-		return getAccessorMap(o.getClass());
-	}
-
-	private static Method getMutatorForAccessor(final Object instance, final Map<String, List<Method>> mutatorMap, final Entry<String, Method> accessorEntry) {
-		List<Method> mutatorList = mutatorMap.get(accessorEntry.getKey());
-		if (mutatorList != null && !mutatorList.isEmpty()) {
-			for (Method mutator : mutatorList) {
-				Method accessor = accessorEntry.getValue();
-				if (mutator.getParameterTypes()[0].isAssignableFrom(accessor.getReturnType())) {
-					return mutator;
-				}
-			}
-		}
-		return null;
-	}
-
-	private static Map<String, Method> getAccessorMap(final Class<?> type) {
-		SortedMap<String, Method> propertyMap = new TreeMap<String, Method>();
-		for (Method method : type.getMethods()) {
-			String methodName = method.getName();
-			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
-				if (methodName.startsWith(prefix) && method.getParameterTypes().length == 0) {
-					propertyMap.put(convertToPropertyName(methodName, prefix.length()), method);
-				}
-			}
-		}
-		return propertyMap;
-	}
-
-	private static Map<String, List<Method>> getMutatorMap(final Object o) {
-		return getMutatorMap(o.getClass());
-	}
-
-	private static Map<String, List<Method>> getMutatorMap(final Class<?> type) {
-		SortedMap<String, List<Method>> propertyMap = new TreeMap<String, List<Method>>();
-		for (Method method : type.getMethods()) {
-			String methodName = method.getName();
-			if (methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1) {
-				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());
-				List<Method> list = propertyMap.get(propertyName);
-				if (list == null) {
-					list = new ArrayList<Method>();
-					list.add(method);
-					propertyMap.put(propertyName, list);
-				} else {
-					list.add(method);
-				}
-			}
-		}
-		return propertyMap;
-	}
-
-	private static String convertToPropertyName(final String methodName, final int startPos) {
-		return Character.toLowerCase(methodName.charAt(startPos)) + methodName.substring(startPos + 1);
-	}
-
-	private static List<BeanProperty> convertToList(final Collection<BeanProperty> collection) {
-		return new ArrayList<BeanProperty>(collection);
-	}
-
 }

@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 /**
- * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
+ * Static repository of {@link BeanVisitor} implementations
  * 
  * @author Stewart Bissett
  */

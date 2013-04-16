@@ -3,8 +3,11 @@ package com.modularit.beans;
 
 import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
+import static org.apache.commons.lang.math.RandomUtils.*;
+import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -87,8 +90,8 @@ public class BeanBuilder<T> {
 	/**
 	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
 	 */
-	public static BeanPropertyValue randomValues() {
-		return new RandomBeanPropertyValue();
+	private static BeanBuilderPropertySource randomValues() {
+		return new RandomValuePropertySource();
 	}
 
 	/**
@@ -96,7 +99,7 @@ public class BeanBuilder<T> {
 	 * 
 	 * @author Stewart Bissett
 	 */
-	public interface BeanPropertyValue {
+	public interface BeanBuilderPropertySource {
 
 		/**
 		 * Return a {@link String} instance or <code>null</code>
@@ -160,7 +163,7 @@ public class BeanBuilder<T> {
 	private final Set<String> excludedPaths = new HashSet<String>();
 	private final Map<Class<?>, List<Class<?>>> subtypes = new HashMap<Class<?>, List<Class<?>>>();
 	private final Class<T> type;
-	private BeanPropertyValue values;
+	private BeanBuilderPropertySource values;
 	private int minCollectionSize = 1, maxCollectionSize = 5;
 	private String rootName;
 
@@ -169,15 +172,12 @@ public class BeanBuilder<T> {
 		this.rootName = rootName;
 	}
 
-	public BeanBuilder<T> populatedWith(final BeanPropertyValue values) {
+	public BeanBuilder<T> populatedWith(final BeanBuilderPropertySource values) {
 		this.values = values;
 		return this;
 	}
 
-	/**
-	 * Populated the bean with random values
-	 */
-	public BeanBuilder<T> populatedWithRandomValues() {
+	private BeanBuilder<T> populatedWithRandomValues() {
 		return populatedWith(randomValues());
 	}
 
@@ -216,7 +216,7 @@ public class BeanBuilder<T> {
 
 	public T build() {
 		T instance = createNewInstance();
-		BeanUtils.visitAll(instance, new BeanVisitor() {
+		BeanUtils.visitGraph(instance, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 
@@ -415,5 +415,59 @@ public class BeanBuilder<T> {
 			}
 		}
 		return false;
+	}
+
+	private static class RandomValuePropertySource implements BeanBuilderPropertySource {
+
+		private static final int MAX_STRING_LENGTH = 50;
+		private static final int MINUTES_PER_HOUR = 60;
+		private static final int HOURS_PER_DAY = 24;
+		private static final int DAYS_PER_YEAR = 365;
+		private static final int SECONDS_IN_A_YEAR = MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_YEAR;
+
+		public String stringValue() {
+			return randomAlphanumeric(MAX_STRING_LENGTH);
+		}
+
+		public Integer intValue() {
+			return Integer.valueOf(nextInt());
+		}
+
+		public Short shortValue() {
+			return Short.valueOf((short) nextInt(Short.MAX_VALUE));
+		}
+
+		public Long longValue() {
+			return Long.valueOf(nextLong());
+		}
+
+		public Double doubleValue() {
+			return Double.valueOf(nextDouble());
+		}
+
+		public Float floatValue() {
+			return Float.valueOf(nextFloat());
+		}
+
+		public Boolean booleanValue() {
+			return Boolean.valueOf(nextBoolean());
+		}
+
+		public Date dateValue() {
+			return addSeconds(new Date(), nextInt(SECONDS_IN_A_YEAR));
+		}
+
+		public BigDecimal bigDecimalValue() {
+			return new BigDecimal(doubleValue());
+		}
+
+		public Byte byteValue() {
+			return (byte) nextInt(Byte.MAX_VALUE);
+		}
+
+		public Character charValue() {
+			return randomAlphabetic(1).charAt(0);
+		}
+
 	}
 }

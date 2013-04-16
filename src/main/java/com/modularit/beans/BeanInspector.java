@@ -1,9 +1,10 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanUtils.propertyList;
+import static java.lang.Character.toLowerCase;
 import static java.lang.System.identityHashCode;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -170,5 +171,70 @@ class BeanInspector {
 		LOG.trace("Inspect Path [{}]. {} [{}:{}]", new Object[] {
 				path, loggedType, instance.getClass().getSimpleName(), identityHashCode(instance)
 		});
+	}
+
+	private static final String MUTATOR_PROPERTY_NAME = "set";
+	private static final String[] ACCESSOR_PROPERTY_NAMES = new String[] {
+			"is", "get"
+	};
+
+	private List<BeanProperty> propertyList(final Object instance) {
+
+		Map<String, List<Method>> mutatorMap = createMutatorMap(instance);
+
+		List<BeanProperty> properties = new ArrayList<BeanProperty>();
+		for (Method accessor : instance.getClass().getMethods()) {
+			final String methodName = accessor.getName();
+			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
+				if (methodName.startsWith(prefix) && accessor.getParameterTypes().length == 0) {
+					String propertyName = convertToPropertyName(methodName, prefix.length());
+					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
+					if (mutator != null) {
+						properties.add(new BeanProperty(instance, propertyName, accessor, mutator));
+					}
+					break;
+				}
+			}
+		}
+		return properties;
+	}
+
+	private Method getMutatorFor(final String propertyName, final Class<?> type, final Map<String, List<Method>> mutatorMap) {
+		List<Method> mutatorList = mutatorMap.get(propertyName);
+		if (mutatorList != null && !mutatorList.isEmpty()) {
+			for (Method mutator : mutatorList) {
+				if (mutator.getParameterTypes()[0].isAssignableFrom(type)) {
+					return mutator;
+				}
+			}
+		}
+		return null;
+	}
+
+	private Map<String, List<Method>> createMutatorMap(final Object instance) {
+		Map<String, List<Method>> mutatorMap = new HashMap<String, List<Method>>();
+		for (Method method : instance.getClass().getMethods()) {
+			String methodName = method.getName();
+			if (isMutator(method, methodName)) {
+				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());
+				List<Method> list = mutatorMap.get(propertyName);
+				if (list == null) {
+					list = new ArrayList<Method>();
+					list.add(method);
+					mutatorMap.put(propertyName, list);
+				} else {
+					list.add(method);
+				}
+			}
+		}
+		return mutatorMap;
+	}
+
+	private boolean isMutator(final Method method, final String methodName) {
+		return methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1;
+	}
+
+	private static String convertToPropertyName(final String methodName, final int startPos) {
+		return toLowerCase(methodName.charAt(startPos)) + methodName.substring(startPos + 1);
 	}
 }

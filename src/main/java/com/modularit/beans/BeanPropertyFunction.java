@@ -4,12 +4,10 @@
 
 package com.modularit.beans;
 
-
 /**
  * @author Stewart.Bissett
  */
-public interface BeanPropertyPredicate {
+public interface BeanPropertyFunction {
 
-	public boolean matches(final BeanProperty property);
-
+	public void apply(final BeanProperty propery);
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart.Bissett
  */
 public class BeanUtilTestFixture {
 

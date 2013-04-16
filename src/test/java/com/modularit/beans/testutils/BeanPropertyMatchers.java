@@ -11,7 +11,7 @@ import com.modularit.beans.BeanProperty;
 /**
  * A Static factory to produce hamcrest {@link org.hamcrest.Matcher} instance for testing {@link BeanProperty}
  * 
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart.Bissett
  */
 public abstract class BeanPropertyMatchers {
 
@@ -23,7 +23,7 @@ public abstract class BeanPropertyMatchers {
 	}
 
 	/**
-	 * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+	 * @author Stewart.Bissett
 	 */
 	private static final class BeanPropertyMatcher extends TypeSafeDiagnosingMatcher<BeanProperty> {
 

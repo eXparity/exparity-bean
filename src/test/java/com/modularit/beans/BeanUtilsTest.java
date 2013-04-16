@@ -4,20 +4,18 @@
 
 package com.modularit.beans;
 
-import static com.modularit.beans.BeanBuilder.anInstanceOf;
-import static com.modularit.beans.BeanBuilder.randomValues;
+import static com.modularit.beans.BeanPredicates.withName;
+import static com.modularit.beans.BeanPredicates.withPropertyValue;
+import static com.modularit.beans.BeanPredicates.withValue;
+import static com.modularit.beans.BeanUtils.allGraphProperties;
 import static com.modularit.beans.BeanUtils.property;
-import static com.modularit.beans.BeanUtils.visitAll;
 import static com.modularit.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -32,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import com.modularit.beans.testutils.BeanUtilTestFixture.AllTypes;
 import com.modularit.beans.testutils.BeanUtilTestFixture.Car;
@@ -42,7 +39,7 @@ import com.modularit.beans.testutils.BeanUtilTestFixture.Wheel;
 /**
  * Unit Tests for Bean Utils
  * 
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart.Bissett
  */
 public class BeanUtilsTest {
 
@@ -211,7 +208,7 @@ public class BeanUtilsTest {
 		Wheel wheel = new Wheel();
 		wheel.setDiameter(null);
 		Car car = new Car(null, Arrays.asList(wheel));
-		BeanUtils.visitAll(car, visitor);
+		BeanUtils.visitGraph(car, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("engine"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("wheels"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(wheel), eq("wheels[0].diameter"), any(Object[].class));
@@ -219,11 +216,37 @@ public class BeanUtilsTest {
 	}
 
 	@Test
+	public void canFindPropertyInGraph() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		List<BeanProperty> found = allGraphProperties(car, withValue(4));
+		assertThat(found, hasSize(1));
+		assertThat(found.get(0).getInstance(), equalTo((Object) last));
+	}
+
+	@Test
+	public void canFindWithPredicate() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		List<BeanProperty> found = allGraphProperties(car, withPropertyValue("diameter", 4));
+		assertThat(found, hasSize(1));
+		assertThat(found.get(0).getInstance(), equalTo((Object) last));
+	}
+
+	@Test
+	public void canFindNothing() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		List<BeanProperty> found = property(car, withValue(100));
+		assertThat(found, hasSize(0));
+	}
+
+	@Test
 	public void canVisitACollection() {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel first = new Wheel(), second = new Wheel();
 		List<Wheel> list = Arrays.asList(first, second);
-		BeanUtils.visitAll(list, visitor);
+		BeanUtils.visitGraph(list, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("collection[0].diameter"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("collection[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
@@ -236,14 +259,14 @@ public class BeanUtilsTest {
 		Wheel[] wheels = {
 				first, second
 		};
-		BeanUtils.visitAll(wheels, visitor);
+		BeanUtils.visitGraph(wheels, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("array[0].diameter"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("array[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
-	public void visitWillNotFollowAGraph() {
+	public void canVisitRootOfGraphOnly() {
 
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
@@ -257,14 +280,14 @@ public class BeanUtilsTest {
 	}
 
 	@Test
-	public void visitAllWillFollowAGraph() {
+	public void canVisitAWholeGraph() {
 
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
 		Car car = new Car(engine, wheels);
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		BeanUtils.visitAll(car, visitor);
+		BeanUtils.visitGraph(car, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("engine"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(engine), eq("engine.capacity"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("wheels"), any(Object[].class));
@@ -276,7 +299,7 @@ public class BeanUtilsTest {
 	}
 
 	@Test
-	public void visitAllWillPreventStackOverflow() {
+	public void canVisitAGraphWithoutOverflow() {
 
 		Person oldest = new Person(), middle = new Person(), youngest = new Person();
 		oldest.setSiblings(asList(middle, youngest));
@@ -284,7 +307,7 @@ public class BeanUtilsTest {
 		youngest.setSiblings(asList(middle, oldest));
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		BeanUtils.visitAll(oldest, visitor);
+		BeanUtils.visitGraph(oldest, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(oldest), eq("siblings"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(middle), eq("siblings[0].siblings"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(youngest), eq("siblings[0].siblings[0].siblings"), any(Object[].class));
@@ -316,34 +339,58 @@ public class BeanUtilsTest {
 	}
 
 	@Test(expected = StackOverflowError.class)
-	public void visitAllAllowOverflowWillOverflow() {
+	public void canVisitAGraphAndOverflowIfRequested() {
 
 		Person brother = new Person(), sister = new Person();
 		brother.setSiblings(asList(sister));
 		sister.setSiblings(asList(brother));
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		BeanUtils.visitAllAllowOverflow(brother, visitor);
+		BeanUtils.visitGraphAllowOverflow(brother, visitor);
 	}
 
 	@Test
-	public void canInstantiateASimpleObject() {
-		AllTypes allTypes = anInstanceOf(AllTypes.class).populatedWith(randomValues()).build();
-		visitAll(allTypes, new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				assertThat("Expected " + property + " to not be null", property.getValue(), Matchers.notNullValue());
-			}
-		});
+	public void canCreateEqualBeanPropertyIfSamePropertyOnSameInstance() throws Exception {
+		String propertyName = "stringValue";
+		AllTypes instance = new AllTypes();
+		BeanProperty property = BeanUtils.property(instance, propertyName);
+		BeanProperty other = BeanUtils.property(instance, propertyName);
+		assertThat(property, equalTo(other));
+		assertThat(property.hashCode(), equalTo(other.hashCode()));
 	}
 
 	@Test
-	public void canInstantiateAndFillAComplexObject() {
-		Car car = anInstanceOf(Car.class).populatedWith(randomValues()).build();
-		assertThat(car.getEngine(), Matchers.notNullValue());
-		assertThat(car.getEngine().getCapacity(), Matchers.notNullValue());
-		assertThat(car.getWheels().size(), Matchers.greaterThan(0));
-		assertThat(car.getWheels().get(0).getDiameter(), Matchers.notNullValue());
+	public void canCreateUnequalBeanPropertyIfSamePropertyOnDifferentInstance() throws Exception {
+		BeanProperty property = BeanUtils.property(new AllTypes(), "stringValue");
+		BeanProperty other = BeanUtils.property(new AllTypes(), "stringValue");
+		assertThat(property, not(equalTo(other)));
+		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
+	}
+
+	@Test
+	public void canCreateUnequalBeanPropertyIfDifferentPropertyOnSameInstance() throws Exception {
+		AllTypes instance = new AllTypes();
+		BeanProperty property = BeanUtils.property(instance, "stringValue");
+		BeanProperty other = BeanUtils.property(instance, "longValue");
+		assertThat(property, not(equalTo(other)));
+		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
+	}
+
+	@Test(expected = BeanPropertyException.class)
+	public void canThrowsExceptionIfSetWithWrongType() throws Exception {
+		BeanUtils.setProperty(new AllTypes(), "stringValue", 1L);
+	}
+
+	public void canApplyAFunctionToMatchingProperties() {
+		Engine engine = new Engine(new BigDecimal(3.8));
+		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
+		Car car = new Car(engine, wheels);
+		BeanUtils.apply(car, changeWheelSize(20), withName("diameter"));
+	}
+
+	private BeanPropertyFunction changeWheelSize(final int i) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException();
 	}
 
 	@SuppressWarnings("rawtypes")
