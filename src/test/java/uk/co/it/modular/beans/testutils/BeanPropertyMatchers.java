@@ -2,11 +2,11 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans.testutils;
+package uk.co.it.modular.beans.testutils;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
-import com.modularit.beans.BeanProperty;
+import uk.co.it.modular.beans.BeanProperty;
 
 /**
  * A Static factory to produce hamcrest {@link org.hamcrest.Matcher} instance for testing {@link BeanProperty}

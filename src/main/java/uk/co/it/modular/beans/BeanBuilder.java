@@ -1,5 +1,5 @@
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
 import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;

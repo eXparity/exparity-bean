@@ -2,7 +2,7 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans.testutils;
+package uk.co.it.modular.beans.testutils;
 
 import java.math.BigDecimal;
 import java.util.Collection;

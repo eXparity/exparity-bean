@@ -2,7 +2,7 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
 
 /**

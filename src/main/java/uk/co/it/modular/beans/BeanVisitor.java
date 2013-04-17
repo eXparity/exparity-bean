@@ -2,7 +2,7 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
 /**
  * A callback interface which is fired for each property found by {@link BeanUtils#visit(Object, BeanVisitor)}

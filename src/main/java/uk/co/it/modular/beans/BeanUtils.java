@@ -1,8 +1,8 @@
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
-import static com.modularit.beans.BeanPredicates.anyProperty;
-import static com.modularit.beans.BeanPredicates.withName;
+import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
+import static uk.co.it.modular.beans.BeanPredicates.withName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

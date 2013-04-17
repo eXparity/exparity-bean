@@ -1,5 +1,5 @@
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import org.apache.commons.lang.StringUtils;

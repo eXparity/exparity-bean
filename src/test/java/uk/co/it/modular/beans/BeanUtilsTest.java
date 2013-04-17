@@ -2,14 +2,8 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
-import static com.modularit.beans.BeanPredicates.withName;
-import static com.modularit.beans.BeanPredicates.withPropertyValue;
-import static com.modularit.beans.BeanPredicates.withValue;
-import static com.modularit.beans.BeanUtils.allGraphProperties;
-import static com.modularit.beans.BeanUtils.property;
-import static com.modularit.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static junit.framework.Assert.assertFalse;
@@ -22,6 +16,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static uk.co.it.modular.beans.BeanPredicates.withName;
+import static uk.co.it.modular.beans.BeanPredicates.withPropertyValue;
+import static uk.co.it.modular.beans.BeanPredicates.withValue;
+import static uk.co.it.modular.beans.BeanUtils.allGraphProperties;
+import static uk.co.it.modular.beans.BeanUtils.property;
+import static uk.co.it.modular.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,10 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
-import com.modularit.beans.testutils.BeanUtilTestFixture.AllTypes;
-import com.modularit.beans.testutils.BeanUtilTestFixture.Car;
-import com.modularit.beans.testutils.BeanUtilTestFixture.Engine;
-import com.modularit.beans.testutils.BeanUtilTestFixture.Wheel;
+import uk.co.it.modular.beans.BeanProperty;
+import uk.co.it.modular.beans.BeanPropertyException;
+import uk.co.it.modular.beans.BeanPropertyFunction;
+import uk.co.it.modular.beans.BeanUtils;
+import uk.co.it.modular.beans.BeanVisitor;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
  * Unit Tests for Bean Utils

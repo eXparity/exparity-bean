@@ -2,15 +2,17 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
-import static com.modularit.beans.BeanBuilder.aRandomInstanceOf;
-import static com.modularit.beans.BeanUtils.visitGraph;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
+import static uk.co.it.modular.beans.BeanUtils.visitGraph;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import com.modularit.beans.testutils.BeanUtilTestFixture.AllTypes;
-import com.modularit.beans.testutils.BeanUtilTestFixture.Car;
+import uk.co.it.modular.beans.BeanProperty;
+import uk.co.it.modular.beans.BeanVisitor;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
 
 /**
  * @author Stewart.Bissett

@@ -1,5 +1,5 @@
 
-package com.modularit.beans;
+package uk.co.it.modular.beans;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
