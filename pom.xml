@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>uk.co.modular-it</groupId>
 	<artifactId>bean-utils</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
@@ -8,6 +8,12 @@
 	<name>Bean Utils</name>
 	<url>https://github.com/modularit/bean-utils</url>
 	<description>Utilities for manipulating and inspecting Java classes implementing the Java Beans standard</description>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 
 	<licenses>
 		<license>
@@ -18,8 +24,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/modularit/bean-utils</url>
-		<connection>scm:git://github.com/modularit/bean-utils.git</connection>
+		<connection>scm:git:@github.com:modularit/bean-utils.git</connection>
+    <developerConnection>scm:git:git@github.com:modularit/bean-utils.git</developerConnection>
+    <url>git@github.com:modularit/bean-utils.git</url>
 	</scm>
 
 	<developers>
