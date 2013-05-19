@@ -9,6 +9,6 @@ package uk.co.it.modular.beans;
  */
 public interface BeanPropertyPredicate {
 
-	public boolean matches(final BeanProperty property);
+	public boolean matches(final BeanProperty property, Object instance);
 
 }

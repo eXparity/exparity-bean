@@ -7,6 +7,7 @@ package uk.co.it.modular.beans.testutils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import uk.co.it.modular.beans.BeanProperty;
+import uk.co.it.modular.beans.BeanPropertyInstance;
 
 /**
  * A Static factory to produce hamcrest {@link org.hamcrest.Matcher} instance for testing {@link BeanProperty}
@@ -18,14 +19,21 @@ public abstract class BeanPropertyMatchers {
 	/**
 	 * Construct a Hamcrest matcher to match a {@link BeanProperty} with the expected property name and property type
 	 */
-	public static BeanPropertyMatcher aBeanProperty(final String propertyName, final Class<?> propertyType) {
-		return new BeanPropertyMatcher(propertyType, propertyName);
+	public static BeanPropertyMatcher<BeanProperty> aBeanProperty(final String propertyName, final Class<?> propertyType) {
+		return new BeanPropertyMatcher<BeanProperty>(propertyType, propertyName);
+	}
+
+	/**
+	 * Construct a Hamcrest matcher to match a {@link BeanProperty} with the expected property name and property type
+	 */
+	public static BeanPropertyMatcher<BeanPropertyInstance> aBeanPropertyInstance(final String propertyName, final Class<?> propertyType) {
+		return new BeanPropertyMatcher<BeanPropertyInstance>(propertyType, propertyName);
 	}
 
 	/**
 	 * @author Stewart.Bissett
 	 */
-	private static final class BeanPropertyMatcher extends TypeSafeDiagnosingMatcher<BeanProperty> {
+	private static final class BeanPropertyMatcher<T extends BeanProperty> extends TypeSafeDiagnosingMatcher<T> {
 
 		private final Class<?> propertyType;
 		private final String propertyName;
@@ -40,7 +48,7 @@ public abstract class BeanPropertyMatchers {
 		}
 
 		@Override
-		protected boolean matchesSafely(final BeanProperty item, final Description mismatchDescription) {
+		protected boolean matchesSafely(final T item, final Description mismatchDescription) {
 			if (!item.getName().equals(propertyName)) {
 				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
 				return false;

@@ -16,9 +16,9 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate matchesAll(final BeanPropertyPredicate... predicates) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanProperty property) {
+			public boolean matches(final BeanProperty property, final Object instance) {
 				for (BeanPropertyPredicate predicate : predicates) {
-					if (!predicate.matches(property)) {
+					if (!predicate.matches(property, instance)) {
 						return false;
 					}
 				}
@@ -33,9 +33,9 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate matchesAny(final BeanPropertyPredicate... predicates) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanProperty property) {
+			public boolean matches(final BeanProperty property, final Object instance) {
 				for (BeanPropertyPredicate predicate : predicates) {
-					if (predicate.matches(property)) {
+					if (predicate.matches(property, instance)) {
 						return true;
 					}
 				}
@@ -50,7 +50,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate anyProperty() {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanProperty property) {
+			public boolean matches(final BeanProperty property, final Object instance) {
 				return true;
 			}
 		};
@@ -62,7 +62,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate withName(final String name) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanProperty property) {
+			public boolean matches(final BeanProperty property, final Object instance) {
 				return equalsIgnoreCase(name, property.getName());
 			}
 		};
@@ -71,11 +71,11 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied value
 	 */
-	public static BeanPropertyInstancePredicate withValue(final Object value) {
-		return new BeanPropertyInstancePredicate() {
+	public static BeanPropertyPredicate withValue(final Object value) {
+		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
-				return property.hasValue(value);
+			public boolean matches(final BeanProperty property, final Object instance) {
+				return value.equals(property.getValue(instance));
 			}
 		};
 	}
@@ -83,11 +83,11 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name and value
 	 */
-	public static BeanPropertyInstancePredicate withValue(final String name, final Object value) {
-		return new BeanPropertyInstancePredicate() {
+	public static BeanPropertyPredicate withValue(final String name, final Object value) {
+		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
-				return property.hasName(name) && property.hasValue(value);
+			public boolean matches(final BeanProperty property, final Object instance) {
+				return property.hasName(name) && value.equals(property.getValue(instance));
 			}
 		};
 	}
@@ -98,7 +98,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate withType(final Class<?>... types) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanProperty property) {
+			public boolean matches(final BeanProperty property, final Object instance) {
 				for (Class<?> type : types) {
 					if (property.getType().equals(type)) {
 						return true;

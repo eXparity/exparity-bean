@@ -352,16 +352,16 @@ public class BeanUtilsTest {
 	public void canCreateEqualBeanPropertyIfSamePropertyOnSameInstance() throws Exception {
 		String propertyName = "stringValue";
 		AllTypes instance = new AllTypes();
-		BeanProperty property = BeanUtils.propertyNamed(instance, propertyName);
-		BeanProperty other = BeanUtils.propertyNamed(instance, propertyName);
+		BeanPropertyInstance property = propertyNamed(instance, propertyName);
+		BeanPropertyInstance other = propertyNamed(instance, propertyName);
 		assertThat(property, equalTo(other));
 		assertThat(property.hashCode(), equalTo(other.hashCode()));
 	}
 
 	@Test
 	public void canCreateUnequalBeanPropertyIfSamePropertyOnDifferentInstance() throws Exception {
-		BeanProperty property = BeanUtils.propertyNamed(new AllTypes(), "stringValue");
-		BeanProperty other = BeanUtils.propertyNamed(new AllTypes(), "stringValue");
+		BeanPropertyInstance property = propertyNamed(new AllTypes(), "stringValue");
+		BeanPropertyInstance other = propertyNamed(new AllTypes(), "stringValue");
 		assertThat(property, not(equalTo(other)));
 		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
 	}
@@ -369,8 +369,8 @@ public class BeanUtilsTest {
 	@Test
 	public void canCreateUnequalBeanPropertyIfDifferentPropertyOnSameInstance() throws Exception {
 		AllTypes instance = new AllTypes();
-		BeanProperty property = BeanUtils.propertyNamed(instance, "stringValue");
-		BeanProperty other = BeanUtils.propertyNamed(instance, "longValue");
+		BeanPropertyInstance property = propertyNamed(instance, "stringValue");
+		BeanPropertyInstance other = propertyNamed(instance, "longValue");
 		assertThat(property, not(equalTo(other)));
 		assertThat(property.hashCode(), not(equalTo(other.hashCode())));
 	}
@@ -395,10 +395,10 @@ public class BeanUtilsTest {
 	@SuppressWarnings("rawtypes")
 	private <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
 
-		List<BeanProperty> properties = BeanInspectorFunctionAdaptor.propertyList(sample);
+		List<BeanPropertyInstance> properties = BeanUtils.propertyList(sample);
 		assertThat(properties, hasItem(aBeanProperty(name, type)));
 
-		Map<String, BeanProperty> propertyMap = BeanUtils.propertyMap(sample);
+		Map<String, BeanPropertyInstance> propertyMap = BeanUtils.propertyMap(sample);
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanProperty(name, type)));
 
 		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
