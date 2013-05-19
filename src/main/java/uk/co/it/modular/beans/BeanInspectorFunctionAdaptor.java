@@ -76,8 +76,12 @@ class BeanInspectorFunctionAdaptor {
 		return findFirst(instance, adapted(withName(propertyName)));
 	}
 
-	public Class<?> propertyType(final Object instance, final BeanPropertyPredicate withName) {
-		return findFirst(instance, adapted(withName(propertyName)));
+	public Class<?> propertyType(final Object instance, final BeanPropertyPredicate predicate) {
+		BeanPropertyInstance found = findFirst(instance, adapted(predicate));
+		if (found != null) {
+			return found.getType();
+		}
+		return null;
 	}
 
 	public BeanPropertyInstance findFirst(final Object instance, final BeanPropertyInstancePredicate predicate) {
