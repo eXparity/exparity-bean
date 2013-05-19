@@ -19,21 +19,21 @@ public abstract class BeanPropertyMatchers {
 	/**
 	 * Construct a Hamcrest matcher to match a {@link BeanProperty} with the expected property name and property type
 	 */
-	public static BeanPropertyMatcher<BeanProperty> aBeanProperty(final String propertyName, final Class<?> propertyType) {
-		return new BeanPropertyMatcher<BeanProperty>(propertyType, propertyName);
+	public static BeanPropertyMatcher aBeanProperty(final String propertyName, final Class<?> propertyType) {
+		return new BeanPropertyMatcher(propertyType, propertyName);
 	}
 
 	/**
 	 * Construct a Hamcrest matcher to match a {@link BeanProperty} with the expected property name and property type
 	 */
-	public static BeanPropertyMatcher<BeanPropertyInstance> aBeanPropertyInstance(final String propertyName, final Class<?> propertyType) {
-		return new BeanPropertyMatcher<BeanPropertyInstance>(propertyType, propertyName);
+	public static BeanPropertyInstanceMatcher aBeanPropertyInstance(final String propertyName, final Class<?> propertyType) {
+		return new BeanPropertyInstanceMatcher(propertyType, propertyName);
 	}
 
 	/**
 	 * @author Stewart.Bissett
 	 */
-	private static final class BeanPropertyMatcher<T extends BeanProperty> extends TypeSafeDiagnosingMatcher<T> {
+	private static final class BeanPropertyMatcher extends TypeSafeDiagnosingMatcher<BeanProperty> {
 
 		private final Class<?> propertyType;
 		private final String propertyName;
@@ -48,7 +48,7 @@ public abstract class BeanPropertyMatchers {
 		}
 
 		@Override
-		protected boolean matchesSafely(final T item, final Description mismatchDescription) {
+		protected boolean matchesSafely(final BeanProperty item, final Description mismatchDescription) {
 			if (!item.getName().equals(propertyName)) {
 				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
 				return false;
@@ -65,4 +65,38 @@ public abstract class BeanPropertyMatchers {
 		}
 	}
 
+	/**
+	 * @author Stewart.Bissett
+	 */
+	private static final class BeanPropertyInstanceMatcher extends TypeSafeDiagnosingMatcher<BeanPropertyInstance> {
+
+		private final Class<?> propertyType;
+		private final String propertyName;
+
+		private BeanPropertyInstanceMatcher(final Class<?> propertyType, final String propertyName) {
+			this.propertyType = propertyType;
+			this.propertyName = propertyName;
+		}
+
+		public void describeTo(final Description description) {
+			description.appendText(createDescription(propertyName, propertyType));
+		}
+
+		@Override
+		protected boolean matchesSafely(final BeanPropertyInstance item, final Description mismatchDescription) {
+			if (!item.getName().equals(propertyName)) {
+				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
+				return false;
+			} else if (!item.isType(propertyType)) {
+				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		private String createDescription(final String propertyName, final Class<?> propertyType) {
+			return "Bean Property '" + propertyName + "' of type '" + propertyType.getCanonicalName() + "'";
+		}
+	}
 }

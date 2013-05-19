@@ -18,8 +18,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static uk.co.it.modular.beans.BeanPredicates.withName;
 import static uk.co.it.modular.beans.BeanPredicates.withValue;
-import static uk.co.it.modular.beans.BeanUtils.find;
-import static uk.co.it.modular.beans.BeanUtils.propertyNamed;
+import static uk.co.it.modular.beans.GraphUtils.find;
+import static uk.co.it.modular.beans.GraphUtils.propertyNamed;
 import static uk.co.it.modular.beans.testutils.BeanPropertyMatchers.aBeanPropertyInstance;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
  * 
  * @author Stewart.Bissett
  */
-public class BeanUtilsTest {
+public class GraphUtilsTest {
 
 	@Test
 	public void canReadStringProperty() {
@@ -188,7 +188,7 @@ public class BeanUtilsTest {
 	@Test
 	public void canVisitAString() {
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		BeanUtils.visit(new String(), visitor);
+		GraphUtils.visit(new String(), visitor);
 		verifyZeroInteractions(visitor);
 	}
 
@@ -196,9 +196,40 @@ public class BeanUtilsTest {
 	public void canVisitASimpleObject() {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel wheel = new Wheel();
-		BeanUtils.visit(wheel, visitor);
+		GraphUtils.visit(wheel, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(wheel), eq("diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canVisitWithNullProperties() {
+		BeanVisitor visitor = mock(BeanVisitor.class);
+		Wheel wheel = new Wheel();
+		wheel.setDiameter(null);
+		Car car = new Car(null, Arrays.asList(wheel));
+		GraphUtils.visit(car, visitor);
+		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(wheel), eq("wheels[0].diameter"), any(Object[].class));
+		verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canFindPropertyInGraph() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		List<BeanPropertyInstance> found = find(car, withValue(4));
+		assertThat(found, hasSize(1));
+		assertThat(found.get(0).getInstance(), equalTo((Object) last));
+	}
+
+	@Test
+	public void canFindWithPredicate() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		List<BeanPropertyInstance> found = find(car, withValue("diameter", 4));
+		assertThat(found, hasSize(1));
+		assertThat(found.get(0).getInstance(), equalTo((Object) last));
 	}
 
 	@Test
@@ -214,7 +245,7 @@ public class BeanUtilsTest {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel first = new Wheel(), second = new Wheel();
 		List<Wheel> list = Arrays.asList(first, second);
-		BeanUtils.visit(list, visitor);
+		GraphUtils.visit(list, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("collection[0].diameter"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("collection[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
@@ -227,23 +258,44 @@ public class BeanUtilsTest {
 		Wheel[] wheels = {
 				first, second
 		};
-		BeanUtils.visit(wheels, visitor);
+		GraphUtils.visit(wheels, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("array[0].diameter"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("array[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
-	public void canVisitRootOfGraphOnly() {
+	public void canVisitAWholeGraph() {
 
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
 		Car car = new Car(engine, wheels);
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		BeanUtils.visit(car, visitor);
+		GraphUtils.visit(car, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(engine), eq("engine.capacity"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(wheels.get(0)), eq("wheels[0].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(wheels.get(1)), eq("wheels[1].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(wheels.get(2)), eq("wheels[2].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(wheels.get(3)), eq("wheels[3].diameter"), any(Object[].class));
+		verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canVisitAGraphWithoutOverflow() {
+
+		Person oldest = new Person(), middle = new Person(), youngest = new Person();
+		oldest.setSiblings(asList(middle, youngest));
+		middle.setSiblings(asList(youngest, oldest));
+		youngest.setSiblings(asList(middle, oldest));
+
+		BeanVisitor visitor = mock(BeanVisitor.class);
+		GraphUtils.visit(oldest, visitor);
+		verify(visitor).visit(any(BeanProperty.class), eq(oldest), eq("siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(middle), eq("siblings[0].siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(youngest), eq("siblings[0].siblings[0].siblings"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -300,14 +352,14 @@ public class BeanUtilsTest {
 
 	@Test(expected = BeanPropertyException.class)
 	public void canThrowsExceptionIfSetWithWrongType() throws Exception {
-		BeanUtils.setProperty(new AllTypes(), "stringValue", 1L);
+		GraphUtils.setProperty(new AllTypes(), "stringValue", 1L);
 	}
 
 	public void canApplyAFunctionToMatchingProperties() {
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
 		Car car = new Car(engine, wheels);
-		BeanUtils.apply(car, changeWheelSize(20), withName("diameter"));
+		GraphUtils.apply(car, changeWheelSize(20), withName("diameter"));
 	}
 
 	private BeanPropertyFunction changeWheelSize(final int i) {
@@ -318,19 +370,19 @@ public class BeanUtilsTest {
 	@SuppressWarnings("rawtypes")
 	private <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
 
-		List<BeanPropertyInstance> properties = BeanUtils.propertyList(sample);
+		List<BeanPropertyInstance> properties = GraphUtils.propertyList(sample);
 		assertThat(properties, hasItem(aBeanPropertyInstance(name, type)));
 
-		Map<String, BeanPropertyInstance> propertyMap = BeanUtils.propertyMap(sample);
+		Map<String, BeanPropertyInstance> propertyMap = GraphUtils.propertyMap(sample);
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanPropertyInstance(name, type)));
 
-		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
-		assertThat(BeanUtils.propertyNamed(sample, name), aBeanPropertyInstance(name, type));
-		assertThat(BeanUtils.isPropertyType(sample, name, type), equalTo(true));
-		assertThat(BeanUtils.propertyType(sample, name), equalTo((Class) type));
-		assertThat(BeanUtils.propertyValue(sample, name, type), equalTo(currentValue));
-		assertThat(BeanUtils.setProperty(sample, name, newValue), equalTo(true));
-		assertThat(BeanUtils.propertyValue(sample, name, type), equalTo(newValue));
+		assertThat(GraphUtils.hasProperty(sample, name), equalTo(true));
+		assertThat(GraphUtils.propertyNamed(sample, name), aBeanPropertyInstance(name, type));
+		assertThat(GraphUtils.isPropertyType(sample, name, type), equalTo(true));
+		assertThat(GraphUtils.propertyType(sample, name), equalTo((Class) type));
+		assertThat(GraphUtils.propertyValue(sample, name, type), equalTo(currentValue));
+		assertThat(GraphUtils.setProperty(sample, name, newValue), equalTo(true));
+		assertThat(GraphUtils.propertyValue(sample, name, type), equalTo(newValue));
 	}
 
 	private <T> void doGetGenericPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue, final Class<?>... genericTypes) {

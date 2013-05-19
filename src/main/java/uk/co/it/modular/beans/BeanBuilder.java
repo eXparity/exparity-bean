@@ -216,7 +216,7 @@ public class BeanBuilder<T> {
 
 	public T build() {
 		T instance = createNewInstance();
-		BeanUtils.visit(instance, new BeanVisitor() {
+		GraphUtils.visit(instance, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 

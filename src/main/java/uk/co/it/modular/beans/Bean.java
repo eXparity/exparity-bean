@@ -56,7 +56,7 @@ public class Bean {
 		visit(new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				if (predicate.matches(property, instance)) {
+				if (predicate.matches(property, current)) {
 					property.setValue(current, value);
 					valuesSet.add(property);
 				}
@@ -134,7 +134,7 @@ public class Bean {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 				BeanPropertyInstance propertyInstance = new BeanPropertyInstance(property, current);
-				if (predicate.matches(property, instance)) {
+				if (predicate.matches(property, current)) {
 					function.apply(propertyInstance);
 				}
 			}
@@ -147,7 +147,7 @@ public class Bean {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 				BeanPropertyInstance propertyInstance = new BeanPropertyInstance(property, current);
-				if (predicate.matches(property, instance)) {
+				if (predicate.matches(property, current)) {
 					collection.add(propertyInstance);
 				}
 			}

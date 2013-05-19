@@ -6,6 +6,8 @@ package uk.co.it.modular.beans;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * A {@link BeanProperty} which is bound to a particular instance
@@ -209,4 +211,25 @@ public class BeanPropertyInstance {
 		return property.isCollection();
 	}
 
+	@Override
+	public boolean equals(final Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (!(obj instanceof BeanPropertyInstance)) {
+			return false;
+		}
+		BeanPropertyInstance rhs = (BeanPropertyInstance) obj;
+		return new EqualsBuilder().append(property, rhs.property).append(instance, rhs.instance).isEquals();
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(23, 35).append(property).append(instance).toHashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "BeanPropertyInstance [" + this.property.getDeclaringTypeSimpleName() + "." + this.property.getName() + "." + instance + "]";
+	}
 }
