@@ -19,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard
+ * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard.</p>
+ * <p>
+ * An instance of this class is not bound to a specific instance of an object, rather it represents a re-usable defintion of a get/set pair on a given class
+ * </p>
  * 
  * @author Stewart Bissett
  */
@@ -28,27 +31,26 @@ public class BeanProperty {
 	private static final Logger LOG = LoggerFactory.getLogger(BeanProperty.class);
 
 	/**
+	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given class.</p> Returns <code>null</code> if the property is not present.</p>
+	 */
+	public static final BeanProperty propertyOn(final Class<?> instance, final String name) {
+		return BeanUtils.propertyNamed(instance, name);
+	}
+
+	/**
 	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given instance.</p> Returns <code>null</code> if the property is not present.</p>
 	 */
 	public static final BeanProperty propertyOn(final Object instance, final String name) {
-		return BeanUtils.property(instance, name);
+		return BeanUtils.propertyNamed(instance.getClass(), name);
 	}
 
-	private final Object instance;
 	private final Class<?> declaringType;
 	private final String name;
 	private final Class<?> type;
 	private final Class<?>[] params;
 	private final Method accessor, mutator;
 
-	public BeanProperty(final Object instance, final String propertyName, final Method accessor, final Method mutator) {
-		if (accessor == null) {
-			throw new BeanPropertyException("Unknown accessor property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
-		}
-		if (mutator == null) {
-			throw new BeanPropertyException("Unknown mutator property '" + propertyName + "' on '" + instance.getClass().getCanonicalName() + "'");
-		}
-		this.instance = instance;
+	public BeanProperty(final String propertyName, final Method accessor, final Method mutator) {
 		this.declaringType = accessor.getDeclaringClass();
 		this.name = propertyName;
 		this.accessor = accessor;
@@ -62,13 +64,6 @@ public class BeanProperty {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	/**
-	 * Return the object instance this property is bound to
-	 */
-	public Object getInstance() {
-		return instance;
 	}
 
 	/**
@@ -95,7 +90,7 @@ public class BeanProperty {
 	/**
 	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
-	public Object getValue() {
+	public Object getValue(final Object instance) {
 		try {
 			return accessor.invoke(instance);
 		} catch (IllegalArgumentException e) {
@@ -115,8 +110,8 @@ public class BeanProperty {
 	 *            the type to return the value as
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getValue(final Class<T> type) {
-		return (T) getValue();
+	public <T> T getValue(final Object instance, final Class<T> type) {
+		return (T) getValue(instance);
 	}
 
 	/**
@@ -126,7 +121,7 @@ public class BeanProperty {
 	 * @param value
 	 *            the value to set this property to on the instance
 	 */
-	public boolean setValue(final Object value) {
+	public boolean setValue(final Object instance, final Object value) {
 		try {
 			mutator.invoke(instance, value);
 		} catch (IllegalArgumentException e) {
@@ -382,16 +377,16 @@ public class BeanProperty {
 			return false;
 		}
 		BeanProperty rhs = (BeanProperty) obj;
-		return new EqualsBuilder().append(instance, rhs.instance).append(name, rhs.name).isEquals();
+		return new EqualsBuilder().append(declaringType, rhs.declaringType).append(name, rhs.name).isEquals();
 	}
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(23, 35).append(instance).append(this.name).toHashCode();
+		return new HashCodeBuilder(23, 35).append(declaringType).append(this.name).toHashCode();
 	}
 
 	@Override
 	public String toString() {
-		return "BeanProperty [" + instance + "." + name + "]";
+		return "BeanProperty [" + declaringType + "." + name + "]";
 	}
 }

@@ -6,7 +6,7 @@ package uk.co.it.modular.beans;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
-import static uk.co.it.modular.beans.BeanUtils.visitGraph;
+import static uk.co.it.modular.beans.BeanUtils.visit;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.co.it.modular.beans.BeanProperty;
@@ -31,10 +31,10 @@ public class BeanBuilderTest {
 	@Test
 	public void canRandomlyFillASimpleObject() {
 		AllTypes allTypes = aRandomInstanceOf(AllTypes.class).build();
-		visitGraph(allTypes, new BeanVisitor() {
+		visit(allTypes, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				assertThat("Expected " + property + " to not be null", property.getValue(), Matchers.notNullValue());
+				assertThat("Expected " + property + " to not be null", property.getValue(current), Matchers.notNullValue());
 			}
 		});
 	}

@@ -7,8 +7,8 @@ package uk.co.it.modular.beans;
 /**
  * @author Stewart.Bissett
  */
-public interface BeanPropertyPredicate {
+public interface BeanPropertyInstancePredicate {
 
-	public boolean matches(final BeanProperty property);
+	public boolean matches(final BeanPropertyInstance property);
 
 }

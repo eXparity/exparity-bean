@@ -3,6 +3,9 @@ package uk.co.it.modular.beans;
 
 import static java.lang.Character.toLowerCase;
 import static java.lang.System.identityHashCode;
+import static org.apache.commons.lang.ArrayUtils.contains;
+import static uk.co.it.modular.beans.BeanInspectorProperty.INSPECT_CHILDREN;
+import static uk.co.it.modular.beans.BeanInspectorProperty.STOP_OVERFLOW;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -33,9 +36,9 @@ class BeanInspector {
 	private final boolean stopOverflow;
 	private final Integer overflowLimit = 0;
 
-	BeanInspector(final boolean recurse, final boolean stopOverflow) {
-		this.recurse = recurse;
-		this.stopOverflow = stopOverflow;
+	BeanInspector(final BeanInspectorProperty... properties) {
+		this.recurse = contains(properties, INSPECT_CHILDREN);
+		this.stopOverflow = contains(properties, STOP_OVERFLOW);
 	}
 
 	/**
@@ -113,22 +116,22 @@ class BeanInspector {
 					String nextPath = nextPath(path, property);
 					visitor.visit(property, instance, nextPath, stack.toArray());
 					if (property.isArray()) {
-						Object value = property.getValue();
+						Object value = property.getValue(instance);
 						if (value != null) {
 							inspectArray(stack, nextPath, value, visitor);
 						}
 					} else if (property.isIterable()) {
-						Iterable value = property.getValue(Iterable.class);
+						Iterable value = property.getValue(instance, Iterable.class);
 						if (value != null) {
 							inspectIterable(stack, nextPath, value, visitor);
 						}
 					} else if (property.isMap()) {
-						Map value = property.getValue(Map.class);
+						Map value = property.getValue(instance, Map.class);
 						if (value != null) {
 							inspectMap(stack, nextPath, value, visitor);
 						}
 					} else {
-						Object propertyValue = property.getValue();
+						Object propertyValue = property.getValue(instance);
 						if (propertyValue != null) {
 							inspectObject(stack, nextPath, propertyValue, visitor);
 						}
@@ -190,7 +193,7 @@ class BeanInspector {
 					String propertyName = convertToPropertyName(methodName, prefix.length());
 					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
 					if (mutator != null) {
-						properties.add(new BeanProperty(instance, propertyName, accessor, mutator));
+						properties.add(new BeanProperty(propertyName, accessor, mutator));
 					}
 					break;
 				}

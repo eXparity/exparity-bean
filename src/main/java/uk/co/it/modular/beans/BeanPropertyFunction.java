@@ -9,5 +9,5 @@ package uk.co.it.modular.beans;
  */
 public interface BeanPropertyFunction {
 
-	public void apply(final BeanProperty propery);
+	public void apply(final BeanPropertyInstance property);
 }

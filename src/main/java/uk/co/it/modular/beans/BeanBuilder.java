@@ -216,7 +216,7 @@ public class BeanBuilder<T> {
 
 	public T build() {
 		T instance = createNewInstance();
-		BeanUtils.visitGraph(instance, new BeanVisitor() {
+		BeanUtils.visit(instance, new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
 
@@ -246,7 +246,7 @@ public class BeanBuilder<T> {
 							return;
 						}
 					}
-					Object currentPropertyValue = property.getValue();
+					Object currentPropertyValue = property.getValue(current);
 					if (currentPropertyValue != null && !isEmptyCollection(currentPropertyValue)) {
 						LOG.trace("Ignore  Path [{}]. Already set", pathWithRoot);
 						return;
@@ -258,7 +258,7 @@ public class BeanBuilder<T> {
 					LOG.trace("Assign  Path [{}] value [{}:{}]", new Object[] {
 							pathWithRoot, value.getClass().getSimpleName(), identityHashCode(value)
 					});
-					property.setValue(value);
+					property.setValue(current, value);
 				} else {
 					LOG.trace("Assign  Path [{}] value [null]", pathWithRoot);
 				}

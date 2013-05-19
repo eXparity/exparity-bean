@@ -28,7 +28,7 @@ public abstract class BeanVisitors {
 			final PrintWriter printer = new PrintWriter(writer);
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				printer.println("'" + path + "' = '" + property.getValue() + "'");
+				printer.println("'" + path + "' = '" + property.getValue(current) + "'");
 				printer.flush();
 			}
 		};
