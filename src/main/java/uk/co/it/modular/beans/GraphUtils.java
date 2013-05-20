@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class GraphUtils {
 
 	public static Graph graph(final Object instance) {
-		return new Graph(instance);
+		return Graph.graph(instance);
 	}
 
 	/**

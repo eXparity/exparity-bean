@@ -77,12 +77,12 @@ class BeanInspector {
 	@SuppressWarnings("rawtypes")
 	private void inspectObject(final List<Object> currentStack, final String path, final Object instance, final BeanVisitor visitor) {
 
-		final List<Object> stack = new ArrayList<Object>(currentStack);
-		logInspection(path, "Object", instance);
-
 		if (instance == null) {
 			return;
 		}
+
+		final List<Object> stack = new ArrayList<Object>(currentStack);
+		logInspection(path, "Object", instance);
 
 		if (stopOverflow) {
 			int instanceKey = identityHashCode(instance);

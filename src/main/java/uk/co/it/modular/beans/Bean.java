@@ -168,7 +168,7 @@ public class Bean {
 	}
 
 	public boolean isPropertyType(final String name, final Class<?> type) {
-		return hasProperty(matchesAll(withName(name), withType(type)));
+		return isPropertyType(withName(name), type);
 	}
 
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {

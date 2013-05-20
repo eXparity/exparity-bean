@@ -110,6 +110,23 @@ public abstract class BeanPredicates {
 	}
 
 	/**
+	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the types as it's declaring type
+	 */
+	public static BeanPropertyPredicate withDeclaringType(final Class<?>... types) {
+		return new BeanPropertyPredicate() {
+
+			public boolean matches(final BeanProperty property, final Object instance) {
+				for (Class<?> type : types) {
+					if (property.getDeclaringType().equals(type)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+	}
+
+	/**
 	 * Return a {@link BeanPropertyPredicate} for a property named with the supplied name and is of one of the supplied types
 	 */
 	public static BeanPropertyPredicate withProperty(final String propertyName, final Class<?>... types) {

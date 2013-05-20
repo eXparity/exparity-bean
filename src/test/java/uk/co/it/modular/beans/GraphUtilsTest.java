@@ -25,10 +25,12 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
@@ -202,6 +204,24 @@ public class GraphUtilsTest {
 	}
 
 	@Test
+	public void canVisitNull() {
+		BeanVisitor visitor = mock(BeanVisitor.class);
+		GraphUtils.visit(null, visitor);
+		verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canVisitAGraphAndNotOverflow() {
+		Person brother = new Person(), sister = new Person();
+		brother.setSiblings(asList(sister));
+		sister.setSiblings(asList(brother));
+		BeanVisitor visitor = mock(BeanVisitor.class);
+		GraphUtils.visit(brother, visitor);
+		verify(visitor).visit(any(BeanProperty.class), eq(brother), eq("siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(sister), eq("siblings[0].siblings"), any(Object[].class));
+	}
+
+	@Test
 	public void canVisitWithNullProperties() {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel wheel = new Wheel();
@@ -241,6 +261,43 @@ public class GraphUtilsTest {
 	}
 
 	@Test
+	public void canIgnoreMissingHasProperty() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		assertThat(GraphUtils.hasProperty(car, withValue(100)), equalTo(false));
+	}
+
+	@Test
+	public void canIgnoreMissingPropertyType() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		assertThat(GraphUtils.propertyType(car, "hubcap"), nullValue());
+	}
+
+	@Test
+	public void canIgnoreMissingPropertyValue() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		assertThat(GraphUtils.propertyValue(car, "hubcap"), nullValue());
+	}
+
+	@Test
+	public void canIgnoreMissingSetProperty() {
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		GraphUtils.setProperty(car, "hubcap", 20);
+	}
+
+	@Test
+	public void canFindFirst() {
+		Engine engine = new Engine(new BigDecimal(3.8));
+		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
+		Car car = new Car(engine, wheels);
+		BeanPropertyInstance found = GraphUtils.findFirst(car, BeanPredicates.withType(Engine.class));
+		assertThat(found.getValue(), Matchers.equalTo((Object) engine));
+	}
+
+	@Test
 	public void canVisitACollection() {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel first = new Wheel(), second = new Wheel();
@@ -261,6 +318,19 @@ public class GraphUtilsTest {
 		GraphUtils.visit(wheels, visitor);
 		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("array[0].diameter"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("array[1].diameter"), any(Object[].class));
+		verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canVisitAMap() {
+		BeanVisitor visitor = mock(BeanVisitor.class);
+		Wheel first = new Wheel(), second = new Wheel();
+		Map<String, Wheel> wheelMap = new HashMap<String, Wheel>();
+		wheelMap.put("frontLeft", first);
+		wheelMap.put("frontRight", second);
+		GraphUtils.visit(wheelMap, visitor);
+		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("map[frontLeft].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("map[frontRight].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -324,7 +394,7 @@ public class GraphUtilsTest {
 	}
 
 	@Test
-	public void canCreateEqualBeanPropertyIfSamePropertyOnSameInstance() throws Exception {
+	public void isEqualIfSamePropertyOnSameInstance() throws Exception {
 		String propertyName = "stringValue";
 		AllTypes instance = new AllTypes();
 		BeanPropertyInstance property = propertyNamed(instance, propertyName);
@@ -334,7 +404,7 @@ public class GraphUtilsTest {
 	}
 
 	@Test
-	public void canCreateUnequalBeanPropertyIfSamePropertyOnDifferentInstance() throws Exception {
+	public void isNotEqualIfBeanPropertyIfSamePropertyOnDifferentInstance() throws Exception {
 		BeanPropertyInstance property = propertyNamed(new AllTypes(), "stringValue");
 		BeanPropertyInstance other = propertyNamed(new AllTypes(), "stringValue");
 		assertThat(property, not(equalTo(other)));
@@ -342,7 +412,7 @@ public class GraphUtilsTest {
 	}
 
 	@Test
-	public void canCreateUnequalBeanPropertyIfDifferentPropertyOnSameInstance() throws Exception {
+	public void isNotEqualIfBeanPropertyIfDifferentPropertyOnSameInstance() throws Exception {
 		AllTypes instance = new AllTypes();
 		BeanPropertyInstance property = propertyNamed(instance, "stringValue");
 		BeanPropertyInstance other = propertyNamed(instance, "longValue");
@@ -355,6 +425,24 @@ public class GraphUtilsTest {
 		GraphUtils.setProperty(new AllTypes(), "stringValue", 1L);
 	}
 
+	@Test
+	public void canApplyAFunctionToAGraph() {
+		final int newSize = 3;
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Car car = new Car(null, Arrays.asList(first, last));
+		GraphUtils.apply(car, new BeanPropertyFunction() {
+
+			public void apply(final BeanPropertyInstance property) {
+				if (property.hasName("diameter")) {
+					property.setValue(newSize);
+				}
+			}
+		});
+		assertThat(first.getDiameter(), equalTo(newSize));
+		assertThat(last.getDiameter(), equalTo(newSize));
+	}
+
+	@Test
 	public void canApplyAFunctionToMatchingProperties() {
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
@@ -362,9 +450,25 @@ public class GraphUtilsTest {
 		GraphUtils.apply(car, changeWheelSize(20), withName("diameter"));
 	}
 
-	private BeanPropertyFunction changeWheelSize(final int i) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException();
+	private BeanPropertyFunction changeWheelSize(final int newSize) {
+		return new BeanPropertyFunction() {
+
+			public void apply(final BeanPropertyInstance property) {
+				property.setValue(newSize);
+			}
+		};
+	}
+
+	@Test
+	public void canSetPropertyViaPredicate() {
+		Engine engine = new Engine(new BigDecimal(3.8));
+		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
+		Car car = new Car(engine, wheels);
+		int newSize = 20;
+		GraphUtils.setProperty(car, withName("diameter"), newSize);
+		for (Wheel wheel : wheels) {
+			assertThat(wheel.getDiameter(), equalTo(newSize));
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -377,12 +481,14 @@ public class GraphUtilsTest {
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanPropertyInstance(name, type)));
 
 		assertThat(GraphUtils.hasProperty(sample, name), equalTo(true));
+		assertThat(GraphUtils.hasProperty(sample, BeanPredicates.withName(name)), equalTo(true));
 		assertThat(GraphUtils.propertyNamed(sample, name), aBeanPropertyInstance(name, type));
 		assertThat(GraphUtils.isPropertyType(sample, name, type), equalTo(true));
+		assertThat(GraphUtils.isPropertyType(sample, BeanPredicates.withName(name), type), equalTo(true));
 		assertThat(GraphUtils.propertyType(sample, name), equalTo((Class) type));
 		assertThat(GraphUtils.propertyValue(sample, name, type), equalTo(currentValue));
+		assertThat(GraphUtils.propertyValue(sample, name), equalTo((Object) currentValue));
 		assertThat(GraphUtils.setProperty(sample, name, newValue), equalTo(true));
-		assertThat(GraphUtils.propertyValue(sample, name, type), equalTo(newValue));
 	}
 
 	private <T> void doGetGenericPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue, final Class<?>... genericTypes) {
