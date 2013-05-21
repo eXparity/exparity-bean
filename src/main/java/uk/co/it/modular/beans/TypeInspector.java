@@ -51,19 +51,14 @@ class TypeInspector {
 	 *            the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Class<?> type, final String rootPath, final TypeVisitor visitor) {
-		inspectType(new ArrayList<Class<?>>(), rootPath, type, visitor);
+		inspectType(rootPath, type, visitor);
 	}
 
-	private void inspectType(final List<Class<?>> currentStack, final String path, final Class<?> type, final TypeVisitor visitor) {
-		final List<Class<?>> stack = new ArrayList<Class<?>>(currentStack);
+	private void inspectType(final String path, final Class<?> type, final TypeVisitor visitor) {
 		logInspection(path, "Object", type);
 		for (BeanProperty property : propertyList(type)) {
-			visitor.visit(property, type, nextPath(path, property), (Class<?>[]) stack.toArray());
+			visitor.visit(property);
 		}
-	}
-
-	private String nextPath(final String path, final BeanProperty property) {
-		return path.isEmpty() ? property.getName() : path + "." + property.getName();
 	}
 
 	private void logInspection(final String path, final String loggedType, final Object instance) {
@@ -75,7 +70,7 @@ class TypeInspector {
 	private List<BeanProperty> propertyList(final Class<?> type) {
 		Map<String, List<Method>> mutatorMap = createMutatorMap(type);
 		List<BeanProperty> properties = new ArrayList<BeanProperty>();
-		for (Method accessor : type.getClass().getMethods()) {
+		for (Method accessor : type.getMethods()) {
 			final String methodName = accessor.getName();
 			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
 				if (methodName.startsWith(prefix) && accessor.getParameterTypes().length == 0) {
@@ -103,9 +98,9 @@ class TypeInspector {
 		return null;
 	}
 
-	private Map<String, List<Method>> createMutatorMap(final Class<?> instance) {
+	private Map<String, List<Method>> createMutatorMap(final Class<?> type) {
 		Map<String, List<Method>> mutatorMap = new HashMap<String, List<Method>>();
-		for (Method method : instance.getClass().getMethods()) {
+		for (Method method : type.getMethods()) {
 			String methodName = method.getName();
 			if (isMutator(method, methodName)) {
 				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());

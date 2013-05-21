@@ -42,7 +42,7 @@ public class Type {
 		final List<BeanProperty> propertyList = new ArrayList<BeanProperty>();
 		visit(new TypeVisitor() {
 
-			public void visit(final BeanProperty property, final Class<?> current, final String path, final Class<?>[] stack) {
+			public void visit(final BeanProperty property) {
 				propertyList.add(property);
 			}
 		});
@@ -53,7 +53,7 @@ public class Type {
 		final Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
 		visit(new TypeVisitor() {
 
-			public void visit(final BeanProperty property, final Class<?> current, final String path, final Class<?>[] stack) {
+			public void visit(final BeanProperty property) {
 				propertyMap.put(property.getName(), property);
 			}
 		});

@@ -12,7 +12,7 @@ import java.util.Map;
 public abstract class BeanUtils {
 
 	public static Bean bean(final Object instance) {
-		return new Bean(instance);
+		return Bean.bean(instance);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public abstract class BeanUtils {
 	}
 
 	public static Type type(final Class<?> type) {
-		return new Type(type);
+		return Type.type(type);
 	}
 
 	/**

@@ -32,12 +32,12 @@ class BeanInspector {
 		}
 	};
 
-	private final boolean recurse;
+	private final boolean inspectChildren;
 	private final boolean stopOverflow;
 	private final Integer overflowLimit = 0;
 
 	BeanInspector(final BeanInspectorProperty... properties) {
-		this.recurse = contains(properties, INSPECT_CHILDREN);
+		this.inspectChildren = contains(properties, INSPECT_CHILDREN);
 		this.stopOverflow = contains(properties, STOP_OVERFLOW);
 	}
 
@@ -98,43 +98,41 @@ class BeanInspector {
 			}
 		}
 
-		if (!recurse) {
-			for (BeanProperty property : propertyList(instance)) {
-				visitor.visit(property, instance, nextPath(path, property), stack.toArray());
-			}
+		if (!inspectChildren && currentStack.size() > 0) {
+			return;
+		}
+
+		Class<? extends Object> type = instance.getClass();
+		if (type.isArray()) {
+			inspectArray(new ArrayList<Object>(), path, instance, visitor);
+		} else if (Iterable.class.isAssignableFrom(type)) {
+			inspectIterable(new ArrayList<Object>(), path, (Iterable) instance, visitor);
+		} else if (Map.class.isAssignableFrom(type)) {
+			inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 		} else {
-			Class<? extends Object> type = instance.getClass();
-			if (type.isArray()) {
-				inspectArray(new ArrayList<Object>(), path, instance, visitor);
-			} else if (Iterable.class.isAssignableFrom(type)) {
-				inspectIterable(new ArrayList<Object>(), path, (Iterable) instance, visitor);
-			} else if (Map.class.isAssignableFrom(type)) {
-				inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
-			} else {
-				for (BeanProperty property : propertyList(instance)) {
-					stack.add(instance);
-					String nextPath = nextPath(path, property);
-					visitor.visit(property, instance, nextPath, stack.toArray());
-					if (property.isArray()) {
-						Object value = property.getValue(instance);
-						if (value != null) {
-							inspectArray(stack, nextPath, value, visitor);
-						}
-					} else if (property.isIterable()) {
-						Iterable value = property.getValue(instance, Iterable.class);
-						if (value != null) {
-							inspectIterable(stack, nextPath, value, visitor);
-						}
-					} else if (property.isMap()) {
-						Map value = property.getValue(instance, Map.class);
-						if (value != null) {
-							inspectMap(stack, nextPath, value, visitor);
-						}
-					} else {
-						Object propertyValue = property.getValue(instance);
-						if (propertyValue != null) {
-							inspectObject(stack, nextPath, propertyValue, visitor);
-						}
+			for (BeanProperty property : propertyList(instance)) {
+				stack.add(instance);
+				String nextPath = nextPath(path, property);
+				visitor.visit(property, instance, nextPath, stack.toArray());
+				if (property.isArray()) {
+					Object value = property.getValue(instance);
+					if (value != null) {
+						inspectArray(stack, nextPath, value, visitor);
+					}
+				} else if (property.isIterable()) {
+					Iterable value = property.getValue(instance, Iterable.class);
+					if (value != null) {
+						inspectIterable(stack, nextPath, value, visitor);
+					}
+				} else if (property.isMap()) {
+					Map value = property.getValue(instance, Map.class);
+					if (value != null) {
+						inspectMap(stack, nextPath, value, visitor);
+					}
+				} else {
+					Object propertyValue = property.getValue(instance);
+					if (propertyValue != null) {
+						inspectObject(stack, nextPath, propertyValue, visitor);
 					}
 				}
 			}
