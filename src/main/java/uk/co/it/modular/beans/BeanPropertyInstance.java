@@ -69,7 +69,7 @@ public class BeanPropertyInstance {
 	 * Return <code>true</code> if the value of this property on this instance is null
 	 */
 	public boolean isNull() {
-		return property.getValue(instance) != null;
+		return property.getValue(instance) == null;
 	}
 
 	/**

@@ -66,7 +66,7 @@ public class Bean {
 	}
 
 	public Object propertyValue(final BeanPropertyPredicate predicate) {
-		BeanPropertyInstance property = findFirst(predicate);
+		BeanPropertyInstance property = findAny(predicate);
 		if (property != null) {
 			return property.getValue();
 		}
@@ -77,28 +77,31 @@ public class Bean {
 		return propertyValue(withName(name));
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T> T propertyValue(final String name, final Class<T> type) {
-		return (T) propertyValue(name);
+		BeanPropertyInstance property = findAny(withName(name));
+		if (property != null) {
+			return property.getValue(type);
+		}
+		return null;
 	}
 
 	public boolean hasProperty(final BeanPropertyPredicate predicate) {
-		return findFirst(predicate) != null;
+		return findAny(predicate) != null;
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		return findFirst(withName(propertyName));
+		return findAny(withName(propertyName));
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
-		BeanPropertyInstance found = findFirst(predicate);
+		BeanPropertyInstance found = findAny(predicate);
 		if (found != null) {
 			return found.getType();
 		}
 		return null;
 	}
 
-	public BeanPropertyInstance findFirst(final BeanPropertyPredicate predicate) {
+	public BeanPropertyInstance findAny(final BeanPropertyPredicate predicate) {
 
 		@SuppressWarnings("serial")
 		class HaltVisitException extends RuntimeException {

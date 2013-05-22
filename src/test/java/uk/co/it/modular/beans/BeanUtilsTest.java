@@ -16,6 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static uk.co.it.modular.beans.BeanPredicates.withName;
 import static uk.co.it.modular.beans.testutils.BeanPropertyMatchers.aBeanProperty;
 import static uk.co.it.modular.beans.testutils.BeanPropertyMatchers.aBeanPropertyInstance;
 import java.math.BigDecimal;
@@ -27,10 +28,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
@@ -49,11 +52,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadShortProperty() {
-
 		doGetPropertyTests(new AllTypes(), "shortValue", short.class, (short) 0, Short.MAX_VALUE);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "shortValue").isShort());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "shortValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "shortObjectValue", Short.class, null, Short.MAX_VALUE);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "shortObjectValue").isShort());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "shortObjectValue").isPrimitive());
@@ -61,11 +62,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadIntegerProperty() {
-
 		doGetPropertyTests(new AllTypes(), "integerValue", int.class, 0, 12345);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "integerValue").isInteger());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "integerValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "integerObjectValue", Integer.class, null, 12345);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "integerObjectValue").isInteger());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "integerObjectValue").isPrimitive());
@@ -73,11 +72,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadLongProperty() {
-
 		doGetPropertyTests(new AllTypes(), "longValue", long.class, 0L, 12345L);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "longValue").isLong());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "longValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "longObjectValue", Long.class, null, 12345L);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "longObjectValue").isLong());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "longObjectValue").isPrimitive());
@@ -85,11 +82,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadDoubleProperty() {
-
 		doGetPropertyTests(new AllTypes(), "doubleValue", double.class, 0.0, 1.1);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "doubleValue").isDouble());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "doubleValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "doubleObjectValue", Double.class, null, 1.1);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "doubleObjectValue").isDouble());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "doubleObjectValue").isPrimitive());
@@ -97,11 +92,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadFloatProperty() {
-
 		doGetPropertyTests(new AllTypes(), "floatValue", float.class, 0.0f, 1.1f);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "floatValue").isFloat());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "floatValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "floatObjectValue", Float.class, null, 1.1f);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "floatObjectValue").isFloat());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "floatObjectValue").isPrimitive());
@@ -109,11 +102,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadBooleanProperty() {
-
 		doGetPropertyTests(new AllTypes(), "booleanValue", boolean.class, false, true);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "booleanValue").isBoolean());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "booleanValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "booleanObjectValue", Boolean.class, null, Boolean.TRUE);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "booleanObjectValue").isBoolean());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "booleanObjectValue").isPrimitive());
@@ -121,11 +112,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadByteProperty() {
-
 		doGetPropertyTests(new AllTypes(), "byteValue", byte.class, (byte) 0, (byte) 1);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "byteValue").isByte());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "byteValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "byteObjectValue", Byte.class, null, Byte.MAX_VALUE);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "byteObjectValue").isByte());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "byteObjectValue").isPrimitive());
@@ -133,11 +122,9 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canReadCharProperty() {
-
 		doGetPropertyTests(new AllTypes(), "charValue", char.class, (char) 0, 'a');
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "charValue").isCharacter());
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "charValue").isPrimitive());
-
 		doGetPropertyTests(new AllTypes(), "charObjectValue", Character.class, null, Character.MAX_VALUE);
 		assertTrue(BeanUtils.propertyNamed(new AllTypes(), "charObjectValue").isCharacter());
 		assertFalse(BeanUtils.propertyNamed(new AllTypes(), "charObjectValue").isPrimitive());
@@ -161,26 +148,39 @@ public class BeanUtilsTest {
 		doGetPropertyTests(new AllTypes(), "array", int[].class, null, new int[] {
 			0
 		});
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(new AllTypes(), "array");
+		assertThat(instance.isArray(), equalTo(true));
 	}
 
 	@Test
 	public void canReadCollectionProperty() {
 		doGetGenericPropertyTests(new AllTypes(), "collection", Collection.class, null, asList("sample"), String.class);
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(new AllTypes(), "collection");
+		assertThat(instance.isCollection(), equalTo(true));
+		assertThat(instance.isIterable(), equalTo(true));
 	}
 
 	@Test
 	public void canReadListProperty() {
 		doGetGenericPropertyTests(new AllTypes(), "list", List.class, null, asList("sample"), String.class);
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(new AllTypes(), "list");
+		assertThat(instance.isList(), equalTo(true));
+		assertThat(instance.isIterable(), equalTo(true));
 	}
 
 	@Test
 	public void canReadSetProperty() {
 		doGetGenericPropertyTests(new AllTypes(), "set", Set.class, null, new HashSet<String>(asList("sample")), String.class);
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(new AllTypes(), "set");
+		assertThat(instance.isSet(), equalTo(true));
+		assertThat(instance.isIterable(), equalTo(true));
 	}
 
 	@Test
 	public void canReadMapProperty() {
 		doGetGenericPropertyTests(new AllTypes(), "map", Map.class, null, singletonMap(1L, "value"), Long.class, String.class);
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(new AllTypes(), "map");
+		assertThat(instance.isMap(), equalTo(true));
 	}
 
 	@Test
@@ -191,20 +191,18 @@ public class BeanUtilsTest {
 	}
 
 	@Test
-	public void canVisitASimpleObject() {
-		BeanVisitor visitor = mock(BeanVisitor.class);
-		Wheel wheel = new Wheel();
-		BeanUtils.visit(wheel, visitor);
-		verify(visitor).visit(any(BeanProperty.class), eq(wheel), eq("diameter"), any(Object[].class));
-		verifyNoMoreInteractions(visitor);
-	}
-
-	@Test
 	public void canFindNothing() {
 		Wheel first = new Wheel(2), last = new Wheel(4);
 		Car car = new Car(null, Arrays.asList(first, last));
 		List<BeanPropertyInstance> found = BeanUtils.find(car, BeanPredicates.withValue(100));
 		assertThat(found, hasSize(0));
+	}
+
+	@Test
+	public void canFindFirst() {
+		Person bob = new Person("Bob", "Onion");
+		BeanPropertyInstance found = BeanUtils.findAny(bob, BeanPredicates.withType(String.class));
+		assertThat(found, aBeanPropertyInstance("firstname", String.class));
 	}
 
 	@Test
@@ -245,7 +243,7 @@ public class BeanUtilsTest {
 	}
 
 	@Test
-	public void canVisitRootOfGraphOnly() {
+	public void canVisitABean() {
 
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
@@ -314,13 +312,62 @@ public class BeanUtilsTest {
 		BeanUtils.setProperty(new AllTypes(), "stringValue", 1L);
 	}
 
+	@Test
+	public void canApplyAFunctionToABean() {
+		final BigDecimal newSize = new BigDecimal(4.0);
+		Wheel first = new Wheel(2), last = new Wheel(4);
+		Engine engine = new Engine(new BigDecimal(3.8));
+		Car car = new Car(engine, Arrays.asList(first, last));
+		BeanUtils.apply(car, new BeanPropertyFunction() {
+
+			public void apply(final BeanPropertyInstance property) {
+				if (property.hasName("engine")) {
+					property.setValue(new Engine(newSize));
+				}
+			}
+		});
+		assertThat(car.getEngine().getCapacity(), equalTo(newSize));
+	}
+
+	@Test
+	public void canApplyAFunctionToMatchingProperties() {
+
+		Engine engine = new Engine(new BigDecimal(3.8));
+		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
+		Car car = new Car(engine, wheels);
+
+		BigDecimal newSize = new BigDecimal(4.0);
+		BeanUtils.apply(car, changeEngine(new Engine(newSize)), withName("engine"));
+		assertThat(car.getEngine().getCapacity(), equalTo(newSize));
+	}
+
+	private BeanPropertyFunction changeEngine(final Engine engine) {
+		return new BeanPropertyFunction() {
+
+			public void apply(final BeanPropertyInstance property) {
+				property.setValue(engine);
+			}
+		};
+	}
+
 	@SuppressWarnings("rawtypes")
 	private <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
 
+		BeanPropertyInstance instance = BeanUtils.propertyNamed(sample, name);
+		assertThat(instance, notNullValue());
+		assertThat(instance.isType(type), equalTo(true));
+		assertThat(instance.hasValue(currentValue), equalTo(true));
+		assertThat(instance.getDeclaringTypeCanonicalName(), equalTo(sample.getClass().getCanonicalName()));
+		assertThat(instance.getDeclaringTypeSimpleName(), equalTo(sample.getClass().getSimpleName()));
+		assertThat(instance.getTypeCanonicalName(), equalTo(type.getCanonicalName()));
+		assertThat(instance.getTypeSimpleName(), equalTo(type.getSimpleName()));
+
 		List<BeanPropertyInstance> properties = BeanUtils.propertyList(sample);
 		assertThat(properties, hasItem(aBeanPropertyInstance(name, type)));
+
 		Map<String, BeanPropertyInstance> propertyMap = BeanUtils.propertyMap(sample);
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanPropertyInstance(name, type)));
+
 		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
 		assertThat(BeanUtils.hasProperty(sample, BeanPredicates.withName(name)), equalTo(true));
 		assertThat(BeanUtils.propertyNamed(sample, name), aBeanPropertyInstance(name, type));
@@ -353,18 +400,4 @@ public class BeanUtilsTest {
 			assertThat(property.getTypeParameters(), hasItem(genericType));
 		}
 	}
-
-	class Person {
-
-		private List<Person> siblings;
-
-		public List<Person> getSiblings() {
-			return siblings;
-		}
-
-		public void setSiblings(final List<Person> siblings) {
-			this.siblings = siblings;
-		}
-	}
-
 }

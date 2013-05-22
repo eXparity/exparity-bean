@@ -35,6 +35,7 @@ import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
@@ -293,7 +294,7 @@ public class GraphUtilsTest {
 		Engine engine = new Engine(new BigDecimal(3.8));
 		List<Wheel> wheels = asList(new Wheel(18), new Wheel(18), new Wheel(18), new Wheel(18));
 		Car car = new Car(engine, wheels);
-		BeanPropertyInstance found = GraphUtils.findFirst(car, BeanPredicates.withType(Engine.class));
+		BeanPropertyInstance found = GraphUtils.findAny(car, BeanPredicates.withType(Engine.class));
 		assertThat(found.getValue(), Matchers.equalTo((Object) engine));
 	}
 
@@ -363,8 +364,14 @@ public class GraphUtilsTest {
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		GraphUtils.visit(oldest, visitor);
+		verify(visitor).visit(any(BeanProperty.class), eq(oldest), eq("firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(oldest), eq("surname"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(oldest), eq("siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(middle), eq("siblings[0].firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(middle), eq("siblings[0].surname"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(middle), eq("siblings[0].siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(youngest), eq("siblings[0].siblings[0].firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanProperty.class), eq(youngest), eq("siblings[0].siblings[0].surname"), any(Object[].class));
 		verify(visitor).visit(any(BeanProperty.class), eq(youngest), eq("siblings[0].siblings[0].siblings"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
@@ -472,7 +479,7 @@ public class GraphUtilsTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
+	public static <T> void doGetPropertyTests(final Object sample, final String name, final Class<T> type, final T currentValue, final T newValue) {
 
 		List<BeanPropertyInstance> properties = GraphUtils.propertyList(sample);
 		assertThat(properties, hasItem(aBeanPropertyInstance(name, type)));
@@ -500,18 +507,4 @@ public class GraphUtilsTest {
 			assertThat(property.getTypeParameters(), hasItem(genericType));
 		}
 	}
-
-	class Person {
-
-		private List<Person> siblings;
-
-		public List<Person> getSiblings() {
-			return siblings;
-		}
-
-		public void setSiblings(final List<Person> siblings) {
-			this.siblings = siblings;
-		}
-	}
-
 }

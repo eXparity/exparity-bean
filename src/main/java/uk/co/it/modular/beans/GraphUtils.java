@@ -262,8 +262,8 @@ public abstract class GraphUtils {
 	 * BeanPropery property = BeanUtils.findPropertyInGraph(myFamilyTree, BeanPredicates.withProperty(&quot;name&quot; "Bob"));
 	 * </code></p>
 	 */
-	public static BeanPropertyInstance findFirst(final Object instance, final BeanPropertyPredicate predicate) {
-		return graph(instance).findFirst(predicate);
+	public static BeanPropertyInstance findAny(final Object instance, final BeanPropertyPredicate predicate) {
+		return graph(instance).findAny(predicate);
 	}
 
 	/**

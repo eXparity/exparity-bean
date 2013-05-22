@@ -68,7 +68,7 @@ public class Graph {
 	}
 
 	public Object propertyValue(final BeanPropertyPredicate predicate) {
-		BeanPropertyInstance property = findFirst(predicate);
+		BeanPropertyInstance property = findAny(predicate);
 		if (property != null) {
 			return property.getValue();
 		}
@@ -85,7 +85,7 @@ public class Graph {
 	}
 
 	public boolean hasProperty(final BeanPropertyPredicate predicate) {
-		return findFirst(predicate) != null;
+		return findAny(predicate) != null;
 	}
 
 	public boolean hasProperty(final String name) {
@@ -93,18 +93,18 @@ public class Graph {
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		return findFirst(withName(propertyName));
+		return findAny(withName(propertyName));
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
-		BeanPropertyInstance found = findFirst(predicate);
+		BeanPropertyInstance found = findAny(predicate);
 		if (found != null) {
 			return found.getType();
 		}
 		return null;
 	}
 
-	public BeanPropertyInstance findFirst(final BeanPropertyPredicate predicate) {
+	public BeanPropertyInstance findAny(final BeanPropertyPredicate predicate) {
 
 		@SuppressWarnings("serial")
 		class HaltVisitException extends RuntimeException {
