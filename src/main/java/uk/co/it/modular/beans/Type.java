@@ -31,7 +31,10 @@ public class Type {
 
 	public boolean isPropertyType(final String propertyName, final Class<?> expectedType) {
 		BeanProperty found = propertyMap().get(propertyName);
-		return found != null && found.isType(expectedType);
+		if (found != null) {
+			return found.isType(expectedType);
+		}
+		return false;
 	}
 
 	public void visit(final TypeVisitor visitor) {

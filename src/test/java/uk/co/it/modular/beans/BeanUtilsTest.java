@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;

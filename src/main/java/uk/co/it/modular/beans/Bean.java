@@ -149,9 +149,8 @@ public class Bean {
 		visit(new BeanVisitor() {
 
 			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				BeanPropertyInstance propertyInstance = new BeanPropertyInstance(property, current);
 				if (predicate.matches(property, current)) {
-					collection.add(propertyInstance);
+					collection.add(new BeanPropertyInstance(property, current));
 				}
 			}
 		});
