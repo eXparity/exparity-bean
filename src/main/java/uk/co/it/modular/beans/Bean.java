@@ -74,15 +74,11 @@ public class Bean {
 	}
 
 	public Object propertyValue(final String name) {
-		return propertyValue(withName(name));
+		return propertyNamed(name).getValue();
 	}
 
 	public <T> T propertyValue(final String name, final Class<T> type) {
-		BeanPropertyInstance property = findAny(withName(name));
-		if (property != null) {
-			return property.getValue(type);
-		}
-		return null;
+		return propertyNamed(name).getValue(type);
 	}
 
 	public boolean hasProperty(final BeanPropertyPredicate predicate) {
@@ -90,7 +86,11 @@ public class Bean {
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		return findAny(withName(propertyName));
+		BeanPropertyInstance property = findAny(withName(propertyName));
+		if (property == null) {
+			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
+		}
+		return property;
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
@@ -166,11 +166,11 @@ public class Bean {
 	}
 
 	public boolean setProperty(final String name, final Object value) {
-		return setProperty(withName(name), value);
+		return propertyNamed(name).setValue(value);
 	}
 
 	public boolean isPropertyType(final String name, final Class<?> type) {
-		return isPropertyType(withName(name), type);
+		return propertyNamed(name).isType(type);
 	}
 
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
@@ -178,7 +178,7 @@ public class Bean {
 	}
 
 	public Class<?> propertyType(final String name) {
-		return propertyType(withName(name));
+		return propertyNamed(name).getType();
 	}
 
 }

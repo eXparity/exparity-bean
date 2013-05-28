@@ -21,7 +21,7 @@ public class BeanPropertyInstance {
 	 * Static factory method for constructing a {@link BeanPropertyInstance} for the property name on the given instance.</p> Returns <code>null</code> if the property is not
 	 * present.</p>
 	 */
-	public static final BeanPropertyInstance propertyOn(final Object instance, final String name) {
+	public static final BeanPropertyInstance beanProperty(final Object instance, final String name) {
 		return bean(instance).propertyNamed(name);
 	}
 
