@@ -16,6 +16,19 @@ import java.util.Set;
  */
 public class BeanUtilTestFixture {
 
+	public static class Thrower {
+
+		int property = 0;
+
+		public void setProperty(final int property) {
+			throw new RuntimeException();
+		}
+
+		public int getProperty() {
+			throw new RuntimeException();
+		}
+	}
+
 	public static class AllTypes {
 
 		private String stringValue;

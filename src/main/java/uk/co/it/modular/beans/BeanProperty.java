@@ -1,11 +1,9 @@
 
 package uk.co.it.modular.beans;
 
-import java.lang.reflect.InvocationTargetException;
+import static uk.co.it.modular.beans.MethodUtils.genericArgs;
+import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -15,8 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard.</p>
@@ -28,20 +24,11 @@ import org.slf4j.LoggerFactory;
  */
 public class BeanProperty {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BeanProperty.class);
-
 	/**
 	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given class.</p> Returns <code>null</code> if the property is not present.</p>
 	 */
-	public static final BeanProperty propertyOn(final Class<?> instance, final String name) {
-		return BeanUtils.propertyNamed(instance, name);
-	}
-
-	/**
-	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given instance.</p> Returns <code>null</code> if the property is not present.</p>
-	 */
-	public static final BeanProperty propertyOn(final Object instance, final String name) {
-		return BeanUtils.propertyNamed(instance.getClass(), name);
+	public static final BeanProperty beanProperty(final Class<?> instance, final String name) {
+		return type(instance).propertyNamed(name);
 	}
 
 	private final Class<?> declaringType;
@@ -91,16 +78,7 @@ public class BeanProperty {
 	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
 	public Object getValue(final Object instance) {
-		try {
-			return accessor.invoke(instance);
-		} catch (IllegalArgumentException e) {
-			throw new BeanPropertyException("Method '" + accessor.getName() + "' does not exist on '" + instance.getClass() + "'");
-		} catch (IllegalAccessException e) {
-			throw new BeanPropertyException("Illegal Access exception encountered whilst calling '" + accessor.getName() + " on '" + instance.getClass().getCanonicalName() + "'",
-					e);
-		} catch (InvocationTargetException e) {
-			throw new BeanPropertyException("Unexpected exception whilst calling '" + accessor.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e.getCause());
-		}
+		return MethodUtils.invoke(accessor, instance);
 	}
 
 	/**
@@ -122,24 +100,7 @@ public class BeanProperty {
 	 *            the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object instance, final Object value) {
-		try {
-			mutator.invoke(instance, value);
-		} catch (IllegalArgumentException e) {
-			throw new BeanPropertyException("Mutator property '" + name
-					+ " on '"
-					+ instance.getClass().getCanonicalName()
-					+ "' expected a '"
-					+ this.getTypeSimpleName()
-					+ "' argument but was supplied a '"
-					+ value.getClass().getSimpleName(), e);
-		} catch (IllegalAccessException e) {
-			throw new BeanPropertyException("Illegal Access exception encountered whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e);
-		} catch (InvocationTargetException e) {
-			LOG.warn("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'", e);
-			throw new BeanPropertyException("Unexpected exception whilst calling '" + mutator.getName() + " on '" + instance.getClass().getCanonicalName() + "'",
-					e.getTargetException());
-		}
-		return true;
+		return MethodUtils.invoke(mutator, instance, value);
 	}
 
 	/**
@@ -351,21 +312,6 @@ public class BeanProperty {
 	 */
 	public boolean isCollection() {
 		return isType(Collection.class);
-	}
-
-	private Class<?>[] genericArgs(final Method accessor) {
-		Type type = accessor.getGenericReturnType();
-		if (type instanceof ParameterizedType) {
-			List<Class<?>> params = new ArrayList<Class<?>>();
-			for (Type arg : ((ParameterizedType) type).getActualTypeArguments()) {
-				if (arg instanceof Class<?>) {
-					params.add((Class<?>) arg);
-				}
-			}
-			return params.toArray(new Class<?>[0]);
-		} else {
-			return new Class<?>[0];
-		}
 	}
 
 	@Override

@@ -29,8 +29,11 @@ public class Type {
 		return propertyMap().containsKey(name);
 	}
 
+	/**
+	 * @throws BeanPropertyNotFoundException
+	 */
 	public boolean isPropertyType(final String propertyName, final Class<?> expectedType) {
-		BeanProperty found = propertyMap().get(propertyName);
+		BeanProperty found = propertyNamed(propertyName);
 		if (found != null) {
 			return found.isType(expectedType);
 		}
@@ -63,10 +66,27 @@ public class Type {
 		return propertyMap;
 	}
 
-	public BeanProperty propertyNamed(final String name) {
-		return propertyMap().get(name);
+	/**
+	 * @throws BeanPropertyNotFoundException
+	 */
+	public BeanProperty propertyNamed(final String propertyName) {
+		BeanProperty property = propertyMap().get(propertyName);
+		if (property == null) {
+			throw new BeanPropertyNotFoundException(type, propertyName);
+		}
+		return property;
 	}
 
+	/**
+	 * @throws BeanPropertyNotFoundException
+	 */
+	public BeanProperty get(final String propertyName) {
+		return propertyNamed(propertyName);
+	}
+
+	/**
+	 * @throws BeanPropertyNotFoundException
+	 */
 	public Class<?> propertyType(final String propertyName) {
 		BeanProperty property = propertyNamed(propertyName);
 		if (property != null) {

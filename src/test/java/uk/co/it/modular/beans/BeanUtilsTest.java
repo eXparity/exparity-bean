@@ -367,8 +367,8 @@ public class BeanUtilsTest {
 		Map<String, BeanPropertyInstance> propertyMap = BeanUtils.propertyMap(sample);
 		assertThat(propertyMap, hasEntry(equalTo(name), aBeanPropertyInstance(name, type)));
 
-		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
 		assertThat(BeanUtils.hasProperty(sample, BeanPredicates.withName(name)), equalTo(true));
+		assertThat(BeanUtils.hasProperty(sample, name), equalTo(true));
 		assertThat(BeanUtils.propertyNamed(sample, name), aBeanPropertyInstance(name, type));
 		assertThat(BeanUtils.isPropertyType(sample, name, type), equalTo(true));
 		assertThat(BeanUtils.isPropertyType(sample, BeanPredicates.withName(name), type), equalTo(true));

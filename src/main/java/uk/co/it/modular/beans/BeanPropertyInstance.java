@@ -4,6 +4,7 @@
 
 package uk.co.it.modular.beans;
 
+import static uk.co.it.modular.beans.Bean.bean;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -15,6 +16,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * @author Stewart Bissett
  */
 public class BeanPropertyInstance {
+
+	/**
+	 * Static factory method for constructing a {@link BeanPropertyInstance} for the property name on the given instance.</p> Returns <code>null</code> if the property is not
+	 * present.</p>
+	 */
+	public static final BeanPropertyInstance propertyOn(final Object instance, final String name) {
+		return bean(instance).propertyNamed(name);
+	}
 
 	private final BeanProperty property;
 	private final Object instance;
