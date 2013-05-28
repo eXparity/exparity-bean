@@ -321,6 +321,20 @@ public class BeanUtilTestFixture {
 		}
 	}
 
+	public static class NotABean {
+
+		private String property;
+
+		public void setPropertyCalledOneThing(final String property) {
+			this.property = property;
+		}
+
+		public String getPropertyCalledAnother() {
+			return property;
+		}
+
+	}
+
 	public static class Person {
 
 		private List<Person> siblings;

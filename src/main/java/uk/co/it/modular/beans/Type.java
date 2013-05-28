@@ -33,11 +33,7 @@ public class Type {
 	 * @throws BeanPropertyNotFoundException
 	 */
 	public boolean isPropertyType(final String propertyName, final Class<?> expectedType) {
-		BeanProperty found = propertyNamed(propertyName);
-		if (found != null) {
-			return found.isType(expectedType);
-		}
-		return false;
+		return propertyNamed(propertyName).isType(expectedType);
 	}
 
 	public void visit(final TypeVisitor visitor) {
@@ -88,10 +84,6 @@ public class Type {
 	 * @throws BeanPropertyNotFoundException
 	 */
 	public Class<?> propertyType(final String propertyName) {
-		BeanProperty property = propertyNamed(propertyName);
-		if (property != null) {
-			return property.getType();
-		}
-		return null;
+		return propertyNamed(propertyName).getType();
 	}
 }
