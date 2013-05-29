@@ -321,18 +321,62 @@ public class BeanUtilTestFixture {
 		}
 	}
 
-	public static class NotABean {
+	public static class SetterWithNotArgs {
 
-		private String property;
+		public void setProperty() {
+
+		}
+
+		public String getProperty() {
+			return "";
+		}
+	}
+
+	public static class GetterWithArgs {
+
+		public void setProperty(final String value) {
+
+		}
+
+		public String getProperty(final String value) {
+			return value;
+		}
+	}
+
+	public static class TypeMismatch {
+
+		public void setProperty(final String value) {
+
+		}
+
+		public Boolean getProperty() {
+			return true;
+		}
+	}
+
+	public static class OverloadedSetter {
+
+		public void setProperty(final String propery) {
+
+		}
+
+		public void setProperty(final Boolean propery) {
+
+		}
+
+		public String getProperty() {
+			return "";
+		}
+	}
+
+	public static class NameMismatch {
 
 		public void setPropertyCalledOneThing(final String property) {
-			this.property = property;
 		}
 
 		public String getPropertyCalledAnother() {
-			return property;
+			return "";
 		}
-
 	}
 
 	public static class Person {

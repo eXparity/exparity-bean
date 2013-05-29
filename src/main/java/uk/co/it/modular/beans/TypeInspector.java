@@ -88,7 +88,7 @@ class TypeInspector {
 
 	private Method getMutatorFor(final String propertyName, final Class<?> type, final Map<String, List<Method>> mutatorMap) {
 		List<Method> mutatorList = mutatorMap.get(propertyName);
-		if (mutatorList != null && !mutatorList.isEmpty()) {
+		if (mutatorList != null) {
 			for (Method mutator : mutatorList) {
 				if (mutator.getParameterTypes()[0].isAssignableFrom(type)) {
 					return mutator;

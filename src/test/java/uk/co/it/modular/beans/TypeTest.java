@@ -6,12 +6,14 @@ package uk.co.it.modular.beans;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.co.it.modular.beans.Type.type;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
-import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NotABean;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 
 /**
@@ -80,16 +82,16 @@ public class TypeTest {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
 		Type type = type(Person.class);
 		type.visit(visitor);
-		Mockito.verify(visitor).visit(type.propertyNamed("firstname"));
-		Mockito.verify(visitor).visit(type.propertyNamed("surname"));
-		Mockito.verify(visitor).visit(type.propertyNamed("siblings"));
-		Mockito.verifyNoMoreInteractions(visitor);
+		verify(visitor).visit(type.propertyNamed("firstname"));
+		verify(visitor).visit(type.propertyNamed("surname"));
+		verify(visitor).visit(type.propertyNamed("siblings"));
+		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canVisitATypeNotABean() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		type(NotABean.class).visit(visitor);
+		type(NameMismatch.class).visit(visitor);
 		Mockito.verifyNoMoreInteractions(visitor);
 	}
 
@@ -105,7 +107,7 @@ public class TypeTest {
 
 	@Test
 	public void canGetAListOfPropertiesNotABean() {
-		assertThat(type(NotABean.class).propertyList().size(), equalTo(0));
+		assertThat(type(NameMismatch.class).propertyList().size(), equalTo(0));
 	}
 
 	@Test
@@ -120,7 +122,7 @@ public class TypeTest {
 
 	@Test
 	public void canGetAMapOfPropertiesNotABean() {
-		assertThat(type(NotABean.class).propertyMap().size(), equalTo(0));
+		assertThat(type(NameMismatch.class).propertyMap().size(), equalTo(0));
 	}
 
 }
