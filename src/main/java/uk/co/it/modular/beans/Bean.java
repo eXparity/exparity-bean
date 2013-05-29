@@ -33,8 +33,8 @@ public class Bean {
 		final List<BeanPropertyInstance> propertyList = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				propertyList.add(new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				propertyList.add(property);
 			}
 		});
 		return propertyList;
@@ -44,20 +44,20 @@ public class Bean {
 		final Map<String, BeanPropertyInstance> propertyMap = new HashMap<String, BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				propertyMap.put(property.getName(), new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				propertyMap.put(property.getName(), property);
 			}
 		});
 		return propertyMap;
 	}
 
 	public boolean setProperty(final BeanPropertyPredicate predicate, final Object value) {
-		final List<BeanProperty> valuesSet = new ArrayList<BeanProperty>();
+		final List<BeanPropertyInstance> valuesSet = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				if (predicate.matches(property, current)) {
-					property.setValue(current, value);
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					property.setValue(value);
 					valuesSet.add(property);
 				}
 			}
@@ -69,6 +69,14 @@ public class Bean {
 		BeanPropertyInstance property = findAny(predicate);
 		if (property != null) {
 			return property.getValue();
+		}
+		return null;
+	}
+
+	public <T> T propertyValue(final BeanPropertyPredicate predicate, final Class<T> type) {
+		BeanPropertyInstance property = findAny(predicate);
+		if (property != null) {
+			return property.getValue(type);
 		}
 		return null;
 	}
@@ -85,12 +93,27 @@ public class Bean {
 		return findAny(predicate) != null;
 	}
 
+	/**
+	 * @throws BeanPropertyNotFoundException
+	 */
+	public BeanPropertyInstance get(final String propertyName) {
+		return propertyNamed(propertyName);
+	}
+
+	public BeanPropertyInstance get(final BeanPropertyPredicate predicate) {
+		return findAny(predicate);
+	}
+
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
 		BeanPropertyInstance property = findAny(withName(propertyName));
 		if (property == null) {
 			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
 		}
 		return property;
+	}
+
+	public Class<?> propertyType(final String name) {
+		return propertyNamed(name).getType();
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
@@ -116,9 +139,9 @@ public class Bean {
 		try {
 			visit(new BeanVisitor() {
 
-				public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-					if (predicate.matches(property, current)) {
-						throw new HaltVisitException(new BeanPropertyInstance(property, current));
+				public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+					if (predicate.matches(property)) {
+						throw new HaltVisitException(property);
 					}
 				}
 			});
@@ -135,10 +158,9 @@ public class Bean {
 	public void apply(final BeanPropertyFunction function, final BeanPropertyPredicate predicate) {
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				BeanPropertyInstance propertyInstance = new BeanPropertyInstance(property, current);
-				if (predicate.matches(property, current)) {
-					function.apply(propertyInstance);
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					function.apply(property);
 				}
 			}
 		});
@@ -148,9 +170,9 @@ public class Bean {
 		final List<BeanPropertyInstance> collection = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				if (predicate.matches(property, current)) {
-					collection.add(new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					collection.add(property);
 				}
 			}
 		});
@@ -175,10 +197,6 @@ public class Bean {
 
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
 		return hasProperty(matchesAll(predicate, withType(type)));
-	}
-
-	public Class<?> propertyType(final String name) {
-		return propertyNamed(name).getType();
 	}
 
 }

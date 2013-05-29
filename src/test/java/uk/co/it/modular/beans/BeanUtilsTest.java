@@ -210,8 +210,8 @@ public class BeanUtilsTest {
 		Wheel first = new Wheel(), second = new Wheel();
 		List<Wheel> list = Arrays.asList(first, second);
 		BeanUtils.visit(list, visitor);
-		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("collection[0].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("collection[1].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(first), eq("collection[0].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(second), eq("collection[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -223,8 +223,8 @@ public class BeanUtilsTest {
 		wheelMap.put("frontLeft", first);
 		wheelMap.put("frontRight", second);
 		GraphUtils.visit(wheelMap, visitor);
-		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("map[frontLeft].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("map[frontRight].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(first), eq("map[frontLeft].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(second), eq("map[frontRight].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -236,8 +236,8 @@ public class BeanUtilsTest {
 				first, second
 		};
 		BeanUtils.visit(wheels, visitor);
-		verify(visitor).visit(any(BeanProperty.class), eq(first), eq("array[0].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanProperty.class), eq(second), eq("array[1].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(first), eq("array[0].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(second), eq("array[1].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -250,8 +250,8 @@ public class BeanUtilsTest {
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		BeanUtils.visit(car, visitor);
-		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("engine"), any(Object[].class));
-		verify(visitor).visit(any(BeanProperty.class), eq(car), eq("wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("wheels"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 

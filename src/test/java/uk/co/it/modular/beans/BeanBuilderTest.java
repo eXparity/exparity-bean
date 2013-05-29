@@ -9,7 +9,6 @@ import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
 import static uk.co.it.modular.beans.BeanUtils.visit;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import uk.co.it.modular.beans.BeanProperty;
 import uk.co.it.modular.beans.BeanVisitor;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
@@ -33,8 +32,8 @@ public class BeanBuilderTest {
 		AllTypes allTypes = aRandomInstanceOf(AllTypes.class).build();
 		visit(allTypes, new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				assertThat("Expected " + property + " to not be null", property.getValue(current), Matchers.notNullValue());
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				assertThat("Expected " + property + " to not be null", property.getValue(), Matchers.notNullValue());
 			}
 		});
 	}

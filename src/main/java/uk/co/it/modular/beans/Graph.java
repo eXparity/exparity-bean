@@ -35,8 +35,8 @@ public class Graph {
 		final List<BeanPropertyInstance> propertyList = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				propertyList.add(new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				propertyList.add(property);
 			}
 		});
 		return propertyList;
@@ -46,20 +46,20 @@ public class Graph {
 		final Map<String, BeanPropertyInstance> propertyMap = new HashMap<String, BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				propertyMap.put(property.getName(), new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				propertyMap.put(property.getName(), property);
 			}
 		});
 		return propertyMap;
 	}
 
 	public boolean setProperty(final BeanPropertyPredicate predicate, final Object value) {
-		final List<BeanProperty> valuesSet = new ArrayList<BeanProperty>();
+		final List<BeanPropertyInstance> valuesSet = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				if (predicate.matches(property, current)) {
-					property.setValue(current, value);
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					property.setValue(value);
 					valuesSet.add(property);
 				}
 			}
@@ -119,9 +119,9 @@ public class Graph {
 		try {
 			visit(new BeanVisitor() {
 
-				public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-					if (predicate.matches(property, current)) {
-						throw new HaltVisitException(new BeanPropertyInstance(property, current));
+				public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+					if (predicate.matches(property)) {
+						throw new HaltVisitException(property);
 					}
 				}
 			});
@@ -138,10 +138,9 @@ public class Graph {
 	public void apply(final BeanPropertyFunction function, final BeanPropertyPredicate predicate) {
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				BeanPropertyInstance propertyInstance = new BeanPropertyInstance(property, current);
-				if (predicate.matches(property, current)) {
-					function.apply(propertyInstance);
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					function.apply(property);
 				}
 			}
 		});
@@ -151,9 +150,9 @@ public class Graph {
 		final List<BeanPropertyInstance> collection = new ArrayList<BeanPropertyInstance>();
 		visit(new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
-				if (predicate.matches(property, current)) {
-					collection.add(new BeanPropertyInstance(property, current));
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (predicate.matches(property)) {
+					collection.add(property);
 				}
 			}
 		});

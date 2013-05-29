@@ -1,13 +1,12 @@
 
 package uk.co.it.modular.beans;
 
-import static java.lang.Character.toLowerCase;
 import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.ArrayUtils.contains;
 import static uk.co.it.modular.beans.BeanInspectorProperty.INSPECT_CHILDREN;
 import static uk.co.it.modular.beans.BeanInspectorProperty.STOP_OVERFLOW;
+import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,10 +109,10 @@ class BeanInspector {
 		} else if (Map.class.isAssignableFrom(type)) {
 			inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 		} else {
-			for (BeanProperty property : propertyList(instance)) {
+			for (BeanProperty property : type(instance.getClass()).propertyList()) {
 				stack.add(instance);
 				String nextPath = nextPath(path, property);
-				visitor.visit(property, instance, nextPath, stack.toArray());
+				visitor.visit(new BeanPropertyInstance(property, instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {
 					Object value = property.getValue(instance);
 					if (value != null) {
@@ -172,70 +171,5 @@ class BeanInspector {
 		LOG.trace("Inspect Path [{}]. {} [{}:{}]", new Object[] {
 				path, loggedType, instance.getClass().getSimpleName(), identityHashCode(instance)
 		});
-	}
-
-	private static final String MUTATOR_PROPERTY_NAME = "set";
-	private static final String[] ACCESSOR_PROPERTY_NAMES = new String[] {
-			"is", "get"
-	};
-
-	private List<BeanProperty> propertyList(final Object instance) {
-
-		Map<String, List<Method>> mutatorMap = createMutatorMap(instance);
-
-		List<BeanProperty> properties = new ArrayList<BeanProperty>();
-		for (Method accessor : instance.getClass().getMethods()) {
-			final String methodName = accessor.getName();
-			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
-				if (methodName.startsWith(prefix) && accessor.getParameterTypes().length == 0) {
-					String propertyName = convertToPropertyName(methodName, prefix.length());
-					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
-					if (mutator != null) {
-						properties.add(new BeanProperty(propertyName, accessor, mutator));
-					}
-					break;
-				}
-			}
-		}
-		return properties;
-	}
-
-	private Method getMutatorFor(final String propertyName, final Class<?> type, final Map<String, List<Method>> mutatorMap) {
-		List<Method> mutatorList = mutatorMap.get(propertyName);
-		if (mutatorList != null && !mutatorList.isEmpty()) {
-			for (Method mutator : mutatorList) {
-				if (mutator.getParameterTypes()[0].isAssignableFrom(type)) {
-					return mutator;
-				}
-			}
-		}
-		return null;
-	}
-
-	private Map<String, List<Method>> createMutatorMap(final Object instance) {
-		Map<String, List<Method>> mutatorMap = new HashMap<String, List<Method>>();
-		for (Method method : instance.getClass().getMethods()) {
-			String methodName = method.getName();
-			if (isMutator(method, methodName)) {
-				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());
-				List<Method> list = mutatorMap.get(propertyName);
-				if (list == null) {
-					list = new ArrayList<Method>();
-					list.add(method);
-					mutatorMap.put(propertyName, list);
-				} else {
-					list.add(method);
-				}
-			}
-		}
-		return mutatorMap;
-	}
-
-	private boolean isMutator(final Method method, final String methodName) {
-		return methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1;
-	}
-
-	private static String convertToPropertyName(final String methodName, final int startPos) {
-		return toLowerCase(methodName.charAt(startPos)) + methodName.substring(startPos + 1);
 	}
 }

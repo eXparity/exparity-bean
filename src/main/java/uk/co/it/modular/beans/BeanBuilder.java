@@ -218,7 +218,7 @@ public class BeanBuilder<T> {
 		T instance = createNewInstance();
 		GraphUtils.visit(instance, new BeanVisitor() {
 
-			public void visit(final BeanProperty property, final Object current, final String path, final Object[] stack) {
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
 
 				String pathWithRoot = isNotBlank(path) ? rootName + "." + path : rootName;
 				String pathNoIndexes = pathWithRoot.replaceAll("\\[\\w*\\]\\.", ".");
@@ -246,7 +246,7 @@ public class BeanBuilder<T> {
 							return;
 						}
 					}
-					Object currentPropertyValue = property.getValue(current);
+					Object currentPropertyValue = property.getValue();
 					if (currentPropertyValue != null && !isEmptyCollection(currentPropertyValue)) {
 						LOG.trace("Ignore  Path [{}]. Already set", pathWithRoot);
 						return;
@@ -258,7 +258,7 @@ public class BeanBuilder<T> {
 					LOG.trace("Assign  Path [{}] value [{}:{}]", new Object[] {
 							pathWithRoot, value.getClass().getSimpleName(), identityHashCode(value)
 					});
-					property.setValue(current, value);
+					property.setValue(value);
 				} else {
 					LOG.trace("Assign  Path [{}] value [null]", pathWithRoot);
 				}
@@ -288,7 +288,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private Object createValue(final BeanProperty property) {
+	private Object createValue(final BeanPropertyInstance property) {
 		if (property.isArray()) {
 			return createArray(property.getType().getComponentType());
 		} else if (property.isMap()) {
