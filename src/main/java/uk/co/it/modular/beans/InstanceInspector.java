@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Stewart Bissett
  */
-class BeanInspector {
+class InstanceInspector {
 
-	static BeanInspector beanInspector() {
-		return new BeanInspector(new BeanInspectorConfiguration() {
+	static InstanceInspector beanInspector() {
+		return new InstanceInspector(new BeanInspectorConfiguration() {
 
 			{
 				setInspectChildren(false);
@@ -31,8 +31,8 @@ class BeanInspector {
 		});
 	}
 
-	static BeanInspector graphInspector() {
-		return new BeanInspector(new BeanInspectorConfiguration() {
+	static InstanceInspector graphInspector() {
+		return new InstanceInspector(new BeanInspectorConfiguration() {
 
 			{
 				setInspectChildren(true);
@@ -74,7 +74,7 @@ class BeanInspector {
 
 	}
 
-	private static final Logger LOG = LoggerFactory.getLogger(BeanInspector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InstanceInspector.class);
 
 	private final BeanInspectorConfiguration config;
 	private final ThreadLocal<Map<Object, Integer>> inspected = new ThreadLocal<Map<Object, Integer>>() {
@@ -85,7 +85,7 @@ class BeanInspector {
 		}
 	};
 
-	BeanInspector(final BeanInspectorConfiguration config) {
+	InstanceInspector(final BeanInspectorConfiguration config) {
 		this.config = config;
 	}
 

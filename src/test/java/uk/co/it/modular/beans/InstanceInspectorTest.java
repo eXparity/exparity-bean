@@ -15,8 +15,8 @@ import static uk.co.it.modular.beans.Bean.bean;
 import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
 import static uk.co.it.modular.beans.BeanBuilder.anEmptyInstanceOf;
 import static uk.co.it.modular.beans.BeanBuilder.anInstanceOf;
-import static uk.co.it.modular.beans.BeanInspector.beanInspector;
-import static uk.co.it.modular.beans.BeanInspector.graphInspector;
+import static uk.co.it.modular.beans.InstanceInspector.beanInspector;
+import static uk.co.it.modular.beans.InstanceInspector.graphInspector;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +37,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 /**
  * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
  */
-public class BeanInspectorTest {
+public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectABean() {

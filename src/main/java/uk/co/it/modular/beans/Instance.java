@@ -4,7 +4,6 @@
 
 package uk.co.it.modular.beans;
 
-import static uk.co.it.modular.beans.InstanceInspector.graphInspector;
 import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
 import static uk.co.it.modular.beans.BeanPredicates.matchesAll;
 import static uk.co.it.modular.beans.BeanPredicates.withName;
@@ -17,16 +16,13 @@ import java.util.Map;
 /**
  * @author Stewart Bissett
  */
-public class Graph {
+abstract class Instance {
 
-	public static Graph graph(final Object instance) {
-		return new Graph(instance);
-	}
-
-	private final InstanceInspector graphInspector = graphInspector();
+	private final InstanceInspector inspector;
 	private final Object instance;
 
-	public Graph(final Object instance) {
+	protected Instance(final InstanceInspector inspector, final Object instance) {
+		this.inspector = inspector;
 		this.instance = instance;
 	}
 
@@ -83,24 +79,15 @@ public class Graph {
 	}
 
 	public Object propertyValue(final String name) {
-		return propertyValue(withName(name));
+		return propertyNamed(name).getValue();
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T> T propertyValue(final String name, final Class<T> type) {
-		return (T) propertyValue(name);
+		return propertyNamed(name).getValue(type);
 	}
 
 	public boolean hasProperty(final BeanPropertyPredicate predicate) {
 		return findAny(predicate) != null;
-	}
-
-	public boolean hasProperty(final String name) {
-		return hasProperty(withName(name));
-	}
-
-	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		return findAny(withName(propertyName));
 	}
 
 	public BeanPropertyInstance get(final String propertyName) {
@@ -109,6 +96,18 @@ public class Graph {
 
 	public BeanPropertyInstance get(final BeanPropertyPredicate predicate) {
 		return findAny(predicate);
+	}
+
+	public BeanPropertyInstance propertyNamed(final String propertyName) {
+		BeanPropertyInstance property = findAny(withName(propertyName));
+		if (property == null) {
+			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
+		}
+		return property;
+	}
+
+	public Class<?> propertyType(final String name) {
+		return propertyNamed(name).getType();
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
@@ -175,23 +174,22 @@ public class Graph {
 	}
 
 	public void visit(final BeanVisitor visitor) {
-		graphInspector.inspect(instance, visitor);
+		inspector.inspect(instance, visitor);
+	}
+
+	public boolean hasProperty(final String name) {
+		return hasProperty(withName(name));
 	}
 
 	public boolean setProperty(final String name, final Object value) {
-		return setProperty(withName(name), value);
+		return propertyNamed(name).setValue(value);
 	}
 
 	public boolean isPropertyType(final String name, final Class<?> type) {
-		return hasProperty(matchesAll(withName(name), withType(type)));
+		return propertyNamed(name).isType(type);
 	}
 
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
 		return hasProperty(matchesAll(predicate, withType(type)));
 	}
-
-	public Class<?> propertyType(final String name) {
-		return propertyType(withName(name));
-	}
-
 }
