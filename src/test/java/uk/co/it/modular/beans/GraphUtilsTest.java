@@ -200,7 +200,7 @@ public class GraphUtilsTest {
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		Wheel wheel = new Wheel();
 		GraphUtils.visit(wheel, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheel), eq("diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheel), eq("wheel.diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -218,8 +218,8 @@ public class GraphUtilsTest {
 		sister.setSiblings(asList(brother));
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		GraphUtils.visit(brother, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(brother), eq("siblings"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(sister), eq("siblings[0].siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(brother), eq("person.siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(sister), eq("person.siblings[0].siblings"), any(Object[].class));
 	}
 
 	@Test
@@ -229,9 +229,9 @@ public class GraphUtilsTest {
 		wheel.setDiameter(null);
 		Car car = new Car(null, Arrays.asList(wheel));
 		GraphUtils.visit(car, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("engine"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("wheels"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheel), eq("wheels[0].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheel), eq("car.wheels[0].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -344,13 +344,13 @@ public class GraphUtilsTest {
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		GraphUtils.visit(car, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("engine"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(engine), eq("engine.capacity"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("wheels"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(0)), eq("wheels[0].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(1)), eq("wheels[1].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(2)), eq("wheels[2].diameter"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(3)), eq("wheels[3].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(engine), eq("car.engine.capacity"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(0)), eq("car.wheels[0].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(1)), eq("car.wheels[1].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(2)), eq("car.wheels[2].diameter"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(wheels.get(3)), eq("car.wheels[3].diameter"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -364,15 +364,15 @@ public class GraphUtilsTest {
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		GraphUtils.visit(oldest, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("firstname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("surname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("siblings"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("siblings[0].firstname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("siblings[0].surname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("siblings[0].siblings"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("siblings[0].siblings[0].firstname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("siblings[0].siblings[0].surname"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("siblings[0].siblings[0].siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("person.firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("person.surname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(oldest), eq("person.siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("person.siblings[0].firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("person.siblings[0].surname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(middle), eq("person.siblings[0].siblings"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("person.siblings[0].siblings[0].firstname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("person.siblings[0].siblings[0].surname"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(youngest), eq("person.siblings[0].siblings[0].siblings"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 

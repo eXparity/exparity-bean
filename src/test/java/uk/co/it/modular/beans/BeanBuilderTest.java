@@ -80,7 +80,7 @@ public class BeanBuilderTest {
 		assertThat(person.getSiblings(), hasSize(1));
 		assertThat(person.getSiblings().get(0).getFirstname(), notNullValue());
 		assertThat(person.getSiblings().get(0).getSurname(), notNullValue());
-		assertThat(person.getSiblings().get(0).getSiblings(), hasSize(0));
+		assertThat(person.getSiblings().get(0).getSiblings(), nullValue());
 	}
 
 	@Test

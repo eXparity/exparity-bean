@@ -191,9 +191,9 @@ public class BeanTest {
 		Person instance = new Person();
 		Bean bean = bean(instance);
 		bean.visit(visitor);
-		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), eq("firstname"), any(Object[].class));
-		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), eq("surname"), any(Object[].class));
-		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), eq("siblings"), any(Object[].class));
+		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), eq("person.firstname"), any(Object[].class));
+		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), eq("person.surname"), any(Object[].class));
+		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), eq("person.siblings"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 

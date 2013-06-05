@@ -272,10 +272,10 @@ public class BeanBuilder<T> {
 
 			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
 
-				String pathWithRoot = rootName + "." + path, pathNoIndexes = pathWithRoot.replaceAll("\\[\\w*\\]\\.", ".");
+				String pathNoIndexes = path.replaceAll("\\[\\w*\\]\\.", ".");
 
 				if (excludedPaths.contains(pathNoIndexes) || excludedProperties.contains(property.getName())) {
-					LOG.trace("Ignore  Path [{}]. Explicity excluded", pathWithRoot);
+					LOG.trace("Ignore  Path [{}]. Explicity excluded", path);
 					return;
 				}
 
@@ -287,7 +287,7 @@ public class BeanBuilder<T> {
 				} else {
 					for (String assignedPath : paths.keySet()) {
 						if (pathNoIndexes.startsWith(assignedPath)) {
-							LOG.trace("Ignore  Path [{}]. Child of assigned path {}", pathWithRoot, assignedPath);
+							LOG.trace("Ignore  Path [{}]. Child of assigned path {}", path, assignedPath);
 							return;
 						}
 					}
@@ -295,14 +295,14 @@ public class BeanBuilder<T> {
 					for (Object object : stack) {
 						if (property.isType(object.getClass()) || property.hasTypeParameter(object.getClass())) {
 							if ((++hits) > OVERFLOW_LIMIT) {
-								LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", pathWithRoot, object.getClass().getSimpleName());
+								LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", path, object.getClass().getSimpleName());
 								return;
 							}
 						}
 					}
 					Object currentPropertyValue = property.getValue();
 					if (currentPropertyValue != null && !isEmptyCollection(currentPropertyValue)) {
-						LOG.trace("Ignore  Path [{}]. Already set", pathWithRoot);
+						LOG.trace("Ignore  Path [{}]. Already set", path);
 						return;
 					}
 					value = createValue(property);
@@ -310,11 +310,11 @@ public class BeanBuilder<T> {
 
 				if (value != null) {
 					LOG.trace("Assign  Path [{}] value [{}:{}]", new Object[] {
-							pathWithRoot, value.getClass().getSimpleName(), identityHashCode(value)
+							path, value.getClass().getSimpleName(), identityHashCode(value)
 					});
 					property.setValue(value);
 				} else {
-					LOG.trace("Assign  Path [{}] value [null]", pathWithRoot);
+					LOG.trace("Assign  Path [{}] value [null]", path);
 				}
 			}
 		});

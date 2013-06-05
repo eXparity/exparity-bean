@@ -250,8 +250,8 @@ public class BeanUtilsTest {
 
 		BeanVisitor visitor = mock(BeanVisitor.class);
 		BeanUtils.visit(car, visitor);
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("engine"), any(Object[].class));
-		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("wheels"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.engine"), any(Object[].class));
+		verify(visitor).visit(any(BeanPropertyInstance.class), eq(car), eq("car.wheels"), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 

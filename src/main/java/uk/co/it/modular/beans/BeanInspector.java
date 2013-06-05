@@ -21,7 +21,14 @@ import org.slf4j.LoggerFactory;
 class BeanInspector {
 
 	static BeanInspector beanInspector() {
-		return new BeanInspector(new BeanInspectorConfiguration());
+		return new BeanInspector(new BeanInspectorConfiguration() {
+
+			{
+				setInspectChildren(false);
+				setOverflowLimit(0);
+				setStopOverflow(true);
+			}
+		});
 	}
 
 	static BeanInspector graphInspector() {
@@ -29,6 +36,8 @@ class BeanInspector {
 
 			{
 				setInspectChildren(true);
+				setOverflowLimit(0);
+				setStopOverflow(true);
 			}
 		});
 	};
