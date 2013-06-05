@@ -7,7 +7,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
-import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -42,22 +41,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type) {
-		return anInstanceOf(type, type(type).camelName());
-	}
-
-	/**
-	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
-	 * 
-	 * <pre>
-	 * BeanUtils.anInstanceOf(Person.class).populatedWith(BeanUtils.randomValues()).build();
-	 * </pre>
-	 * @param type
-	 *            the type to return the {@link BeanBuilder} for
-	 * @param rootName
-	 *            the name given to the root of the object graph for use in the path
-	 */
-	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type, final String rootName) {
-		return new BeanBuilder<T>(type, rootName);
+		return new BeanBuilder<T>(type);
 	}
 
 	/**
@@ -70,23 +54,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type) {
-		return anEmptyInstanceOf(type, type(type).camelName());
-	}
-
-	/**
-	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with empty objects but collections, maps, etc which have empty objects. For
-	 * example:
-	 * 
-	 * <pre>
-	 * BeanUtils.anEmptyInstanceOf(Person.class, &quot;person&quot;).build();
-	 * </pre>
-	 * @param type
-	 *            the type to return the {@link BeanBuilder} for
-	 * @param rootName
-	 *            the name given to the root of the object graph for use in the path
-	 */
-	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type, final String rootName) {
-		return new BeanBuilder<T>(type, rootName).populatedWithEmptyValues();
+		return new BeanBuilder<T>(type).populatedWithEmptyValues();
 	}
 
 	/**
@@ -99,22 +67,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type) {
-		return aRandomInstanceOf(type, type.getSimpleName().toLowerCase());
-	}
-
-	/**
-	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with random values. For example:
-	 * 
-	 * <pre>
-	 * BeanUtils.aRandomInstanceOf(Person.class, &quot;person&quot;).build();
-	 * </pre>
-	 * @param type
-	 *            the type to return the {@link BeanBuilder} for
-	 * @param rootName
-	 *            the name given to the root of the object graph for use in the path
-	 */
-	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type, final String rootName) {
-		return new BeanBuilder<T>(type, rootName).populatedWithRandomValues();
+		return new BeanBuilder<T>(type).populatedWithRandomValues();
 	}
 
 	/**
@@ -201,13 +154,11 @@ public class BeanBuilder<T> {
 	private final Set<String> excludedPaths = new HashSet<String>();
 	private final Map<Class<?>, List<Class<?>>> subtypes = new HashMap<Class<?>, List<Class<?>>>();
 	private final Class<T> type;
-	private final String rootName;
 	private BeanBuilderPropertySource values = new NullValuePropertySource();
 	private int minCollectionSize = 1, maxCollectionSize = 5;
 
-	public BeanBuilder(final Class<T> type, final String rootName) {
+	public BeanBuilder(final Class<T> type) {
 		this.type = type;
-		this.rootName = rootName;
 	}
 
 	public BeanBuilder<T> populatedWith(final BeanBuilderPropertySource values) {

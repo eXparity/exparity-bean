@@ -94,9 +94,6 @@ public class Bean {
 		return findAny(predicate) != null;
 	}
 
-	/**
-	 * @throws BeanPropertyNotFoundException
-	 */
 	public BeanPropertyInstance get(final String propertyName) {
 		return propertyNamed(propertyName);
 	}
@@ -199,5 +196,4 @@ public class Bean {
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
 		return hasProperty(matchesAll(predicate, withType(type)));
 	}
-
 }

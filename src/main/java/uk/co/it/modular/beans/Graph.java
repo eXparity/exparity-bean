@@ -74,6 +74,14 @@ public class Graph {
 		return null;
 	}
 
+	public <T> T propertyValue(final BeanPropertyPredicate predicate, final Class<T> type) {
+		BeanPropertyInstance property = findAny(predicate);
+		if (property != null) {
+			return property.getValue(type);
+		}
+		return null;
+	}
+
 	public Object propertyValue(final String name) {
 		return propertyValue(withName(name));
 	}
@@ -93,6 +101,14 @@ public class Graph {
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
 		return findAny(withName(propertyName));
+	}
+
+	public BeanPropertyInstance get(final String propertyName) {
+		return propertyNamed(propertyName);
+	}
+
+	public BeanPropertyInstance get(final BeanPropertyPredicate predicate) {
+		return findAny(predicate);
 	}
 
 	public Class<?> propertyType(final BeanPropertyPredicate predicate) {
