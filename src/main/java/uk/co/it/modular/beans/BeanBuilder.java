@@ -5,9 +5,9 @@ import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.math.RandomUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BeanBuilder<T> {
 
+	private static final int OVERFLOW_LIMIT = 1;
 	private static final Logger LOG = LoggerFactory.getLogger(BeanBuilder.class);
 
 	/**
@@ -41,7 +42,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type) {
-		return anInstanceOf(type, type.getSimpleName().toLowerCase());
+		return anInstanceOf(type, type(type).camelName());
 	}
 
 	/**
@@ -57,6 +58,35 @@ public class BeanBuilder<T> {
 	 */
 	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type, final String rootName) {
 		return new BeanBuilder<T>(type, rootName);
+	}
+
+	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which is populated with empty objects but collections, maps, etc which have empty objects. For example:
+	 * 
+	 * <pre>
+	 * BeanUtils.anEmptyInstanceOf(Person.class).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 */
+	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type) {
+		return anEmptyInstanceOf(type, type(type).camelName());
+	}
+
+	/**
+	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with empty objects but collections, maps, etc which have empty objects. For
+	 * example:
+	 * 
+	 * <pre>
+	 * BeanUtils.anEmptyInstanceOf(Person.class, &quot;person&quot;).build();
+	 * </pre>
+	 * @param type
+	 *            the type to return the {@link BeanBuilder} for
+	 * @param rootName
+	 *            the name given to the root of the object graph for use in the path
+	 */
+	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type, final String rootName) {
+		return new BeanBuilder<T>(type, rootName).populatedWithEmptyValues();
 	}
 
 	/**
@@ -101,60 +131,68 @@ public class BeanBuilder<T> {
 	 */
 	public interface BeanBuilderPropertySource {
 
+		public Object createArray(final Class<?> type, final int size);
+
+		public <T> List<T> createList(final Class<T> type);
+
+		public <T> Set<T> createSet(final Class<T> type);
+
+		public <K, V> Map<K, V> createMap(final Class<K> keyType, Class<V> valueType);
+
 		/**
 		 * Return a {@link String} instance or <code>null</code>
 		 */
-		public String stringValue();
+		public String createString();
 
 		/**
 		 * Return an {@link Integer} instance or <code>null</code>
 		 */
-		public Integer intValue();
+		public Integer createInt();
 
 		/**
 		 * Return a {@link Short} instance or <code>null</code>
 		 */
-		public Short shortValue();
+		public Short createShort();
 
 		/**
 		 * Return a {@link Long} instance or <code>null</code>
 		 */
-		public Long longValue();
+		public Long createLong();
 
 		/**
 		 * Return a {@link Double} instance or <code>null</code>
 		 */
-		public Double doubleValue();
+		public Double createDouble();
 
 		/**
 		 * Return a {@link Float} instance or <code>null</code>
 		 */
-		public Float floatValue();
+		public Float createFloat();
 
 		/**
 		 * Return a {@link Boolean} instance or <code>null</code>
 		 */
-		public Boolean booleanValue();
+		public Boolean createBoolean();
 
 		/**
 		 * Return a {@link Date} instance or <code>null</code>
 		 */
-		public Date dateValue();
+		public Date createDate();
 
 		/**
 		 * Return a {@link BigDecimal} instance or <code>null</code>
 		 */
-		public BigDecimal bigDecimalValue();
+		public BigDecimal createDecimal();
 
 		/**
 		 * Return a {@link Byte} instance or <code>null</code>
 		 */
-		public Byte byteValue();
+		public Byte createByte();
 
 		/**
 		 * Return a {@link Character} instance or <code>null</code>
 		 */
-		public Character charValue();
+		public Character createChar();
 	}
 
 	private final Map<String, Object> properties = new HashMap<String, Object>();
@@ -163,9 +201,9 @@ public class BeanBuilder<T> {
 	private final Set<String> excludedPaths = new HashSet<String>();
 	private final Map<Class<?>, List<Class<?>>> subtypes = new HashMap<Class<?>, List<Class<?>>>();
 	private final Class<T> type;
-	private BeanBuilderPropertySource values;
+	private final String rootName;
+	private BeanBuilderPropertySource values = new NullValuePropertySource();
 	private int minCollectionSize = 1, maxCollectionSize = 5;
-	private String rootName;
 
 	public BeanBuilder(final Class<T> type, final String rootName) {
 		this.type = type;
@@ -177,8 +215,18 @@ public class BeanBuilder<T> {
 		return this;
 	}
 
-	private BeanBuilder<T> populatedWithRandomValues() {
+	public BeanBuilder<T> populatedWithRandomValues() {
 		return populatedWith(randomValues());
+	}
+
+	public BeanBuilder<T> populatedWithEmptyValues() {
+		return populatedWith(new EmptyValuePropertySource());
+	}
+
+	public BeanBuilder<T> with(final String propertyOrPathName, final Object value) {
+		this.properties.put(propertyOrPathName, value);
+		this.paths.put(propertyOrPathName, value);
+		return this;
 	}
 
 	public BeanBuilder<T> withPropertyValue(final String propertyName, final Object value) {
@@ -201,6 +249,10 @@ public class BeanBuilder<T> {
 		return this;
 	}
 
+	public BeanBuilder<T> withCollectionSize(final int size) {
+		return withCollectionSize(size, size);
+	}
+
 	public BeanBuilder<T> withCollectionSize(final int min, final int max) {
 		this.minCollectionSize = min;
 		this.maxCollectionSize = max;
@@ -220,8 +272,7 @@ public class BeanBuilder<T> {
 
 			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
 
-				String pathWithRoot = isNotBlank(path) ? rootName + "." + path : rootName;
-				String pathNoIndexes = pathWithRoot.replaceAll("\\[\\w*\\]\\.", ".");
+				String pathWithRoot = rootName + "." + path, pathNoIndexes = pathWithRoot.replaceAll("\\[\\w*\\]\\.", ".");
 
 				if (excludedPaths.contains(pathNoIndexes) || excludedProperties.contains(property.getName())) {
 					LOG.trace("Ignore  Path [{}]. Explicity excluded", pathWithRoot);
@@ -240,10 +291,13 @@ public class BeanBuilder<T> {
 							return;
 						}
 					}
+					int hits = 0;
 					for (Object object : stack) {
-						if (property.isType(object.getClass())) {
-							LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", pathWithRoot, object.getClass().getSimpleName());
-							return;
+						if (property.isType(object.getClass()) || property.hasTypeParameter(object.getClass())) {
+							if ((++hits) > OVERFLOW_LIMIT) {
+								LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", pathWithRoot, object.getClass().getSimpleName());
+								return;
+							}
 						}
 					}
 					Object currentPropertyValue = property.getValue();
@@ -305,43 +359,43 @@ public class BeanBuilder<T> {
 	@SuppressWarnings("unchecked")
 	private <V> V createValue(final Class<V> type) {
 		if (isType(type, String.class)) {
-			return (V) values.stringValue();
+			return (V) values.createString();
 		} else if (isType(type, Integer.class)) {
-			return (V) values.intValue();
+			return (V) values.createInt();
 		} else if (isType(type, int.class)) {
-			return (V) ObjectUtils.defaultIfNull(values.intValue(), 0);
+			return (V) ObjectUtils.defaultIfNull(values.createInt(), 0);
 		} else if (isType(type, Short.class)) {
-			return (V) values.shortValue();
+			return (V) values.createShort();
 		} else if (isType(type, short.class)) {
-			return (V) ObjectUtils.defaultIfNull(values.shortValue(), 0);
+			return (V) ObjectUtils.defaultIfNull(values.createShort(), 0);
 		} else if (isType(type, Long.class)) {
-			return (V) values.longValue();
+			return (V) values.createLong();
 		} else if (isType(type, long.class)) {
-			return (V) ObjectUtils.defaultIfNull(values.longValue(), 0L);
+			return (V) ObjectUtils.defaultIfNull(values.createLong(), 0L);
 		} else if (isType(type, Double.class)) {
-			return (V) values.doubleValue();
+			return (V) values.createDouble();
 		} else if (isType(type, double.class)) {
-			return (V) defaultIfNull(values.doubleValue(), 0.0);
+			return (V) defaultIfNull(values.createDouble(), 0.0);
 		} else if (isType(type, Float.class)) {
-			return (V) values.floatValue();
+			return (V) values.createFloat();
 		} else if (isType(type, float.class)) {
-			return (V) defaultIfNull(values.floatValue(), 0.0);
+			return (V) defaultIfNull(values.createFloat(), 0.0);
 		} else if (isType(type, Boolean.class)) {
-			return (V) values.booleanValue();
+			return (V) values.createBoolean();
 		} else if (isType(type, boolean.class)) {
-			return (V) defaultIfNull(values.booleanValue(), false);
+			return (V) defaultIfNull(values.createBoolean(), false);
 		} else if (isType(type, Byte.class)) {
-			return (V) values.byteValue();
+			return (V) values.createByte();
 		} else if (isType(type, byte.class)) {
-			return (V) defaultIfNull(values.byteValue(), (byte) 0);
+			return (V) defaultIfNull(values.createByte(), (byte) 0);
 		} else if (isType(type, Character.class)) {
-			return (V) values.charValue();
+			return (V) values.createChar();
 		} else if (isType(type, char.class)) {
-			return (V) defaultIfNull(values.charValue(), (char) 0);
+			return (V) defaultIfNull(values.createChar(), (char) 0);
 		} else if (isType(type, Date.class)) {
-			return (V) values.dateValue();
+			return (V) values.createDate();
 		} else if (isType(type, BigDecimal.class)) {
-			return (V) values.bigDecimalValue();
+			return (V) values.createDecimal();
 		} else if (type.isEnum()) {
 			V[] enumerationValues = type.getEnumConstants();
 			if (enumerationValues.length == 0) {
@@ -368,44 +422,56 @@ public class BeanBuilder<T> {
 	}
 
 	private <E> Object createArray(final Class<E> type) {
-		int size = collectionSize();
-		Object array = Array.newInstance(type, size);
-		for (int i = 0; i < size; ++i) {
-			Array.set(array, i, createValue(type));
+		int length = collectionSize();
+		Object array = values.createArray(type, length);
+		if (array != null) {
+			for (int i = 0; i < length; ++i) {
+				Array.set(array, i, createValue(type));
+			}
 		}
 		return array;
 	}
 
 	private <E> Set<E> createSet(final Class<E> type) {
-		Set<E> set = new HashSet<E>();
-		for (int i = 0; i < collectionSize(); ++i) {
-			set.add(createValue(type));
+		Set<E> set = values.createSet(type);
+		if (set != null) {
+			for (int i = 0; i < collectionSize(); ++i) {
+				set.add(createValue(type));
+			}
 		}
 		return set;
 	}
 
 	private <E> List<E> createList(final Class<E> type) {
-		List<E> list = new ArrayList<E>();
-		for (int i = 0; i < collectionSize(); ++i) {
-			list.add(createValue(type));
+		List<E> list = values.createList(type);
+		if (list != null) {
+			for (int i = 0; i < collectionSize(); ++i) {
+				list.add(createValue(type));
+			}
 		}
 		return list;
 	}
 
 	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType) {
-		Map<K, V> map = new HashMap<K, V>();
-		for (int i = 0; i < collectionSize(); ++i) {
-			map.put(createValue(keyType), createValue(valueType));
+		Map<K, V> map = values.createMap(keyType, valueType);
+		if (map != null) {
+			for (int i = 0; i < collectionSize(); ++i) {
+				map.put(createValue(keyType), createValue(valueType));
+			}
 		}
 		return map;
 	}
 
 	private int collectionSize() {
-		int colllectionSize = Integer.MIN_VALUE;
-		while (colllectionSize < minCollectionSize) {
-			colllectionSize = nextInt(maxCollectionSize);
+		if (minCollectionSize == maxCollectionSize) {
+			return minCollectionSize;
+		} else {
+			int size = Integer.MIN_VALUE;
+			while (size < minCollectionSize) {
+				size = nextInt(maxCollectionSize);
+			}
+			return size;
 		}
-		return colllectionSize;
 	}
 
 	private boolean isType(final Class<?> type, final Class<?>... options) {
@@ -425,49 +491,194 @@ public class BeanBuilder<T> {
 		private static final int DAYS_PER_YEAR = 365;
 		private static final int SECONDS_IN_A_YEAR = MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_YEAR;
 
-		public String stringValue() {
+		public String createString() {
 			return randomAlphanumeric(MAX_STRING_LENGTH);
 		}
 
-		public Integer intValue() {
+		public Integer createInt() {
 			return Integer.valueOf(nextInt());
 		}
 
-		public Short shortValue() {
+		public Short createShort() {
 			return Short.valueOf((short) nextInt(Short.MAX_VALUE));
 		}
 
-		public Long longValue() {
+		public Long createLong() {
 			return Long.valueOf(nextLong());
 		}
 
-		public Double doubleValue() {
+		public Double createDouble() {
 			return Double.valueOf(nextDouble());
 		}
 
-		public Float floatValue() {
+		public Float createFloat() {
 			return Float.valueOf(nextFloat());
 		}
 
-		public Boolean booleanValue() {
+		public Boolean createBoolean() {
 			return Boolean.valueOf(nextBoolean());
 		}
 
-		public Date dateValue() {
+		public Date createDate() {
 			return addSeconds(new Date(), nextInt(SECONDS_IN_A_YEAR));
 		}
 
-		public BigDecimal bigDecimalValue() {
-			return new BigDecimal(doubleValue());
+		public BigDecimal createDecimal() {
+			return new BigDecimal(createDouble());
 		}
 
-		public Byte byteValue() {
+		public Byte createByte() {
 			return (byte) nextInt(Byte.MAX_VALUE);
 		}
 
-		public Character charValue() {
+		public Character createChar() {
 			return randomAlphabetic(1).charAt(0);
 		}
 
+		public Object createArray(final Class<?> type, final int size) {
+			return Array.newInstance(type, size);
+		}
+
+		public <T> List<T> createList(final Class<T> type) {
+			return new ArrayList<T>();
+		}
+
+		public <T> Set<T> createSet(final Class<T> type) {
+			return new HashSet<T>();
+		}
+
+		public <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType) {
+			return new HashMap<K, V>();
+		}
+
 	}
+
+	private static class EmptyValuePropertySource implements BeanBuilderPropertySource {
+
+		public String createString() {
+			return null;
+		}
+
+		public Integer createInt() {
+			return null;
+		}
+
+		public Short createShort() {
+			return null;
+		}
+
+		public Long createLong() {
+			return null;
+		}
+
+		public Double createDouble() {
+			return null;
+		}
+
+		public Float createFloat() {
+			return null;
+		}
+
+		public Boolean createBoolean() {
+			return null;
+		}
+
+		public Date createDate() {
+			return null;
+		}
+
+		public BigDecimal createDecimal() {
+			return null;
+		}
+
+		public Byte createByte() {
+			return null;
+		}
+
+		public Character createChar() {
+			return null;
+		}
+
+		public Object createArray(final Class<?> type, final int size) {
+			return Array.newInstance(type, size);
+		}
+
+		public <T> List<T> createList(final Class<T> type) {
+			return new ArrayList<T>();
+		}
+
+		public <T> Set<T> createSet(final Class<T> type) {
+			return new HashSet<T>();
+		}
+
+		public <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType) {
+			return new HashMap<K, V>();
+		}
+
+	}
+
+	private static class NullValuePropertySource implements BeanBuilderPropertySource {
+
+		public String createString() {
+			return null;
+		}
+
+		public Integer createInt() {
+			return null;
+		}
+
+		public Short createShort() {
+			return null;
+		}
+
+		public Long createLong() {
+			return null;
+		}
+
+		public Double createDouble() {
+			return null;
+		}
+
+		public Float createFloat() {
+			return null;
+		}
+
+		public Boolean createBoolean() {
+			return null;
+		}
+
+		public Date createDate() {
+			return null;
+		}
+
+		public BigDecimal createDecimal() {
+			return null;
+		}
+
+		public Byte createByte() {
+			return null;
+		}
+
+		public Character createChar() {
+			return null;
+		}
+
+		public Object createArray(final Class<?> type, final int size) {
+			return null;
+		}
+
+		public <T> List<T> createList(final Class<T> type) {
+			return null;
+		}
+
+		public <T> Set<T> createSet(final Class<T> type) {
+			return null;
+		}
+
+		public <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType) {
+			return null;
+		}
+
+	}
+
 }

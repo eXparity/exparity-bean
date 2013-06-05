@@ -220,6 +220,10 @@ public class BeanPropertyInstance {
 		return property.isCollection();
 	}
 
+	public boolean isEnum() {
+		return property.isEnum();
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == this) {
@@ -239,6 +243,10 @@ public class BeanPropertyInstance {
 
 	@Override
 	public String toString() {
-		return "BeanPropertyInstance [" + this.property.getDeclaringTypeSimpleName() + "." + this.property.getName() + "." + instance + "]";
+		return "BeanPropertyInstance [" + this.property.getDeclaringTypeSimpleName() + "." + this.property.getName() + ". [" + instance + "]]";
+	}
+
+	public boolean hasTypeParameter(final Class<?> type) {
+		return property.hasTypeParameter(type);
 	}
 }

@@ -2,15 +2,14 @@
 package uk.co.it.modular.beans;
 
 import static java.lang.System.identityHashCode;
-import static org.apache.commons.lang.ArrayUtils.contains;
-import static uk.co.it.modular.beans.BeanInspectorProperty.INSPECT_CHILDREN;
-import static uk.co.it.modular.beans.BeanInspectorProperty.STOP_OVERFLOW;
+import static org.apache.commons.lang.StringUtils.uncapitalize;
 import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +20,54 @@ import org.slf4j.LoggerFactory;
  */
 class BeanInspector {
 
+	static BeanInspector beanInspector() {
+		return new BeanInspector(new BeanInspectorConfiguration());
+	}
+
+	static BeanInspector graphInspector() {
+		return new BeanInspector(new BeanInspectorConfiguration() {
+
+			{
+				setInspectChildren(true);
+			}
+		});
+	};
+
+	static class BeanInspectorConfiguration {
+
+		private boolean inspectChildren = false;
+		private boolean stopOverflow = true;
+		private Integer overflowLimit = 0;
+
+		boolean isInspectChildren() {
+			return inspectChildren;
+		}
+
+		void setInspectChildren(final boolean inspectChildren) {
+			this.inspectChildren = inspectChildren;
+		}
+
+		boolean isStopOverflow() {
+			return stopOverflow;
+		}
+
+		void setStopOverflow(final boolean stopOverflow) {
+			this.stopOverflow = stopOverflow;
+		}
+
+		Integer getOverflowLimit() {
+			return overflowLimit;
+		}
+
+		void setOverflowLimit(final Integer overflowLimit) {
+			this.overflowLimit = overflowLimit;
+		}
+
+	}
+
 	private static final Logger LOG = LoggerFactory.getLogger(BeanInspector.class);
 
+	private final BeanInspectorConfiguration config;
 	private final ThreadLocal<Map<Object, Integer>> inspected = new ThreadLocal<Map<Object, Integer>>() {
 
 		@Override
@@ -31,13 +76,8 @@ class BeanInspector {
 		}
 	};
 
-	private final boolean inspectChildren;
-	private final boolean stopOverflow;
-	private final Integer overflowLimit = 0;
-
-	BeanInspector(final BeanInspectorProperty... properties) {
-		this.inspectChildren = contains(properties, INSPECT_CHILDREN);
-		this.stopOverflow = contains(properties, STOP_OVERFLOW);
+	BeanInspector(final BeanInspectorConfiguration config) {
+		this.config = config;
 	}
 
 	/**
@@ -49,7 +89,7 @@ class BeanInspector {
 	 *            the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Object instance, final BeanVisitor visitor) {
-		inspect(instance, "", visitor);
+		inspect(instance, null, visitor);
 	}
 
 	/**
@@ -83,11 +123,11 @@ class BeanInspector {
 		final List<Object> stack = new ArrayList<Object>(currentStack);
 		logInspection(path, "Object", instance);
 
-		if (stopOverflow) {
+		if (config.isStopOverflow()) {
 			int instanceKey = identityHashCode(instance);
 			Integer hits = inspected.get().get(instanceKey);
 			if (hits != null) {
-				if (hits > overflowLimit) {
+				if (hits > config.getOverflowLimit()) {
 					return;
 				} else {
 					inspected.get().put(instanceKey, ++hits);
@@ -97,7 +137,7 @@ class BeanInspector {
 			}
 		}
 
-		if (!inspectChildren && currentStack.size() > 0) {
+		if (!config.isInspectChildren() && currentStack.size() > 0) {
 			return;
 		}
 
@@ -109,9 +149,10 @@ class BeanInspector {
 		} else if (Map.class.isAssignableFrom(type)) {
 			inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 		} else {
+			String rootPath = path == null ? uncapitalize(type(instance.getClass()).simpleName()) : path;
+			stack.add(instance);
 			for (BeanProperty property : type(instance.getClass()).propertyList()) {
-				stack.add(instance);
-				String nextPath = nextPath(path, property);
+				String nextPath = nextPath(rootPath, property);
 				visitor.visit(new BeanPropertyInstance(property, instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {
 					Object value = property.getValue(instance);
@@ -139,13 +180,13 @@ class BeanInspector {
 	}
 
 	private String nextPath(final String path, final BeanProperty property) {
-		return path.isEmpty() ? property.getName() : path + "." + property.getName();
+		return StringUtils.isEmpty(path) ? property.getName() : path + "." + property.getName();
 	}
 
 	private void inspectMap(final List<Object> stack, final String path, final Map<?, ?> instance, final BeanVisitor visitor) {
 		logInspection(path, "Map", instance);
 		for (Map.Entry<?, ?> entry : instance.entrySet()) {
-			String nextPath = path.isEmpty() ? "map" : path;
+			String nextPath = path == null ? "map" : path;
 			inspectObject(stack, nextPath + "[" + entry.getKey() + "]", entry.getValue(), visitor);
 		}
 	}
@@ -153,7 +194,7 @@ class BeanInspector {
 	private void inspectArray(final List<Object> stack, final String path, final Object instance, final BeanVisitor visitor) {
 		logInspection(path, "Array", instance);
 		for (int i = 0; i < Array.getLength(instance); ++i) {
-			String nextPath = path.isEmpty() ? "array" : path;
+			String nextPath = path == null ? "array" : path;
 			inspectObject(stack, nextPath + "[" + i + "]", Array.get(instance, i), visitor);
 		}
 	}
@@ -162,7 +203,7 @@ class BeanInspector {
 		logInspection(path, "Iterable", instance);
 		int seq = 0;
 		for (Object object : instance) {
-			String nextPath = path.isEmpty() ? "collection" : path;
+			String nextPath = path == null ? "collection" : path;
 			inspectObject(stack, nextPath + "[" + (seq++) + "]", object, visitor);
 		}
 	}

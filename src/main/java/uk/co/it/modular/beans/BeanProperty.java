@@ -163,6 +163,15 @@ public class BeanProperty {
 		return Arrays.asList(params);
 	}
 
+	public boolean hasTypeParameter(final Class<?> type) {
+		for (Class<?> param : this.params) {
+			if (type.isAssignableFrom(param)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Test if the property implements {@link Iterable}
 	 */
@@ -312,6 +321,13 @@ public class BeanProperty {
 	 */
 	public boolean isCollection() {
 		return isType(Collection.class);
+	}
+
+	/**
+	 * Test if the property is an enum
+	 */
+	public boolean isEnum() {
+		return type.isEnum();
 	}
 
 	@Override

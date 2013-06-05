@@ -24,48 +24,46 @@ public class TypeInspectorTest {
 	@Test
 	public void canInspectAType() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		Type type = type(Person.class);
-		type.visit(visitor);
-		verify(visitor).visit(type.propertyNamed("firstname"));
-		verify(visitor).visit(type.propertyNamed("surname"));
-		verify(visitor).visit(type.propertyNamed("siblings"));
+		new TypeInspector().inspect(Person.class, visitor);
+		verify(visitor).visit(type(Person.class).get("firstname"));
+		verify(visitor).visit(type(Person.class).get("surname"));
+		verify(visitor).visit(type(Person.class).get("siblings"));
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canInspectATypeWithOverloadedSetter() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		Type type = type(OverloadedSetter.class);
-		type.visit(visitor);
-		verify(visitor).visit(type.propertyNamed("property"));
+		new TypeInspector().inspect(OverloadedSetter.class, visitor);
+		verify(visitor).visit(type(OverloadedSetter.class).propertyNamed("property"));
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canSkipInspectATypeWhichHasGetterWithArgs() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		type(GetterWithArgs.class).visit(visitor);
+		new TypeInspector().inspect(GetterWithArgs.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canSkipInspectATypeWhichHasSetterWithNoArgs() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		type(SetterWithNotArgs.class).visit(visitor);
+		new TypeInspector().inspect(SetterWithNotArgs.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canSkipInspectATypeWhichHasMismatchedTypes() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		type(TypeMismatch.class).visit(visitor);
+		new TypeInspector().inspect(TypeMismatch.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canInspectATypeWhichHasANameMismatch() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		type(NameMismatch.class).visit(visitor);
+		new TypeInspector().inspect(NameMismatch.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 

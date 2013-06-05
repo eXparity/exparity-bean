@@ -25,8 +25,8 @@
 
 	<scm>
 		<connection>scm:git:@github.com:modularit/bean-utils.git</connection>
-    <developerConnection>scm:git:git@github.com:modularit/bean-utils.git</developerConnection>
-    <url>git@github.com:modularit/bean-utils.git</url>
+		<developerConnection>scm:git:git@github.com:modularit/bean-utils.git</developerConnection>
+		<url>git@github.com:modularit/bean-utils.git</url>
 	</scm>
 
 	<developers>
@@ -72,6 +72,12 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.7</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

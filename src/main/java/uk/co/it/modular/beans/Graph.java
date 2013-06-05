@@ -4,8 +4,7 @@
 
 package uk.co.it.modular.beans;
 
-import static uk.co.it.modular.beans.BeanInspectorProperty.INSPECT_CHILDREN;
-import static uk.co.it.modular.beans.BeanInspectorProperty.STOP_OVERFLOW;
+import static uk.co.it.modular.beans.BeanInspector.graphInspector;
 import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
 import static uk.co.it.modular.beans.BeanPredicates.matchesAll;
 import static uk.co.it.modular.beans.BeanPredicates.withName;
@@ -24,7 +23,7 @@ public class Graph {
 		return new Graph(instance);
 	}
 
-	private final BeanInspector beanInspector = new BeanInspector(INSPECT_CHILDREN, STOP_OVERFLOW);
+	private final BeanInspector graphInspector = graphInspector();
 	private final Object instance;
 
 	public Graph(final Object instance) {
@@ -160,7 +159,7 @@ public class Graph {
 	}
 
 	public void visit(final BeanVisitor visitor) {
-		beanInspector.inspect(instance, visitor);
+		graphInspector.inspect(instance, visitor);
 	}
 
 	public boolean setProperty(final String name, final Object value) {

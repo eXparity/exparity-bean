@@ -4,6 +4,7 @@
 
 package uk.co.it.modular.beans;
 
+import static uk.co.it.modular.beans.BeanInspector.beanInspector;
 import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
 import static uk.co.it.modular.beans.BeanPredicates.matchesAll;
 import static uk.co.it.modular.beans.BeanPredicates.withName;
@@ -22,7 +23,7 @@ public class Bean {
 		return new Bean(instance);
 	}
 
-	private final BeanInspector beanInspector = new BeanInspector();
+	private final BeanInspector beanInspector = beanInspector();
 	private final Object instance;
 
 	public Bean(final Object instance) {

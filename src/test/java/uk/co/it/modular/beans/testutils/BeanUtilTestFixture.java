@@ -31,6 +31,11 @@ public class BeanUtilTestFixture {
 
 	public static class AllTypes {
 
+		public static enum EnumValues {
+			VALUE_1, VALUE_2
+		};
+
+		private EnumValues enumValue;
 		private String stringValue;
 		private Integer integerObjectValue;
 		private int integerValue;
@@ -53,6 +58,14 @@ public class BeanUtilTestFixture {
 		private List<String> list;
 		private Set<String> set;
 		private Map<Long, String> map;
+
+		public EnumValues getEnumValue() {
+			return enumValue;
+		}
+
+		public void setEnumValue(final EnumValues enumValue) {
+			this.enumValue = enumValue;
+		}
 
 		public Collection<String> getCollection() {
 			return collection;

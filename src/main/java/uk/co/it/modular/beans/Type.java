@@ -4,13 +4,14 @@
 
 package uk.co.it.modular.beans;
 
+import static org.apache.commons.lang.StringUtils.uncapitalize;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart.Bissett
  */
 public class Type {
 
@@ -22,7 +23,22 @@ public class Type {
 	private final Class<?> type;
 
 	public Type(final Class<?> type) {
+		if (type == null) {
+			throw new IllegalArgumentException("Type cannot be null");
+		}
 		this.type = type;
+	}
+
+	public String camelName() {
+		return uncapitalize(type.getSimpleName());
+	}
+
+	public String simpleName() {
+		return type.getSimpleName();
+	}
+
+	public String canonicalName() {
+		return type.getCanonicalName();
 	}
 
 	public boolean hasProperty(final String name) {
