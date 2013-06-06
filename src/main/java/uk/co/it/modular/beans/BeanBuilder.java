@@ -2,11 +2,11 @@
 package uk.co.it.modular.beans;
 
 import static java.lang.System.identityHashCode;
-import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -68,13 +68,6 @@ public class BeanBuilder<T> {
 	 */
 	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type) {
 		return new BeanBuilder<T>(type).populatedWithRandomValues();
-	}
-
-	/**
-	 * Return an instance of {@link RandomBeanPropertyValue} to use to populate a {@link BeanBuilder}
-	 */
-	private static BeanBuilderPropertySource randomValues() {
-		return new RandomValuePropertySource();
 	}
 
 	/**
@@ -146,6 +139,12 @@ public class BeanBuilder<T> {
 		 * Return a {@link Character} instance or <code>null</code>
 		 */
 		public Character createChar();
+
+		/**
+		 * Return one other enumeration values or <code>null</code>
+		 */
+		public <E> E createEnum(final Class<E> enumType);
+
 	}
 
 	private final Map<String, Object> properties = new HashMap<String, Object>();
@@ -167,7 +166,7 @@ public class BeanBuilder<T> {
 	}
 
 	public BeanBuilder<T> populatedWithRandomValues() {
-		return populatedWith(randomValues());
+		return populatedWith(new RandomValuePropertySource());
 	}
 
 	public BeanBuilder<T> populatedWithEmptyValues() {
@@ -244,7 +243,8 @@ public class BeanBuilder<T> {
 					}
 					int hits = 0;
 					for (Object object : stack) {
-						if (property.isType(object.getClass()) || property.hasTypeParameter(object.getClass())) {
+						Class<?>[] typeHierachy = type(object).typeHierachy();
+						if (property.isType(typeHierachy) || property.hasAnyTypeParameters(typeHierachy)) {
 							if ((++hits) > OVERFLOW_LIMIT) {
 								LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", path, object.getClass().getSimpleName());
 								return;
@@ -317,43 +317,24 @@ public class BeanBuilder<T> {
 			return (V) ObjectUtils.defaultIfNull(values.createInt(), 0);
 		} else if (isType(type, Short.class)) {
 			return (V) values.createShort();
-		} else if (isType(type, short.class)) {
-			return (V) ObjectUtils.defaultIfNull(values.createShort(), 0);
 		} else if (isType(type, Long.class)) {
 			return (V) values.createLong();
-		} else if (isType(type, long.class)) {
-			return (V) ObjectUtils.defaultIfNull(values.createLong(), 0L);
 		} else if (isType(type, Double.class)) {
 			return (V) values.createDouble();
-		} else if (isType(type, double.class)) {
-			return (V) defaultIfNull(values.createDouble(), 0.0);
 		} else if (isType(type, Float.class)) {
 			return (V) values.createFloat();
-		} else if (isType(type, float.class)) {
-			return (V) defaultIfNull(values.createFloat(), 0.0);
 		} else if (isType(type, Boolean.class)) {
 			return (V) values.createBoolean();
-		} else if (isType(type, boolean.class)) {
-			return (V) defaultIfNull(values.createBoolean(), false);
 		} else if (isType(type, Byte.class)) {
 			return (V) values.createByte();
-		} else if (isType(type, byte.class)) {
-			return (V) defaultIfNull(values.createByte(), (byte) 0);
 		} else if (isType(type, Character.class)) {
 			return (V) values.createChar();
-		} else if (isType(type, char.class)) {
-			return (V) defaultIfNull(values.createChar(), (char) 0);
 		} else if (isType(type, Date.class)) {
 			return (V) values.createDate();
 		} else if (isType(type, BigDecimal.class)) {
 			return (V) values.createDecimal();
 		} else if (type.isEnum()) {
-			V[] enumerationValues = type.getEnumConstants();
-			if (enumerationValues.length == 0) {
-				return null;
-			} else {
-				return enumerationValues[nextInt(enumerationValues.length)];
-			}
+			return values.createEnum(type);
 		} else {
 			List<Class<?>> candidates = subtypes.get(type);
 			if (candidates != null && !candidates.isEmpty()) {
@@ -486,6 +467,15 @@ public class BeanBuilder<T> {
 			return randomAlphabetic(1).charAt(0);
 		}
 
+		public <E> E createEnum(final Class<E> enumType) {
+			E[] enumerationValues = enumType.getEnumConstants();
+			if (enumerationValues.length == 0) {
+				return null;
+			} else {
+				return enumerationValues[nextInt(enumerationValues.length)];
+			}
+		}
+
 		public Object createArray(final Class<?> type, final int size) {
 			return Array.newInstance(type, size);
 		}
@@ -547,6 +537,10 @@ public class BeanBuilder<T> {
 		}
 
 		public Character createChar() {
+			return null;
+		}
+
+		public <E> E createEnum(final Class<E> enumType) {
 			return null;
 		}
 
@@ -630,6 +624,9 @@ public class BeanBuilder<T> {
 			return null;
 		}
 
+		public <E> E createEnum(final Class<E> enumType) {
+			return null;
+		}
 	}
 
 }

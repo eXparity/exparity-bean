@@ -5,18 +5,20 @@
 package uk.co.it.modular.beans;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.comparesEqualTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static uk.co.it.modular.beans.Bean.bean;
 import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
+import static uk.co.it.modular.beans.BeanBuilder.anEmptyInstanceOf;
 import static uk.co.it.modular.beans.BeanBuilder.anInstanceOf;
 import java.math.BigDecimal;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Employee;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Manager;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NoDefaultConstructor;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 
 /**
@@ -45,8 +47,21 @@ public class BeanBuilderTest {
 	}
 
 	@Test
+	public void canCreateAnNullSimpleObject() {
+		AllTypes allTypes = anInstanceOf(AllTypes.class).build();
+		bean(allTypes).visit(new BeanVisitor() {
+
+			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
+				if (!property.isPrimitive()) {
+					assertThat("Expected " + property + " to not be null", property.getValue(), nullValue());
+				}
+			}
+		});
+	}
+
+	@Test
 	public void canCreateAnEmptySimpleObject() {
-		AllTypes allTypes = anInstanceOf(AllTypes.class).populatedWithEmptyValues().build();
+		AllTypes allTypes = anEmptyInstanceOf(AllTypes.class).build();
 		bean(allTypes).visit(new BeanVisitor() {
 
 			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
@@ -59,7 +74,7 @@ public class BeanBuilderTest {
 
 	@Test
 	public void canCreateAnEmptyGraph() {
-		Car car = anInstanceOf(Car.class).populatedWithEmptyValues().build();
+		Car car = anEmptyInstanceOf(Car.class).build();
 		assertThat(car.getEngine().getCapacity(), Matchers.nullValue());
 		assertThat(car.getWheels().size(), Matchers.greaterThan(0));
 		assertThat(car.getWheels().get(0).getDiameter(), Matchers.nullValue());
@@ -69,6 +84,22 @@ public class BeanBuilderTest {
 	public void canRandomlyFillAGraphOverrideProperty() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).withPropertyValue("capacity", overrideValue).build();
+		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
+	}
+
+	@Test
+	public void canRandomlyFillAGraphWithOveridePropertyOnOverride() {
+		BigDecimal capacity = new BigDecimal("4.0");
+		Engine engine = aRandomInstanceOf(Engine.class).build();
+		Car car = aRandomInstanceOf(Car.class).withPropertyValue("engine", engine).withPropertyValue("capacity", capacity).build();
+		assertThat(car.getEngine(), theInstance(engine));
+		assertThat(car.getEngine().getCapacity(), comparesEqualTo(capacity));
+	}
+
+	@Test
+	public void canRandomlyFillAGraphOverridePropertyShortForm() {
+		BigDecimal overrideValue = new BigDecimal("4.0");
+		Car car = aRandomInstanceOf(Car.class).with("capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
@@ -91,6 +122,13 @@ public class BeanBuilderTest {
 	}
 
 	@Test
+	public void canRandomlyFillAGraphOverridePropertyByPathShortForm() {
+		BigDecimal overrideValue = new BigDecimal("4.0");
+		Car car = aRandomInstanceOf(Car.class).with("car.engine.capacity", overrideValue).build();
+		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
+	}
+
+	@Test
 	public void canRandomlyFillAGraphExcludeProperty() {
 		Car car = aRandomInstanceOf(Car.class).excludeProperty("capacity").build();
 		assertThat(car.getEngine().getCapacity(), nullValue());
@@ -107,6 +145,17 @@ public class BeanBuilderTest {
 		int expectedSize = 1;
 		Car car = aRandomInstanceOf(Car.class).withCollectionSize(expectedSize).build();
 		assertThat(car.getWheels(), hasSize(expectedSize));
+	}
+
+	@Test
+	public void canFillAGraphWithSubTypes() {
+		Employee employee = aRandomInstanceOf(Employee.class).withSubtype(Person.class, Manager.class).build();
+		assertThat(employee.getManager(), instanceOf(Manager.class));
+	}
+
+	@Test(expected = BeanBuilderException.class)
+	public void canNotCreateAnInstanceWithNoDefaultConstructor() {
+		aRandomInstanceOf(NoDefaultConstructor.class).build();
 	}
 
 }

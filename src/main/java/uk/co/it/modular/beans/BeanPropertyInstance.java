@@ -5,6 +5,7 @@
 package uk.co.it.modular.beans;
 
 import static uk.co.it.modular.beans.Bean.bean;
+import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -224,6 +225,14 @@ public class BeanPropertyInstance {
 		return property.isEnum();
 	}
 
+	public boolean hasTypeParameter(final Class<?> type) {
+		return property.hasTypeParameter(type);
+	}
+
+	public boolean hasAnyTypeParameters(final Class<?>... types) {
+		return property.hasAnyTypeParameters(types);
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == this) {
@@ -243,10 +252,6 @@ public class BeanPropertyInstance {
 
 	@Override
 	public String toString() {
-		return "BeanPropertyInstance [" + this.property.getDeclaringTypeSimpleName() + "." + this.property.getName() + ". [" + instance + "]]";
-	}
-
-	public boolean hasTypeParameter(final Class<?> type) {
-		return property.hasTypeParameter(type);
+		return "BeanPropertyInstance [" + type(this.property.getType()).camelName() + "." + this.property.getName() + ". [" + instance + "]]";
 	}
 }

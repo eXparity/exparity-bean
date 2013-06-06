@@ -39,7 +39,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
- * Unit Tests for Bean Utils
+ * Unit Tests for Graph Utils
  * 
  * @author Stewart.Bissett
  */

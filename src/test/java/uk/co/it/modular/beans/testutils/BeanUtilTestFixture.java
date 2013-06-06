@@ -16,6 +16,34 @@ import java.util.Set;
  */
 public class BeanUtilTestFixture {
 
+	public static class Employee extends Person {
+
+		private Person manager;
+
+		public Person getManager() {
+			return manager;
+		}
+
+		public void setManager(final Person manager) {
+			this.manager = manager;
+		}
+
+	}
+
+	public static class Manager extends Person {
+
+		private List<Person> employees;
+
+		public List<Person> getEmployees() {
+			return employees;
+		}
+
+		public void setEmployees(final List<Person> employees) {
+			this.employees = employees;
+		}
+
+	}
+
 	public static class Thrower {
 
 		int property = 0;
@@ -343,6 +371,24 @@ public class BeanUtilTestFixture {
 		public String getProperty() {
 			return "";
 		}
+	}
+
+	public class NoDefaultConstructor {
+
+		private String value;
+
+		public NoDefaultConstructor(final String value) {
+			this.value = value;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(final String value) {
+			this.value = value;
+		}
+
 	}
 
 	public static class GetterWithArgs {

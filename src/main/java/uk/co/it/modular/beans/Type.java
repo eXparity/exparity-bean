@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * @author Stewart.Bissett
@@ -17,6 +18,10 @@ public class Type {
 
 	public static Type type(final Class<?> type) {
 		return new Type(type);
+	}
+
+	public static Type type(final Object instance) {
+		return new Type(instance.getClass());
 	}
 
 	private final TypeInspector inspector = new TypeInspector();
@@ -101,5 +106,26 @@ public class Type {
 	 */
 	public Class<?> propertyType(final String propertyName) {
 		return propertyNamed(propertyName).getType();
+	}
+
+	public Class<?>[] typeHierachy() {
+		return (Class<?>[]) ArrayUtils.addAll(new Class<?>[] {
+			this.type
+		}, superTypes());
+	}
+
+	public Class<?>[] superTypes() {
+
+		Class<?> superType = type.getSuperclass();
+		if (superType == null) {
+			return new Class<?>[0];
+		}
+
+		List<Class<?>> superTypes = new ArrayList<Class<?>>();
+		while (superType != null && !superType.equals(Object.class)) {
+			superTypes.add(superType);
+			superType = superType.getSuperclass();
+		}
+		return superTypes.toArray(new Class<?>[0]);
 	}
 }

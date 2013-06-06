@@ -163,6 +163,17 @@ public class BeanProperty {
 		return Arrays.asList(params);
 	}
 
+	public boolean hasAnyTypeParameters(final Class<?>... types) {
+		for (Class<?> type : types) {
+			for (Class<?> param : this.params) {
+				if (type.isAssignableFrom(param)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean hasTypeParameter(final Class<?> type) {
 		for (Class<?> param : this.params) {
 			if (type.isAssignableFrom(param)) {
