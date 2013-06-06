@@ -117,12 +117,12 @@ public class Type {
 	public Class<?>[] superTypes() {
 
 		Class<?> superType = type.getSuperclass();
-		if (superType == null) {
+		if (superType.equals(Object.class)) {
 			return new Class<?>[0];
 		}
 
 		List<Class<?>> superTypes = new ArrayList<Class<?>>();
-		while (superType != null && !superType.equals(Object.class)) {
+		while (!superType.equals(Object.class)) {
 			superTypes.add(superType);
 			superType = superType.getSuperclass();
 		}

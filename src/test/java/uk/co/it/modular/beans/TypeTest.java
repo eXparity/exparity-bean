@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Employee;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 
@@ -125,4 +127,46 @@ public class TypeTest {
 		assertThat(type(NameMismatch.class).propertyMap().size(), equalTo(0));
 	}
 
+	@Test
+	public void canGetASimpleNameForAType() {
+		assertThat(type(AllTypes.class).simpleName(), equalTo("AllTypes"));
+	}
+
+	@Test
+	public void canGetASimpleNameInCamelCaseForAType() {
+		assertThat(type(AllTypes.class).camelName(), equalTo("allTypes"));
+	}
+
+	@Test
+	public void canGetACanonicalNameForAType() {
+		assertThat(type(AllTypes.class).canonicalName(), equalTo("uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes"));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void canThrowIllegalArgumentExceptionIfConstructedWithNull() {
+		type(null);
+	}
+
+	@Test
+	public void canInstantiateTypeFromAnInstance() {
+		assertThat(type(new Person()).simpleName(), equalTo("Person"));
+	}
+
+	@Test
+	public void canGetSuperTypesForSuperType() {
+		Class<?>[] superTypes = type(Person.class).superTypes();
+		assertThat(superTypes, arrayWithSize(0));
+	}
+
+	@Test
+	public void canGetSuperTypesForSubclass() {
+		Class<?>[] superTypes = type(Employee.class).superTypes();
+		assertThat(superTypes, arrayContaining((Object) Person.class));
+	}
+
+	@Test
+	public void canGetTypeHierachyForSubclass() {
+		Class<?>[] superTypes = type(Employee.class).typeHierachy();
+		assertThat(superTypes, arrayContaining((Object) Employee.class, (Object) Person.class));
+	}
 }
