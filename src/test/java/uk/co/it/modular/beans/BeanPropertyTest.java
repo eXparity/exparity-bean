@@ -233,6 +233,13 @@ public class BeanPropertyTest {
 		beanProperty(AllTypes.class, "unknownValue");
 	}
 
+	@Test
+	public void canDetectInvalidTypeParameters() {
+		BeanProperty property = beanProperty(AllTypes.class, "collection");
+		assertThat(property.hasAnyTypeParameters(Integer.class, Boolean.class), equalTo(false));
+		assertThat(property.hasTypeParameter(Integer.class), equalTo(false));
+	}
+
 	@SuppressWarnings("rawtypes")
 	private <T> void verifyProperty(final Object instance, final String propertyName, final Class<T> propertyType, final Object currentValue, final T newValue,
 			final Class<?>... genericTypes) {
@@ -256,6 +263,7 @@ public class BeanPropertyTest {
 			assertThat(property.getTypeParameters().size(), equalTo(genericTypes.length));
 			for (int i = 0; i < genericTypes.length; ++i) {
 				assertThat(property.getTypeParameter(i), equalTo((Class) genericTypes[i]));
+				assertThat(property.hasTypeParameter(genericTypes[i]), equalTo(true));
 			}
 		}
 	}

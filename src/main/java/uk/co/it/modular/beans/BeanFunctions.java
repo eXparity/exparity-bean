@@ -5,7 +5,7 @@
 package uk.co.it.modular.beans;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart Bissett
  */
 public abstract class BeanFunctions {
 

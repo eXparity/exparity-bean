@@ -17,7 +17,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.SetterWithNotArgs;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.TypeMismatch;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart Bissett
  */
 public class TypeInspectorTest {
 

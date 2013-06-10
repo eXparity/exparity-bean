@@ -6,6 +6,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.*;
 import static org.apache.commons.lang.time.DateUtils.addSeconds;
+import static uk.co.it.modular.beans.Graph.graph;
 import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -218,7 +219,7 @@ public class BeanBuilder<T> {
 
 	public T build() {
 		T instance = createNewInstance();
-		GraphUtils.visit(instance, new BeanVisitor() {
+		graph(instance).visit(new BeanVisitor() {
 
 			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
 
@@ -289,7 +290,7 @@ public class BeanBuilder<T> {
 		} catch (InstantiationException e) {
 			throw new BeanBuilderException("Failed to instantiate '" + type + "'. Error [" + e.getMessage() + "]", e);
 		} catch (IllegalAccessException e) {
-			throw new BeanBuilderException(e);
+			throw new BeanBuilderException("Failed to instantiate '" + type + "'. Error [" + e.getMessage() + "]", e);
 		}
 	}
 

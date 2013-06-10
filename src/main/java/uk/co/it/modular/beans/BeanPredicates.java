@@ -30,7 +30,7 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPredicates} which returns <code>true</code> when any of the supplied predicates match
 	 */
-	public static BeanPropertyPredicate matchesAny(final BeanPropertyPredicate... predicates) {
+	public static BeanPropertyPredicate matchesOneOf(final BeanPropertyPredicate... predicates) {
 		return new BeanPropertyPredicate() {
 
 			public boolean matches(final BeanPropertyInstance property) {
@@ -59,7 +59,7 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name
 	 */
-	public static BeanPropertyPredicate withName(final String name) {
+	public static BeanPropertyPredicate named(final String name) {
 		return new BeanPropertyPredicate() {
 
 			public boolean matches(final BeanPropertyInstance property) {
@@ -95,7 +95,7 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the supplied types
 	 */
-	public static BeanPropertyPredicate withType(final Class<?>... types) {
+	public static BeanPropertyPredicate ofType(final Class<?>... types) {
 		return new BeanPropertyPredicate() {
 
 			public boolean matches(final BeanPropertyInstance property) {
@@ -112,7 +112,7 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the types as it's declaring type
 	 */
-	public static BeanPropertyPredicate withDeclaringType(final Class<?>... types) {
+	public static BeanPropertyPredicate ofDeclaringType(final Class<?>... types) {
 		return new BeanPropertyPredicate() {
 
 			public boolean matches(final BeanPropertyInstance property) {
@@ -129,7 +129,7 @@ public abstract class BeanPredicates {
 	/**
 	 * Return a {@link BeanPropertyPredicate} for a property named with the supplied name and is of one of the supplied types
 	 */
-	public static BeanPropertyPredicate withProperty(final String propertyName, final Class<?>... types) {
-		return matchesAll(withName(propertyName), withType(types));
+	public static BeanPropertyPredicate named(final String propertyName, final Class<?>... types) {
+		return matchesAll(named(propertyName), ofType(types));
 	}
 }

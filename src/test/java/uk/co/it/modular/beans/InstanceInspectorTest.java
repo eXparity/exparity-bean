@@ -35,7 +35,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.TypeMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart Bissett
  */
 public class InstanceInspectorTest {
 

@@ -6,8 +6,8 @@ package uk.co.it.modular.beans;
 
 import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
 import static uk.co.it.modular.beans.BeanPredicates.matchesAll;
-import static uk.co.it.modular.beans.BeanPredicates.withName;
-import static uk.co.it.modular.beans.BeanPredicates.withType;
+import static uk.co.it.modular.beans.BeanPredicates.named;
+import static uk.co.it.modular.beans.BeanPredicates.ofType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +99,7 @@ abstract class Instance {
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		BeanPropertyInstance property = findAny(withName(propertyName));
+		BeanPropertyInstance property = findAny(named(propertyName));
 		if (property == null) {
 			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
 		}
@@ -178,7 +178,7 @@ abstract class Instance {
 	}
 
 	public boolean hasProperty(final String name) {
-		return hasProperty(withName(name));
+		return hasProperty(named(name));
 	}
 
 	public boolean setProperty(final String name, final Object value) {
@@ -190,6 +190,6 @@ abstract class Instance {
 	}
 
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
-		return hasProperty(matchesAll(predicate, withType(type)));
+		return hasProperty(matchesAll(predicate, ofType(type)));
 	}
 }

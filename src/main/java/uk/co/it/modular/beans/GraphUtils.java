@@ -1,6 +1,7 @@
 
 package uk.co.it.modular.beans;
 
+import static uk.co.it.modular.beans.Graph.graph;
 import java.util.List;
 import java.util.Map;
 
@@ -10,10 +11,6 @@ import java.util.Map;
  * @author Stewart Bissett
  */
 public abstract class GraphUtils {
-
-	public static Graph graph(final Object instance) {
-		return Graph.graph(instance);
-	}
 
 	/**
 	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
