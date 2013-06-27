@@ -3,7 +3,7 @@
 
 	<groupId>uk.co.modular-it</groupId>
 	<artifactId>bean-utils</artifactId>
-	<version>0.9.3</version>
+	<version>0.9.4-SNAPSHOT</version>
 
 	<name>Bean Utils</name>
 	<url>https://github.com/modularit/bean-utils</url>
