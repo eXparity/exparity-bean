@@ -122,6 +122,13 @@ public class BeanBuilderTest {
 	}
 
 	@Test
+	public void canRandomlyFillAGraphOverridePropertyByIndexedPath() {
+		int overrideDiameter = 1234;
+		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(4).with("car.wheels[1].diameter", overrideDiameter).build();
+		assertThat(car.getWheels().get(1).getDiameter(), equalTo(overrideDiameter));
+	}
+
+	@Test
 	public void canRandomlyFillAGraphOverridePropertyByPathShortForm() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("car.engine.capacity", overrideValue).build();

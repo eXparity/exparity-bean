@@ -254,9 +254,12 @@ public class BeanBuilder<T> {
 					return;
 				}
 
-				Object factory = paths.get(pathNoIndexes);
+				Object factory = paths.get(path);
 				if (factory == null) {
-					factory = properties.get(property.getName());
+					factory = paths.get(pathNoIndexes);
+					if (factory == null) {
+						factory = properties.get(property.getName());
+					}
 				}
 
 				if (factory != null) {
