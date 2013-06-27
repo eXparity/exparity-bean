@@ -70,7 +70,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAGraph() {
-		Car car = aRandomInstanceOf(Car.class).withCollectionSize(4).build();
+		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(4).build();
 		Engine engine = car.getEngine();
 		List<Wheel> wheels = car.getWheels();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);

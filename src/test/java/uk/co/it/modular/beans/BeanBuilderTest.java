@@ -83,7 +83,7 @@ public class BeanBuilderTest {
 	@Test
 	public void canRandomlyFillAGraphOverrideProperty() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
-		Car car = aRandomInstanceOf(Car.class).withPropertyValue("capacity", overrideValue).build();
+		Car car = aRandomInstanceOf(Car.class).with("capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
@@ -91,7 +91,7 @@ public class BeanBuilderTest {
 	public void canRandomlyFillAGraphWithOveridePropertyOnOverride() {
 		BigDecimal capacity = new BigDecimal("4.0");
 		Engine engine = aRandomInstanceOf(Engine.class).build();
-		Car car = aRandomInstanceOf(Car.class).withPropertyValue("engine", engine).withPropertyValue("capacity", capacity).build();
+		Car car = aRandomInstanceOf(Car.class).with("engine", engine).with("capacity", capacity).build();
 		assertThat(car.getEngine(), theInstance(engine));
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(capacity));
 	}
@@ -105,7 +105,7 @@ public class BeanBuilderTest {
 
 	@Test
 	public void canRandomlyFillAGraphWithoutOverflow() {
-		Person person = aRandomInstanceOf(Person.class).withCollectionSize(1).build();
+		Person person = aRandomInstanceOf(Person.class).aCollectionSizeOf(1).build();
 		assertThat(person.getFirstname(), notNullValue());
 		assertThat(person.getSurname(), notNullValue());
 		assertThat(person.getSiblings(), hasSize(1));
@@ -117,7 +117,7 @@ public class BeanBuilderTest {
 	@Test
 	public void canRandomlyFillAGraphOverridePropertyByPath() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
-		Car car = aRandomInstanceOf(Car.class).withPathValue("car.engine.capacity", overrideValue).build();
+		Car car = aRandomInstanceOf(Car.class).with("car.engine.capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
@@ -143,13 +143,13 @@ public class BeanBuilderTest {
 	@Test
 	public void canRandomlyFillAGraphControlCollectionSize() {
 		int expectedSize = 1;
-		Car car = aRandomInstanceOf(Car.class).withCollectionSize(expectedSize).build();
+		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(expectedSize).build();
 		assertThat(car.getWheels(), hasSize(expectedSize));
 	}
 
 	@Test
 	public void canFillAGraphWithSubTypes() {
-		Employee employee = aRandomInstanceOf(Employee.class).withSubtype(Person.class, Manager.class).build();
+		Employee employee = aRandomInstanceOf(Employee.class).usingType(Person.class, Manager.class).build();
 		assertThat(employee.getManager(), instanceOf(Manager.class));
 	}
 
