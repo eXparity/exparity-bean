@@ -30,13 +30,13 @@ public class BeanBuilder<T> {
 	private static final Logger LOG = LoggerFactory.getLogger(BeanBuilder.class);
 	private static final int OVERFLOW_LIMIT = 1;
 
-	private static final Map<Class<?>, ValueFactory> NULL_FACTORIES = new HashMap<Class<?>, ValueFactory>() {
+	private static final Map<Class<?>, Object> NULL_FACTORIES = new HashMap<Class<?>, Object>() {
 
 		private static final long serialVersionUID = 1L;
 
 	};
 
-	private final Map<Class<?>, Object> RANDOM_FACTORIES = new HashMap<Class<?>, Object>() {
+	private static final Map<Class<?>, Object> RANDOM_FACTORIES = new HashMap<Class<?>, Object>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -69,7 +69,7 @@ public class BeanBuilder<T> {
 		}
 	};
 
-	private final Map<Class<?>, Object> EMPTY_FACTORIES = new HashMap<Class<?>, Object>() {
+	private static final Map<Class<?>, Object> EMPTY_FACTORIES = new HashMap<Class<?>, Object>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -125,12 +125,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type).withEmptyValues();
-	}
-
-	private BeanBuilder<T> withEmptyValues() {
-		this.types.putAll(EMPTY_FACTORIES);
-		return this;
+		return new BeanBuilder<T>(type, EMPTY_FACTORIES);
 	}
 
 	/**
@@ -143,12 +138,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type).withRandomValues();
-	}
-
-	private BeanBuilder<T> withRandomValues() {
-		this.types.putAll(RANDOM_FACTORIES);
-		return this;
+		return new BeanBuilder<T>(type, RANDOM_FACTORIES);
 	}
 
 	private final Set<String> excludedProperties = new HashSet<String>();
@@ -163,7 +153,7 @@ public class BeanBuilder<T> {
 		this(type, NULL_FACTORIES);
 	}
 
-	private BeanBuilder(final Class<T> type, final Map<Class<?>, ValueFactory> valueFactories) {
+	private BeanBuilder(final Class<T> type, final Map<Class<?>, Object> valueFactories) {
 		this.type = type;
 		this.types.putAll(valueFactories);
 	}
@@ -173,6 +163,11 @@ public class BeanBuilder<T> {
 	}
 
 	public BeanBuilder<T> with(final Class<?> type, final ValueFactory factory) {
+		this.types.put(type, factory);
+		return this;
+	}
+
+	public BeanBuilder<T> with(final Class<?> type, final ArrayFactory factory) {
 		this.types.put(type, factory);
 		return this;
 	}
