@@ -33,7 +33,7 @@ public class BeanProperty {
 
 	private final Class<?> declaringType;
 	private final String name;
-	private final Class<?> type;
+	private final Type type;
 	private final Class<?>[] params;
 	private final Method accessor, mutator;
 
@@ -42,7 +42,7 @@ public class BeanProperty {
 		this.name = propertyName;
 		this.accessor = accessor;
 		this.mutator = mutator;
-		this.type = accessor.getReturnType();
+		this.type = type(accessor.getReturnType());
 		this.params = genericArgs(accessor);
 	}
 
@@ -128,21 +128,21 @@ public class BeanProperty {
 	 * Return the type of the property
 	 */
 	public Class<?> getType() {
-		return type;
+		return type.getType();
 	}
 
 	/**
 	 * Return the canonical name of the type
 	 */
 	public String getTypeCanonicalName() {
-		return type.getCanonicalName();
+		return type.canonicalName();
 	}
 
 	/**
 	 * Return the canonical name of the type
 	 */
 	public String getTypeSimpleName() {
-		return type.getSimpleName();
+		return type.simpleName();
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class BeanProperty {
 	 *            any type to check to see if this properties type is assignable to it
 	 */
 	public boolean isType(final Class<?> type) {
-		return type.isAssignableFrom(this.type);
+		return this.type.is(type);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class BeanProperty {
 	 */
 	public boolean isType(final Class<?>... types) {
 		for (Class<?> type : types) {
-			if (type.isAssignableFrom(this.type)) {
+			if (this.type.is(type)) {
 				return true;
 			}
 		}

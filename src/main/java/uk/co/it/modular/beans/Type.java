@@ -128,4 +128,28 @@ public class Type {
 		}
 		return superTypes.toArray(new Class<?>[0]);
 	}
+
+	public boolean is(final Class<?> otherType) {
+		return this.type.isAssignableFrom(otherType);
+	}
+
+	public boolean isArray() {
+		return this.type.isArray();
+	}
+
+	public String packageName() {
+		return type.getPackage().getName();
+	}
+
+	public boolean isPrimitive() {
+		return type.isPrimitive();
+	}
+
+	public boolean isEnum() {
+		return type.isEnum();
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
 }
