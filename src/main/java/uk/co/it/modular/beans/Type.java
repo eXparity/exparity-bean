@@ -129,8 +129,11 @@ public class Type {
 		return superTypes.toArray(new Class<?>[0]);
 	}
 
+	/**
+	 * Return <code>true</code> if this type is the same type or a subclass of the other type.
+	 */
 	public boolean is(final Class<?> otherType) {
-		return this.type.isAssignableFrom(otherType);
+		return otherType != null && otherType.isAssignableFrom(this.type);
 	}
 
 	public boolean isArray() {
