@@ -150,17 +150,17 @@ class InstanceInspector {
 			return;
 		}
 
-		Class<? extends Object> type = instance.getClass();
+		Type type = type(instance.getClass());
 		if (type.isArray()) {
 			inspectArray(new ArrayList<Object>(), path, instance, visitor);
-		} else if (Iterable.class.isAssignableFrom(type)) {
+		} else if (type.is(Iterable.class)) {
 			inspectIterable(new ArrayList<Object>(), path, (Iterable) instance, visitor);
-		} else if (Map.class.isAssignableFrom(type)) {
+		} else if (type.is(Map.class)) {
 			inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 		} else {
 			String rootPath = path == null ? uncapitalize(type(instance.getClass()).simpleName()) : path;
 			stack.add(instance);
-			for (BeanProperty property : type(instance.getClass()).propertyList()) {
+			for (BeanProperty property : type.propertyList()) {
 				String nextPath = nextPath(rootPath, property);
 				visitor.visit(new BeanPropertyInstance(property, instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {

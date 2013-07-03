@@ -4,7 +4,7 @@ package uk.co.it.modular.beans;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,85 +28,12 @@ import static uk.co.it.modular.beans.ValueFactories.*;
 public class BeanBuilder<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BeanBuilder.class);
-	private static final int OVERFLOW_LIMIT = 1;
-
-	private static final Map<Class<?>, Object> NULL_FACTORIES = new HashMap<Class<?>, Object>() {
-
-		private static final long serialVersionUID = 1L;
-
-	};
-
-	private static final Map<Class<?>, Object> RANDOM_FACTORIES = new HashMap<Class<?>, Object>() {
-
-		private static final long serialVersionUID = 1L;
-
-		{
-			put(Short.class, aRandomShort());
-			put(short.class, aRandomShort());
-			put(Integer.class, aRandomInteger());
-			put(int.class, aRandomInteger());
-			put(Long.class, aRandomLong());
-			put(long.class, aRandomLong());
-			put(Double.class, aRandomDouble());
-			put(double.class, aRandomDouble());
-			put(Float.class, aRandomFloat());
-			put(float.class, aRandomFloat());
-			put(Boolean.class, aRandomBoolean());
-			put(boolean.class, aRandomBoolean());
-			put(Byte.class, aRandomByte());
-			put(byte.class, aRandomByte());
-			put(Character.class, aRandomChar());
-			put(char.class, aRandomChar());
-			put(String.class, aRandomString());
-			put(BigDecimal.class, aRandomDecimal());
-			put(Date.class, aRandomDate());
-			put(List.class, aList());
-			put(Set.class, aSet());
-			put(Map.class, aMap());
-			put(Object.class, aNewInstance());
-			put(Enum.class, aRandomEnum());
-			put(Array.class, anArray());
-		}
-	};
-
-	private static final Map<Class<?>, Object> EMPTY_FACTORIES = new HashMap<Class<?>, Object>() {
-
-		private static final long serialVersionUID = 1L;
-
-		{
-			put(Short.class, aNullValue());
-			put(short.class, theValue(0));
-			put(Integer.class, aNullValue());
-			put(int.class, theValue(0));
-			put(Long.class, aNullValue());
-			put(long.class, theValue(0));
-			put(Double.class, aNullValue());
-			put(double.class, theValue(0.0));
-			put(Float.class, aNullValue());
-			put(float.class, theValue(0.0));
-			put(Boolean.class, aNullValue());
-			put(boolean.class, theValue(false));
-			put(Byte.class, aNullValue());
-			put(byte.class, theValue(0));
-			put(Character.class, aNullValue());
-			put(char.class, theValue(0));
-			put(String.class, aNullValue());
-			put(BigDecimal.class, aNullValue());
-			put(Date.class, aNullValue());
-			put(Enum.class, aNullValue());
-			put(List.class, aList());
-			put(Set.class, aSet());
-			put(Map.class, aMap());
-			put(Object.class, aNewInstance());
-			put(Array.class, anArray());
-		}
-	};
 
 	/**
 	 * Return an instance of a {@link BeanBuilder} for the given type which can then be populated with values either manually or automatically. For example:
 	 * 
 	 * <pre>
-	 * BeanUtils.anInstanceOf(Person.class).populatedWith(BeanUtils.randomValues()).build();
+	 * BeanUtils.anInstanceOf(Person.class).build();
 	 * </pre>
 	 * @param type
 	 *            the type to return the {@link BeanBuilder} for
@@ -150,7 +77,7 @@ public class BeanBuilder<T> {
 	private int collectionMin = 1, collectionMax = 5;;
 
 	public BeanBuilder(final Class<T> type) {
-		this(type, NULL_FACTORIES);
+		this(type, new HashMap<Class<?>, Object>());
 	}
 
 	private BeanBuilder(final Class<T> type, final Map<Class<?>, Object> valueFactories) {
@@ -242,83 +169,102 @@ public class BeanBuilder<T> {
 	}
 
 	public T build() {
-		T instance = createNewInstance();
-		graph(instance).visit(new BeanVisitor() {
+		return populate(createNewInstance(), new PropertyPath(type(type).camelName()), new Stack(type(type)));
+	}
 
-			public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack) {
-
-				String pathNoIndexes = path.replaceAll("\\[\\w*\\]\\.", ".");
-
-				if (excludedPaths.contains(pathNoIndexes) || excludedProperties.contains(property.getName())) {
-					LOG.trace("Ignore  Path [{}]. Explicity excluded", path);
-					return;
-				}
-
-				Object factory = paths.get(path);
-				if (factory == null) {
-					factory = paths.get(pathNoIndexes);
-					if (factory == null) {
-						factory = properties.get(property.getName());
-					}
-				}
-
-				if (factory != null) {
-					assignValue(property, path, factory, type);
-					return;
-				}
-
-				for (String assignedPath : paths.keySet()) {
-					if (pathNoIndexes.startsWith(assignedPath)) {
-						LOG.trace("Ignore  Path [{}]. Child of assigned path {}", path, assignedPath);
-						return;
-					}
-				}
-
-				int hits = 0;
-				for (Object object : stack) {
-					Class<?>[] typeHierachy = type(object).typeHierachy();
-					if (property.isType(typeHierachy) || property.hasAnyTypeParameters(typeHierachy)) {
-						if ((++hits) > OVERFLOW_LIMIT) {
-							LOG.trace("Ignore  Path [{}]. Avoids stack overflow caused by type {}", path, object.getClass().getSimpleName());
-							return;
-						}
-					}
-				}
-
-				Object currentPropertyValue = property.getValue();
-				if (currentPropertyValue != null && !isEmptyCollection(currentPropertyValue)) {
-					LOG.trace("Ignore  Path [{}]. Already set", path);
-					return;
-				}
-
-				if (property.isArray()) {
-					assignValue(property, path, createArray(property.getType().getComponentType()));
-				} else if (property.isMap()) {
-					assignValue(property, path, createMap(property.getTypeParameter(0), property.getTypeParameter(1), collectionSize()));
-				} else if (property.isSet()) {
-					assignValue(property, path, createSet(property.getTypeParameter(0), collectionSize()));
-				} else if (property.isList() || property.isCollection()) {
-					assignValue(property, path, createList(property.getTypeParameter(0), collectionSize()));
-				} else {
-					assignValue(property, path, createValue(property.getType()));
-				}
-			}
-		});
+	private <I> I populate(final I instance, final PropertyPath path, final Stack stack) {
+		for (BeanPropertyInstance property : graph(instance).propertyList()) {
+			populateProperty(property, path.append(property.getName()), stack);
+		}
 		return instance;
 	}
 
-	private void assignValue(final BeanPropertyInstance property, final String path, final Object factory, final Class<?> type) {
-		assignValue(property, path, createValue(factory, type));
+	private void populateProperty(final BeanPropertyInstance property, final PropertyPath path, final Stack stack) {
+
+		if (isExcludedPath(path) || isExcludedProperty(property)) {
+			LOG.trace("Ignore [{}]. Explicity excluded", path);
+			return;
+		}
+
+		Object factory = factoryForPath(property, path);
+		if (factory != null) {
+			assignValue(property, path, factory, property.getType(), stack);
+			return;
+		}
+
+		if (isChildOfAssignedPath(path) || isOverflowing(property, path, stack)) {
+			return;
+		}
+
+		if (property.isArray()) {
+			property.setValue(createArray(property.getType().getComponentType(), path, stack));
+		} else if (property.isMap()) {
+			property.setValue(createMap(property.getTypeParameter(0), property.getTypeParameter(1), collectionSize(), path, stack));
+		} else if (property.isSet()) {
+			property.setValue(createSet(property.getTypeParameter(0), collectionSize(), path, stack));
+		} else if (property.isList() || property.isCollection()) {
+			property.setValue(createList(property.getTypeParameter(0), collectionSize(), path, stack));
+		} else {
+			assignValue(property, path, createValue(property.getType()), stack);
+		}
 	}
 
-	private void assignValue(final BeanPropertyInstance property, final String path, final Object value) {
+	private boolean isOverflowing(final BeanPropertyInstance property, final PropertyPath path, final Stack stack) {
+		if (stack.contains(property.getType())) {
+			LOG.trace("Ignore {}. Avoids stack overflow caused by type {}", path, property.getTypeSimpleName());
+			return true;
+		}
+		for (Class<?> genericType : property.getTypeParameters()) {
+			if (stack.contains(genericType)) {
+				LOG.trace("Ignore {}. Avoids stack overflow caused by type {}", path, genericType.getSimpleName());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public Object factoryForPath(final BeanPropertyInstance property, final PropertyPath path) {
+		Object factory = paths.get(path.fullPath());
+		if (factory == null) {
+			factory = paths.get(path.noIndexes());
+			if (factory == null) {
+				factory = properties.get(property.getName());
+			}
+		}
+		return factory;
+	}
+
+	public boolean isExcludedProperty(final BeanPropertyInstance property) {
+		return excludedProperties.contains(property.getName());
+	}
+
+	public boolean isExcludedPath(final PropertyPath path) {
+		return excludedPaths.contains(path.fullPath()) || excludedPaths.contains(path.noIndexes());
+	}
+
+	private boolean isChildOfAssignedPath(final PropertyPath path) {
+		for (String assignedPath : paths.keySet()) {
+			if (path.startsWith(assignedPath)) {
+				LOG.trace("Ignore {}. Child of assigned path {}", path, assignedPath);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void assignValue(final BeanPropertyInstance property, final PropertyPath path, final Object factory, final Class<?> type, final Stack stack) {
+		assignValue(property, path, createValue(factory, type), stack);
+	}
+
+	private void assignValue(final BeanPropertyInstance property, final PropertyPath path, final Object value, final Stack stack) {
 		if (value != null) {
-			LOG.trace("Assign  Path [{}] value [{}:{}]", new Object[] {
+			LOG.trace("Assign {} value [{}:{}]", new Object[] {
 					path, value.getClass().getSimpleName(), identityHashCode(value)
 			});
-			property.setValue(value);
+			property.setValue(populate(value, path, stack.append(type(value))));
 		} else {
-			LOG.trace("Assign  Path [{}] value [null]", path);
+			LOG.trace("Assign {} value [null]", path);
 		}
 	}
 
@@ -360,58 +306,56 @@ public class BeanBuilder<T> {
 		return null;
 	}
 
-	private <E> Object createArray(final Class<E> type) {
+	private <E> Object createArray(final Class<E> type, final PropertyPath path, final Stack stack) {
 		Object array = createValue(types.get(Array.class), type);
 		if (array != null) {
 			for (int i = 0; i < Array.getLength(array); ++i) {
-				Array.set(array, i, createValue(type));
+				Array.set(array, i, populate(createValue(type), path.appendIndex(i), stack.append(type)));
 			}
 		}
 		return array;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <E> Set<E> createSet(final Class<E> type, final int length) {
+	private <E> Set<E> createSet(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
 		Set<E> set = (Set<E>) createValue(types.get(Set.class), type);
 		if (set != null) {
 			for (int i = 0; i < length; ++i) {
-				set.add(createValue(type));
+				E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
+				if (value != null) {
+					set.add(value);
+				}
 			}
 		}
 		return set;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <E> List<E> createList(final Class<E> type, final int length) {
+	private <E> List<E> createList(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
 		List<E> list = (List<E>) createValue(types.get(List.class), type);
 		if (list != null) {
 			for (int i = 0; i < length; ++i) {
-				list.add(createValue(type));
+				E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
+				if (value != null) {
+					list.add(value);
+				}
 			}
 		}
 		return list;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType, final int length) {
+	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType, final int length, final PropertyPath path, final Stack stack) {
 		Map<K, V> map = (Map<K, V>) createValue(types.get(Map.class), type);
 		if (map != null) {
 			for (int i = 0; i < length; ++i) {
-				map.put(createValue(keyType), createValue(valueType));
+				K key = populate(createValue(keyType), path.appendIndex(i), stack.append(keyType).append(valueType));
+				if (key != null) {
+					map.put(key, createValue(valueType));
+				}
 			}
 		}
 		return map;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private boolean isEmptyCollection(final Object obj) {
-		if (obj instanceof Collection) {
-			return ((Collection) obj).isEmpty();
-		} else if (obj instanceof Map) {
-			return ((Map) obj).isEmpty();
-		} else {
-			return false;
-		}
 	}
 
 	private T createNewInstance() {
@@ -444,5 +388,108 @@ public class BeanBuilder<T> {
 		}
 		return factories;
 	}
+
+	private static class Stack {
+
+		private final Type[] stack;
+
+		private Stack(final Type type) {
+			this(new Type[] {
+				type
+			});
+		}
+
+		private Stack(final Type[] stack) {
+			this.stack = stack;
+		}
+
+		public boolean contains(final Class<?> type) {
+			int hits = 0;
+			for (Type entry : stack) {
+				if (entry.is(type)) {
+					if ((++hits) > 1) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		public Stack append(final Class<?> value) {
+			return append(type(value));
+		}
+
+		public Stack append(final Type value) {
+			Type[] newStack = Arrays.copyOf(stack, stack.length + 1);
+			newStack[stack.length] = value;
+			return new Stack(newStack);
+		}
+	}
+
+	private static final Map<Class<?>, Object> RANDOM_FACTORIES = new HashMap<Class<?>, Object>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put(Short.class, aRandomShort());
+			put(short.class, aRandomShort());
+			put(Integer.class, aRandomInteger());
+			put(int.class, aRandomInteger());
+			put(Long.class, aRandomLong());
+			put(long.class, aRandomLong());
+			put(Double.class, aRandomDouble());
+			put(double.class, aRandomDouble());
+			put(Float.class, aRandomFloat());
+			put(float.class, aRandomFloat());
+			put(Boolean.class, aRandomBoolean());
+			put(boolean.class, aRandomBoolean());
+			put(Byte.class, aRandomByte());
+			put(byte.class, aRandomByte());
+			put(Character.class, aRandomChar());
+			put(char.class, aRandomChar());
+			put(String.class, aRandomString());
+			put(BigDecimal.class, aRandomDecimal());
+			put(Date.class, aRandomDate());
+			put(List.class, aList());
+			put(Set.class, aSet());
+			put(Map.class, aMap());
+			put(Object.class, aNewInstance());
+			put(Enum.class, aRandomEnum());
+			put(Array.class, anArray());
+		}
+	};
+
+	private static final Map<Class<?>, Object> EMPTY_FACTORIES = new HashMap<Class<?>, Object>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put(Short.class, aNullValue());
+			put(short.class, theValue((short) 0));
+			put(Integer.class, aNullValue());
+			put(int.class, theValue(0));
+			put(Long.class, aNullValue());
+			put(long.class, theValue(0));
+			put(Double.class, aNullValue());
+			put(double.class, theValue(0.0));
+			put(Float.class, aNullValue());
+			put(float.class, theValue((float) 0.0));
+			put(Boolean.class, aNullValue());
+			put(boolean.class, theValue(false));
+			put(Byte.class, aNullValue());
+			put(byte.class, theValue((byte) 0));
+			put(Character.class, aNullValue());
+			put(char.class, theValue((char) 0));
+			put(String.class, aNullValue());
+			put(BigDecimal.class, aNullValue());
+			put(Date.class, aNullValue());
+			put(Enum.class, aNullValue());
+			put(List.class, aList());
+			put(Set.class, aSet());
+			put(Map.class, aMap());
+			put(Object.class, aNewInstance());
+			put(Array.class, anArray());
+		}
+	};
 
 }

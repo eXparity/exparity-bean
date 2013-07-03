@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.apache.commons.lang.math.RandomUtils.*;
@@ -137,6 +138,15 @@ public abstract class ValueFactories {
 			public <T> T createValue(final Class<T> type) {
 				Byte value = (byte) nextInt(Byte.MAX_VALUE);
 				return (T) value;
+			}
+		};
+	}
+
+	public static ValueFactory aRandomInstance() {
+		return new ValueFactory() {
+
+			public <T> T createValue(final Class<T> type) {
+				return aRandomInstanceOf(type).build();
 			}
 		};
 	}

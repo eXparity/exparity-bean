@@ -155,4 +155,9 @@ public class Type {
 	public Class<?> getType() {
 		return type;
 	}
+
+	@Override
+	public String toString() {
+		return "Type [" + simpleName() + "]";
+	}
 }
