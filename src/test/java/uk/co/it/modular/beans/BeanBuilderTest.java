@@ -4,12 +4,6 @@
 
 package uk.co.it.modular.beans;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static uk.co.it.modular.beans.Bean.bean;
-import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
-import static uk.co.it.modular.beans.BeanBuilder.anEmptyInstanceOf;
-import static uk.co.it.modular.beans.BeanBuilder.anInstanceOf;
 import java.math.BigDecimal;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -20,6 +14,13 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Manager;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NoDefaultConstructor;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static uk.co.it.modular.beans.Bean.bean;
+import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
+import static uk.co.it.modular.beans.BeanBuilder.anEmptyInstanceOf;
+import static uk.co.it.modular.beans.BeanBuilder.anInstanceOf;
 
 /**
  * @author Stewart.Bissett
@@ -81,14 +82,45 @@ public class BeanBuilderTest {
 	}
 
 	@Test
-	public void canRandomlyFillAGraphOverrideProperty() {
+	public void canSetAnOverrideProperty() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
+	@Test(expected = BeanPropertyException.class)
+	public void canSetAnOverridePropertyIncorrectly() {
+		aRandomInstanceOf(Car.class).with("capacity", 1234L).build();
+	}
+
 	@Test
-	public void canRandomlyFillAGraphWithOveridePropertyOnOverride() {
+	public void canSetAnOverridePropertyFactory() {
+		BigDecimal overrideValue = new BigDecimal("4.0");
+		Car car = aRandomInstanceOf(Car.class).with("engine", new ValueFactory() {
+
+			public <T> T createValue(final Class<T> type) {
+				return (T) new Engine(new BigDecimal("4.0"));
+			}
+		}).build();
+		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
+	}
+
+	@Test
+	public void canSetAnOverrideTypeFactory() {
+		final Integer overrideValue = 12345;
+		Car car = aRandomInstanceOf(Car.class).with(Wheel.class, new ValueFactory() {
+
+			public <T> T createValue(final Class<T> type) {
+				return (T) new Wheel(overrideValue);
+			}
+		}).build();
+		for (Wheel wheel : car.getWheels()) {
+			assertThat(wheel.getDiameter(), equalTo(overrideValue));
+		}
+	}
+
+	@Test
+	public void canSetAnOverridePropertyOnOverride() {
 		BigDecimal capacity = new BigDecimal("4.0");
 		Engine engine = aRandomInstanceOf(Engine.class).build();
 		Car car = aRandomInstanceOf(Car.class).with("engine", engine).with("capacity", capacity).build();
@@ -97,7 +129,7 @@ public class BeanBuilderTest {
 	}
 
 	@Test
-	public void canRandomlyFillAGraphOverridePropertyShortForm() {
+	public void canSetAnOverridePropertyShortForm() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
@@ -115,47 +147,47 @@ public class BeanBuilderTest {
 	}
 
 	@Test
-	public void canRandomlyFillAGraphOverridePropertyByPath() {
+	public void canSetAnOverridePropertyByPath() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("car.engine.capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
 	@Test
-	public void canRandomlyFillAGraphOverridePropertyByIndexedPath() {
+	public void canSetAnOverridePropertyByIndexedPath() {
 		int overrideDiameter = 1234;
 		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(4).with("car.wheels[1].diameter", overrideDiameter).build();
 		assertThat(car.getWheels().get(1).getDiameter(), equalTo(overrideDiameter));
 	}
 
 	@Test
-	public void canRandomlyFillAGraphOverridePropertyByPathShortForm() {
+	public void canSetAnPropertyByPathShortForm() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("car.engine.capacity", overrideValue).build();
 		assertThat(car.getEngine().getCapacity(), comparesEqualTo(overrideValue));
 	}
 
 	@Test
-	public void canRandomlyFillAGraphExcludeProperty() {
+	public void canExcludeAProperty() {
 		Car car = aRandomInstanceOf(Car.class).excludeProperty("capacity").build();
 		assertThat(car.getEngine().getCapacity(), nullValue());
 	}
 
 	@Test
-	public void canRandomlyFillAGraphExcludePath() {
+	public void canExcludeAPath() {
 		Car car = aRandomInstanceOf(Car.class).excludePath("car.engine.capacity").build();
 		assertThat(car.getEngine().getCapacity(), nullValue());
 	}
 
 	@Test
-	public void canRandomlyFillAGraphControlCollectionSize() {
+	public void canSetCollectionSize() {
 		int expectedSize = 1;
 		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(expectedSize).build();
 		assertThat(car.getWheels(), hasSize(expectedSize));
 	}
 
 	@Test
-	public void canFillAGraphWithSubTypes() {
+	public void canSetSubTypes() {
 		Employee employee = aRandomInstanceOf(Employee.class).usingType(Person.class, Manager.class).build();
 		assertThat(employee.getManager(), instanceOf(Manager.class));
 	}

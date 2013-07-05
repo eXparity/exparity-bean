@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,7 +193,7 @@ public class BeanBuilder<T> {
 			return;
 		}
 
-		if (isChildOfAssignedPath(path) || isOverflowing(property, path, stack)) {
+		if (isPropertySet(property) || isChildOfAssignedPath(path) || isOverflowing(property, path, stack)) {
 			return;
 		}
 
@@ -206,6 +207,18 @@ public class BeanBuilder<T> {
 			property.setValue(createList(property.getTypeParameter(0), collectionSize(), path, stack));
 		} else {
 			assignValue(property, path, createValue(property.getType()), stack);
+		}
+	}
+
+	private boolean isPropertySet(final BeanPropertyInstance property) {
+		if (property.isNull()) {
+			return false;
+		} else if (property.isCollection()) {
+			return !property.getValue(Collection.class).isEmpty();
+		} else if (property.isMap()) {
+			return !property.getValue(Map.class).isEmpty();
+		} else {
+			return true;
 		}
 	}
 
