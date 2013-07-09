@@ -12,4 +12,8 @@ public class BeanBuilderException extends RuntimeException {
 		super(message, cause);
 	}
 
+	public BeanBuilderException(final String message) {
+		super(message);
+	}
+
 }

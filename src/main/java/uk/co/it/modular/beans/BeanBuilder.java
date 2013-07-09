@@ -26,6 +26,9 @@ import static uk.co.it.modular.beans.ValueFactories.*;
  * 
  * @author Stewart Bissett
  */
+@SuppressWarnings({
+		"rawtypes", "unchecked"
+})
 public class BeanBuilder<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BeanBuilder.class);
@@ -40,7 +43,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type);
+		return new BeanBuilder<T>(type, BeanBuilderType.NULL);
 	}
 
 	/**
@@ -53,7 +56,7 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> anEmptyInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type, EMPTY_FACTORIES);
+		return new BeanBuilder<T>(type, BeanBuilderType.EMPTY);
 	}
 
 	/**
@@ -66,41 +69,33 @@ public class BeanBuilder<T> {
 	 *            the type to return the {@link BeanBuilder} for
 	 */
 	public static <T> BeanBuilder<T> aRandomInstanceOf(final Class<T> type) {
-		return new BeanBuilder<T>(type, RANDOM_FACTORIES);
+		return new BeanBuilder<T>(type, BeanBuilderType.RANDOM);
 	}
 
 	private final Set<String> excludedProperties = new HashSet<String>();
 	private final Set<String> excludedPaths = new HashSet<String>();
-	private final Map<String, Object> paths = new HashMap<String, Object>();
-	private final Map<String, Object> properties = new HashMap<String, Object>();
-	private final Map<Class<?>, Object> types = new HashMap<Class<?>, Object>();
+	private final Map<String, ValueFactory> paths = new HashMap<String, ValueFactory>();
+	private final Map<String, ValueFactory> properties = new HashMap<String, ValueFactory>();
+	private final Map<Class<?>, ValueFactory> types = new HashMap<Class<?>, ValueFactory>();
 	private final Class<T> type;
+	private final BeanBuilderType builderType;
 	private int collectionMin = 1, collectionMax = 5;;
 
-	public BeanBuilder(final Class<T> type) {
-		this(type, new HashMap<Class<?>, Object>());
-	}
-
-	private BeanBuilder(final Class<T> type, final Map<Class<?>, Object> valueFactories) {
+	private BeanBuilder(final Class<T> type, final BeanBuilderType builderType) {
 		this.type = type;
-		this.types.putAll(valueFactories);
+		this.builderType = builderType;
 	}
 
 	public BeanBuilder<T> with(final String propertyOrPathName, final Object value) {
 		return with(propertyOrPathName, theValue(value));
 	}
 
-	public BeanBuilder<T> with(final Class<?> type, final ValueFactory factory) {
+	public <V> BeanBuilder<T> with(final Class<V> type, final ValueFactory<V> factory) {
 		this.types.put(type, factory);
 		return this;
 	}
 
-	public BeanBuilder<T> with(final Class<?> type, final ArrayFactory factory) {
-		this.types.put(type, factory);
-		return this;
-	}
-
-	public BeanBuilder<T> with(final String propertyOrPathName, final ValueFactory factory) {
+	public BeanBuilder<T> with(final String propertyOrPathName, final ValueFactory<?> factory) {
 		withPath(propertyOrPathName, factory);
 		withProperty(propertyOrPathName, factory);
 		return this;
@@ -118,7 +113,7 @@ public class BeanBuilder<T> {
 		return withProperty(propertyName, theValue(value));
 	}
 
-	public BeanBuilder<T> withProperty(final String propertyName, final ValueFactory factory) {
+	public BeanBuilder<T> withProperty(final String propertyName, final ValueFactory<?> factory) {
 		properties.put(propertyName, factory);
 		return this;
 	}
@@ -140,7 +135,7 @@ public class BeanBuilder<T> {
 		return withPath(path, theValue(value));
 	}
 
-	public BeanBuilder<T> withPath(final String path, final ValueFactory factory) {
+	public BeanBuilder<T> withPath(final String path, final ValueFactory<?> factory) {
 		this.paths.put(path, factory);
 		return this;
 	}
@@ -160,7 +155,6 @@ public class BeanBuilder<T> {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <X> BeanBuilder<T> usingType(final Class<X> klass, final Class<? extends X> subtypes) {
 		return with(klass, oneOf(createInstanceOfFactoriesForTypes(subtypes)));
 	}
@@ -187,9 +181,9 @@ public class BeanBuilder<T> {
 			return;
 		}
 
-		Object factory = factoryForPath(property, path);
+		ValueFactory factory = factoryForPath(property, path);
 		if (factory != null) {
-			assignValue(property, path, factory, property.getType(), stack);
+			assignValue(property, path, createValue(factory, type), stack);
 			return;
 		}
 
@@ -237,8 +231,8 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	public Object factoryForPath(final BeanPropertyInstance property, final PropertyPath path) {
-		Object factory = paths.get(path.fullPath());
+	public ValueFactory factoryForPath(final BeanPropertyInstance property, final PropertyPath path) {
+		ValueFactory factory = paths.get(path.fullPath());
 		if (factory == null) {
 			factory = paths.get(path.noIndexes());
 			if (factory == null) {
@@ -266,10 +260,6 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	private void assignValue(final BeanPropertyInstance property, final PropertyPath path, final Object factory, final Class<?> type, final Stack stack) {
-		assignValue(property, path, createValue(factory, type), stack);
-	}
-
 	private void assignValue(final BeanPropertyInstance property, final PropertyPath path, final Object value, final Stack stack) {
 		if (value != null) {
 			LOG.trace("Assign {} value [{}:{}]", new Object[] {
@@ -282,93 +272,109 @@ public class BeanBuilder<T> {
 	}
 
 	private <E> E createValue(final Class<E> type) {
-		return createValue(factoryFor(type), type);
-	}
 
-	private <E> E createValue(final Object factory, final Class<E> type) {
-		if (factory == null) {
-			return null;
-		} else if (factory instanceof ValueFactory) {
-			return ((ValueFactory) factory).createValue(type);
-		} else if (factory instanceof ArrayFactory) {
-			return ((ArrayFactory) factory).createValue(type, collectionSize());
-		} else {
-			throw new IllegalArgumentException("Unknown Factory type '" + type(factory).canonicalName() + "'");
-		}
-	}
-
-	private <I> Object factoryFor(final Class<I> type) {
-
-		for (Entry<Class<?>, Object> keyedFactory : types.entrySet()) {
+		for (Entry<Class<?>, ValueFactory> keyedFactory : types.entrySet()) {
 			if (type.isAssignableFrom(keyedFactory.getKey())) {
-				return keyedFactory.getValue();
+				ValueFactory factory = keyedFactory.getValue();
+				return (E) createValue(factory, type);
 			}
 		}
 
-		if (type.isEnum()) {
-			Object factory = types.get(Enum.class);
-			if (factory != null) {
-				return factory;
+		switch (builderType) {
+			case RANDOM: {
+				ValueFactory factory = RANDOM_FACTORIES.get(type);
+				if (factory != null) {
+					return (E) createValue(factory, type);
+				} else if (type.isEnum()) {
+					return createValue(aRandomEnum(type), type);
+				} else {
+					return createValue(aNewInstanceOf(type), type);
+				}
 			}
+			case EMPTY: {
+				ValueFactory factory = EMPTY_FACTORIES.get(type);
+				if (factory != null) {
+					return (E) createValue(factory, type);
+				} else if (type.isEnum()) {
+					return null;
+				} else {
+					return createValue(aNewInstanceOf(type), type);
+				}
+			}
+			default:
+				return null;
 		}
+	}
 
-		Object factory = types.get(Object.class);
-		if (factory != null) {
-			return factory;
-		}
-		return null;
+	private <E> E createValue(final ValueFactory<E> factory, final Class<E> type) {
+		E value = factory != null ? factory.createValue(type) : null;
+		LOG.trace("Create Value [{}] for Type [{}]", value, type(type).simpleName());
+		return value;
 	}
 
 	private <E> Object createArray(final Class<E> type, final PropertyPath path, final Stack stack) {
-		Object array = createValue(types.get(Array.class), type);
-		if (array != null) {
-			for (int i = 0; i < Array.getLength(array); ++i) {
-				Array.set(array, i, populate(createValue(type), path.appendIndex(i), stack.append(type)));
-			}
+		switch (builderType) {
+			case EMPTY:
+			case RANDOM:
+				Object array = Array.newInstance(type, collectionSize());
+				for (int i = 0; i < Array.getLength(array); ++i) {
+					Array.set(array, i, populate(createValue(type), path.appendIndex(i), stack.append(type)));
+				}
+				return array;
+			default:
+				return null;
 		}
-		return array;
 	}
 
-	@SuppressWarnings("unchecked")
 	private <E> Set<E> createSet(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
-		Set<E> set = (Set<E>) createValue(types.get(Set.class), type);
-		if (set != null) {
-			for (int i = 0; i < length; ++i) {
-				E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
-				if (value != null) {
-					set.add(value);
+		switch (builderType) {
+			case EMPTY:
+			case RANDOM:
+				Set<E> set = new HashSet<E>();
+				for (int i = 0; i < length; ++i) {
+					E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
+					if (value != null) {
+						set.add(value);
+					}
 				}
-			}
+				return set;
+			default:
+				return null;
 		}
-		return set;
 	}
 
-	@SuppressWarnings("unchecked")
 	private <E> List<E> createList(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
-		List<E> list = (List<E>) createValue(types.get(List.class), type);
-		if (list != null) {
-			for (int i = 0; i < length; ++i) {
-				E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
-				if (value != null) {
-					list.add(value);
+		switch (builderType) {
+			case EMPTY:
+			case RANDOM:
+				List<E> list = new ArrayList<E>();
+				for (int i = 0; i < length; ++i) {
+					E value = populate(createValue(type), path.appendIndex(i), stack.append(type));
+					if (value != null) {
+						list.add(value);
+					}
 				}
-			}
+				return list;
+			default:
+				return null;
 		}
-		return list;
 	}
 
-	@SuppressWarnings("unchecked")
 	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType, final int length, final PropertyPath path, final Stack stack) {
-		Map<K, V> map = (Map<K, V>) createValue(types.get(Map.class), type);
-		if (map != null) {
-			for (int i = 0; i < length; ++i) {
-				K key = populate(createValue(keyType), path.appendIndex(i), stack.append(keyType).append(valueType));
-				if (key != null) {
-					map.put(key, createValue(valueType));
+		switch (builderType) {
+			case EMPTY:
+			case RANDOM:
+				Map<K, V> map = new HashMap<K, V>();
+				for (int i = 0; i < length; ++i) {
+					K key = populate(createValue(keyType), path.appendIndex(i), stack.append(keyType).append(valueType));
+					if (key != null) {
+						map.put(key, createValue(valueType));
+					}
 				}
-			}
+				return map;
+			default:
+				return null;
 		}
-		return map;
 	}
 
 	private T createNewInstance() {
@@ -394,10 +400,10 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <X> List<ValueFactory> createInstanceOfFactoriesForTypes(final Class<? extends X>... subtypes) {
-		List<ValueFactory> factories = new ArrayList<ValueFactory>();
-		for (Class<?> subtype : subtypes) {
-			factories.add(aNewInstanceOf(subtype));
+	private <X> List<ValueFactory<X>> createInstanceOfFactoriesForTypes(final Class<? extends X>... subtypes) {
+		List<ValueFactory<X>> factories = new ArrayList<ValueFactory<X>>();
+		for (Class<? extends X> subtype : subtypes) {
+			factories.add((ValueFactory<X>) aNewInstanceOf(subtype));
 		}
 		return factories;
 	}
@@ -439,7 +445,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private static final Map<Class<?>, Object> RANDOM_FACTORIES = new HashMap<Class<?>, Object>() {
+	private static final Map<Class<?>, ValueFactory> RANDOM_FACTORIES = new HashMap<Class<?>, ValueFactory>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -463,16 +469,10 @@ public class BeanBuilder<T> {
 			put(String.class, aRandomString());
 			put(BigDecimal.class, aRandomDecimal());
 			put(Date.class, aRandomDate());
-			put(List.class, aList());
-			put(Set.class, aSet());
-			put(Map.class, aMap());
-			put(Object.class, aNewInstance());
-			put(Enum.class, aRandomEnum());
-			put(Array.class, anArray());
 		}
 	};
 
-	private static final Map<Class<?>, Object> EMPTY_FACTORIES = new HashMap<Class<?>, Object>() {
+	private static final Map<Class<?>, ValueFactory> EMPTY_FACTORIES = new HashMap<Class<?>, ValueFactory>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -497,12 +497,24 @@ public class BeanBuilder<T> {
 			put(BigDecimal.class, aNullValue());
 			put(Date.class, aNullValue());
 			put(Enum.class, aNullValue());
-			put(List.class, aList());
-			put(Set.class, aSet());
-			put(Map.class, aMap());
-			put(Object.class, aNewInstance());
-			put(Array.class, anArray());
 		}
 	};
+
+	public static ValueFactory<Object> aNewInstance() {
+		return new ValueFactory<Object>() {
+
+			public Object createValue(final Class<Object> type) {
+				try {
+					return type.newInstance();
+				} catch (Exception e) {
+					throw new BeanBuilderException("Failed to instantiate instance of '" + type.getCanonicalName() + "'", e);
+				}
+			}
+		};
+	}
+
+	private static enum BeanBuilderType {
+		RANDOM, EMPTY, NULL
+	}
 
 }

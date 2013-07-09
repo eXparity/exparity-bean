@@ -9,7 +9,7 @@ package uk.co.it.modular.beans;
  * 
  * @author Stewart Bissett
  */
-public interface ArrayFactory {
+public interface ArrayFactory<T> {
 
-	public <T> T createValue(final Class<T> type, final int size);
+	public T[] createValue(final Class<T> type, final int size);
 }
