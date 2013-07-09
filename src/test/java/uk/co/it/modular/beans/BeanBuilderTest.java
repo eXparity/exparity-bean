@@ -96,7 +96,7 @@ public class BeanBuilderTest {
 	@Test
 	public void canSetAnOverridePropertyFactory() {
 		BigDecimal overrideValue = new BigDecimal("4.0");
-		Car car = aRandomInstanceOf(Car.class).with("engine", new ValueFactory<Engine>() {
+		Car car = aRandomInstanceOf(Car.class).with("engine", new InstanceFactory<Engine>() {
 
 			public Engine createValue() {
 				return new Engine(new BigDecimal("4.0"));
@@ -108,7 +108,7 @@ public class BeanBuilderTest {
 	@Test
 	public void canSetAnOverrideTypeFactory() {
 		final Integer overrideValue = 12345;
-		Car car = aRandomInstanceOf(Car.class).with(Wheel.class, new ValueFactory<Wheel>() {
+		Car car = aRandomInstanceOf(Car.class).with(Wheel.class, new InstanceFactory<Wheel>() {
 
 			public Wheel createValue() {
 				return new Wheel(overrideValue);

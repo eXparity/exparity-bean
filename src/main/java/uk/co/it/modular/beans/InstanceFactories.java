@@ -19,7 +19,7 @@ import static org.apache.commons.lang.time.DateUtils.addSeconds;
 /**
  * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
  */
-public abstract class ValueFactories {
+public abstract class InstanceFactories {
 
 	private static final int MAX_STRING_LENGTH = 50;
 	private static final int MINUTES_PER_HOUR = 60;
@@ -27,8 +27,8 @@ public abstract class ValueFactories {
 	private static final int DAYS_PER_YEAR = 365;
 	private static final int SECONDS_IN_A_YEAR = MINUTES_PER_HOUR * HOURS_PER_DAY * DAYS_PER_YEAR;
 
-	public static <T> ValueFactory<T> theValue(final T value) {
-		return new ValueFactory<T>() {
+	public static <T> InstanceFactory<T> theValue(final T value) {
+		return new InstanceFactory<T>() {
 
 			public T createValue() {
 				return value;
@@ -36,8 +36,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Object> aNullValue() {
-		return new ValueFactory<Object>() {
+	public static InstanceFactory<Object> aNullValue() {
+		return new InstanceFactory<Object>() {
 
 			public Object createValue() {
 				return null;
@@ -45,8 +45,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<String> aRandomString() {
-		return new ValueFactory<String>() {
+	public static InstanceFactory<String> aRandomString() {
+		return new InstanceFactory<String>() {
 
 			public String createValue() {
 				return randomAlphanumeric(MAX_STRING_LENGTH);
@@ -54,8 +54,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Integer> aRandomInteger() {
-		return new ValueFactory<Integer>() {
+	public static InstanceFactory<Integer> aRandomInteger() {
+		return new InstanceFactory<Integer>() {
 
 			public Integer createValue() {
 				return Integer.valueOf(nextInt());
@@ -63,8 +63,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Short> aRandomShort() {
-		return new ValueFactory<Short>() {
+	public static InstanceFactory<Short> aRandomShort() {
+		return new InstanceFactory<Short>() {
 
 			public Short createValue() {
 				return Short.valueOf((short) nextInt(Short.MAX_VALUE));
@@ -72,8 +72,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Long> aRandomLong() {
-		return new ValueFactory<Long>() {
+	public static InstanceFactory<Long> aRandomLong() {
+		return new InstanceFactory<Long>() {
 
 			public Long createValue() {
 				return Long.valueOf(nextLong());
@@ -81,8 +81,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Double> aRandomDouble() {
-		return new ValueFactory<Double>() {
+	public static InstanceFactory<Double> aRandomDouble() {
+		return new InstanceFactory<Double>() {
 
 			public Double createValue() {
 				return Double.valueOf(nextDouble());
@@ -90,8 +90,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Float> aRandomFloat() {
-		return new ValueFactory<Float>() {
+	public static InstanceFactory<Float> aRandomFloat() {
+		return new InstanceFactory<Float>() {
 
 			public Float createValue() {
 				return Float.valueOf(nextFloat());
@@ -99,8 +99,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Boolean> aRandomBoolean() {
-		return new ValueFactory<Boolean>() {
+	public static InstanceFactory<Boolean> aRandomBoolean() {
+		return new InstanceFactory<Boolean>() {
 
 			public Boolean createValue() {
 				return Boolean.valueOf(nextBoolean());
@@ -108,8 +108,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Date> aRandomDate() {
-		return new ValueFactory<Date>() {
+	public static InstanceFactory<Date> aRandomDate() {
+		return new InstanceFactory<Date>() {
 
 			public Date createValue() {
 				return addSeconds(new Date(), nextInt(SECONDS_IN_A_YEAR));
@@ -117,8 +117,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<BigDecimal> aRandomDecimal() {
-		return new ValueFactory<BigDecimal>() {
+	public static InstanceFactory<BigDecimal> aRandomDecimal() {
+		return new InstanceFactory<BigDecimal>() {
 
 			public BigDecimal createValue() {
 				return BigDecimal.valueOf(nextDouble());
@@ -126,8 +126,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Byte> aRandomByte() {
-		return new ValueFactory<Byte>() {
+	public static InstanceFactory<Byte> aRandomByte() {
+		return new InstanceFactory<Byte>() {
 
 			public Byte createValue() {
 				return (byte) nextInt(Byte.MAX_VALUE);
@@ -135,8 +135,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static ValueFactory<Character> aRandomChar() {
-		return new ValueFactory<Character>() {
+	public static InstanceFactory<Character> aRandomChar() {
+		return new InstanceFactory<Character>() {
 
 			public Character createValue() {
 				return randomAlphabetic(1).charAt(0);
@@ -144,8 +144,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static <E> ValueFactory<E> aRandomEnum(final Class<E> enumType) {
-		return new ValueFactory<E>() {
+	public static <E> InstanceFactory<E> aRandomEnum(final Class<E> enumType) {
+		return new InstanceFactory<E>() {
 
 			public E createValue() {
 				E[] enumerationValues = enumType.getEnumConstants();
@@ -158,7 +158,7 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static <A> ArrayFactory<A> aRandomArrayOf(final ValueFactory<A> typeFactory) {
+	public static <A> ArrayFactory<A> aRandomArrayOf(final InstanceFactory<A> typeFactory) {
 		return new ArrayFactory<A>() {
 
 			@SuppressWarnings("unchecked")
@@ -174,8 +174,8 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static <T> ValueFactory<T> aNewInstanceOf(final Class<T> type) {
-		return new ValueFactory<T>() {
+	public static <T> InstanceFactory<T> aNewInstanceOf(final Class<T> type) {
+		return new InstanceFactory<T>() {
 
 			public T createValue() {
 				try {
@@ -187,14 +187,14 @@ public abstract class ValueFactories {
 		};
 	}
 
-	public static <T> ValueFactory<T> oneOf(final ValueFactory<T>... factories) {
+	public static <T> InstanceFactory<T> oneOf(final InstanceFactory<T>... factories) {
 		return oneOf(Arrays.asList(factories));
 	}
 
-	public static <T> ValueFactory<T> oneOf(final Collection<ValueFactory<T>> factories) {
-		return new ValueFactory<T>() {
+	public static <T> InstanceFactory<T> oneOf(final Collection<InstanceFactory<T>> factories) {
+		return new InstanceFactory<T>() {
 
-			private final List<ValueFactory<T>> candidates = new ArrayList<ValueFactory<T>>(factories);
+			private final List<InstanceFactory<T>> candidates = new ArrayList<InstanceFactory<T>>(factories);
 
 			public T createValue() {
 				return candidates.get(nextInt(candidates.size())).createValue();

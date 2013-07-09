@@ -9,7 +9,7 @@ package uk.co.it.modular.beans;
  * 
  * @author Stewart Bissett
  */
-public interface ValueFactory<T> {
+public interface InstanceFactory<T> {
 
 	public T createValue();
 }

@@ -17,9 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;
 import static org.apache.commons.lang.math.RandomUtils.nextInt;
-import static uk.co.it.modular.beans.Graph.graph;
 import static uk.co.it.modular.beans.Type.type;
-import static uk.co.it.modular.beans.ValueFactories.*;
+import static uk.co.it.modular.beans.InstanceFactories.*;
 
 /**
  * Builder object for instantiating and populating objects which follow the Java beans standards conventions for getter/setters
@@ -74,9 +73,9 @@ public class BeanBuilder<T> {
 
 	private final Set<String> excludedProperties = new HashSet<String>();
 	private final Set<String> excludedPaths = new HashSet<String>();
-	private final Map<String, ValueFactory> paths = new HashMap<String, ValueFactory>();
-	private final Map<String, ValueFactory> properties = new HashMap<String, ValueFactory>();
-	private final Map<Class<?>, ValueFactory> types = new HashMap<Class<?>, ValueFactory>();
+	private final Map<String, InstanceFactory> paths = new HashMap<String, InstanceFactory>();
+	private final Map<String, InstanceFactory> properties = new HashMap<String, InstanceFactory>();
+	private final Map<Class<?>, InstanceFactory> types = new HashMap<Class<?>, InstanceFactory>();
 	private final Class<T> type;
 	private final BeanBuilderType builderType;
 	private int collectionMin = 1, collectionMax = 5;;
@@ -90,12 +89,12 @@ public class BeanBuilder<T> {
 		return with(propertyOrPathName, theValue(value));
 	}
 
-	public <V> BeanBuilder<T> with(final Class<V> type, final ValueFactory<V> factory) {
+	public <V> BeanBuilder<T> with(final Class<V> type, final InstanceFactory<V> factory) {
 		this.types.put(type, factory);
 		return this;
 	}
 
-	public BeanBuilder<T> with(final String propertyOrPathName, final ValueFactory<?> factory) {
+	public BeanBuilder<T> with(final String propertyOrPathName, final InstanceFactory<?> factory) {
 		withPath(propertyOrPathName, factory);
 		withProperty(propertyOrPathName, factory);
 		return this;
@@ -113,7 +112,7 @@ public class BeanBuilder<T> {
 		return withProperty(propertyName, theValue(value));
 	}
 
-	public BeanBuilder<T> withProperty(final String propertyName, final ValueFactory<?> factory) {
+	public BeanBuilder<T> withProperty(final String propertyName, final InstanceFactory<?> factory) {
 		properties.put(propertyName, factory);
 		return this;
 	}
@@ -135,7 +134,7 @@ public class BeanBuilder<T> {
 		return withPath(path, theValue(value));
 	}
 
-	public BeanBuilder<T> withPath(final String path, final ValueFactory<?> factory) {
+	public BeanBuilder<T> withPath(final String path, final InstanceFactory<?> factory) {
 		this.paths.put(path, factory);
 		return this;
 	}
@@ -168,55 +167,59 @@ public class BeanBuilder<T> {
 	}
 
 	private <I> I populate(final I instance, final PropertyPath path, final Stack stack) {
-		for (BeanPropertyInstance property : graph(instance).propertyList()) {
-			populateProperty(property, path.append(property.getName()), stack);
+		if (instance != null) {
+			for (BeanProperty property : type(instance).propertyList()) {
+				populateProperty(instance, property, path.append(property.getName()), stack);
+			}
+			return instance;
+		} else {
+			return instance;
 		}
-		return instance;
 	}
 
-	private void populateProperty(final BeanPropertyInstance property, final PropertyPath path, final Stack stack) {
+	private void populateProperty(final Object instance, final BeanProperty property, final PropertyPath path, final Stack stack) {
 
 		if (isExcludedPath(path) || isExcludedProperty(property)) {
 			LOG.trace("Ignore [{}]. Explicity excluded", path);
 			return;
 		}
 
-		ValueFactory factory = factoryForPath(property, path);
+		InstanceFactory factory = factoryForPath(property, path);
 		if (factory != null) {
-			assignValue(property, path, createValue(factory, type), stack);
+			assignValue(instance, property, path, createValue(factory, type), stack);
 			return;
 		}
 
-		if (isPropertySet(property) || isChildOfAssignedPath(path) || isOverflowing(property, path, stack)) {
+		if (isPropertySet(instance, property) || isChildOfAssignedPath(path) || isOverflowing(property, path, stack)) {
 			return;
 		}
 
 		if (property.isArray()) {
-			property.setValue(createArray(property.getType().getComponentType(), path, stack));
+			property.setValue(instance, createArray(property.getType().getComponentType(), path, stack));
 		} else if (property.isMap()) {
-			property.setValue(createMap(property.getTypeParameter(0), property.getTypeParameter(1), collectionSize(), path, stack));
+			property.setValue(instance, createMap(property.getTypeParameter(0), property.getTypeParameter(1), collectionSize(), path, stack));
 		} else if (property.isSet()) {
-			property.setValue(createSet(property.getTypeParameter(0), collectionSize(), path, stack));
+			property.setValue(instance, createSet(property.getTypeParameter(0), collectionSize(), path, stack));
 		} else if (property.isList() || property.isCollection()) {
-			property.setValue(createList(property.getTypeParameter(0), collectionSize(), path, stack));
+			property.setValue(instance, createList(property.getTypeParameter(0), collectionSize(), path, stack));
 		} else {
-			assignValue(property, path, createValue(property.getType()), stack);
+			assignValue(instance, property, path, createValue(property.getType()), stack);
 		}
 	}
 
-	private boolean isPropertySet(final BeanPropertyInstance property) {
-		if (property.isNull()) {
+	private boolean isPropertySet(final Object instance, final BeanProperty property) {
+		if (property.getValue(instance) == null) {
 			return false;
 		} else if (property.isCollection()) {
-			return !property.getValue(Collection.class).isEmpty();
+			return !property.getValue(instance, Collection.class).isEmpty();
 		} else if (property.isMap()) {
-			return !property.getValue(Map.class).isEmpty();
+			return !property.getValue(instance, Map.class).isEmpty();
 		} else {
 			return true;
 		}
 	}
 
-	private boolean isOverflowing(final BeanPropertyInstance property, final PropertyPath path, final Stack stack) {
+	private boolean isOverflowing(final BeanProperty property, final PropertyPath path, final Stack stack) {
 		if (stack.contains(property.getType())) {
 			LOG.trace("Ignore {}. Avoids stack overflow caused by type {}", path, property.getTypeSimpleName());
 			return true;
@@ -231,8 +234,8 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	public ValueFactory factoryForPath(final BeanPropertyInstance property, final PropertyPath path) {
-		ValueFactory factory = paths.get(path.fullPath());
+	public InstanceFactory factoryForPath(final BeanProperty property, final PropertyPath path) {
+		InstanceFactory factory = paths.get(path.fullPath());
 		if (factory == null) {
 			factory = paths.get(path.noIndexes());
 			if (factory == null) {
@@ -242,7 +245,7 @@ public class BeanBuilder<T> {
 		return factory;
 	}
 
-	public boolean isExcludedProperty(final BeanPropertyInstance property) {
+	public boolean isExcludedProperty(final BeanProperty property) {
 		return excludedProperties.contains(property.getName());
 	}
 
@@ -260,12 +263,12 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	private void assignValue(final BeanPropertyInstance property, final PropertyPath path, final Object value, final Stack stack) {
+	private void assignValue(final Object instance, final BeanProperty property, final PropertyPath path, final Object value, final Stack stack) {
 		if (value != null) {
 			LOG.trace("Assign {} value [{}:{}]", new Object[] {
 					path, value.getClass().getSimpleName(), identityHashCode(value)
 			});
-			property.setValue(populate(value, path, stack.append(type(value))));
+			property.setValue(instance, populate(value, path, stack.append(type(value))));
 		} else {
 			LOG.trace("Assign {} value [null]", path);
 		}
@@ -273,16 +276,16 @@ public class BeanBuilder<T> {
 
 	private <E> E createValue(final Class<E> type) {
 
-		for (Entry<Class<?>, ValueFactory> keyedFactory : types.entrySet()) {
+		for (Entry<Class<?>, InstanceFactory> keyedFactory : types.entrySet()) {
 			if (type.isAssignableFrom(keyedFactory.getKey())) {
-				ValueFactory factory = keyedFactory.getValue();
+				InstanceFactory factory = keyedFactory.getValue();
 				return (E) createValue(factory, type);
 			}
 		}
 
 		switch (builderType) {
 			case RANDOM: {
-				ValueFactory factory = RANDOM_FACTORIES.get(type);
+				InstanceFactory factory = RANDOM_FACTORIES.get(type);
 				if (factory != null) {
 					return (E) createValue(factory, type);
 				} else if (type.isEnum()) {
@@ -292,7 +295,7 @@ public class BeanBuilder<T> {
 				}
 			}
 			case EMPTY: {
-				ValueFactory factory = EMPTY_FACTORIES.get(type);
+				InstanceFactory factory = EMPTY_FACTORIES.get(type);
 				if (factory != null) {
 					return (E) createValue(factory, type);
 				} else if (type.isEnum()) {
@@ -306,7 +309,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <E> E createValue(final ValueFactory<E> factory, final Class<E> type) {
+	private <E> E createValue(final InstanceFactory<E> factory, final Class<E> type) {
 		E value = factory != null ? factory.createValue() : null;
 		LOG.trace("Create Value [{}] for Type [{}]", value, type(type).simpleName());
 		return value;
@@ -400,10 +403,10 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <X> List<ValueFactory<X>> createInstanceOfFactoriesForTypes(final Class<? extends X>... subtypes) {
-		List<ValueFactory<X>> factories = new ArrayList<ValueFactory<X>>();
+	private <X> List<InstanceFactory<X>> createInstanceOfFactoriesForTypes(final Class<? extends X>... subtypes) {
+		List<InstanceFactory<X>> factories = new ArrayList<InstanceFactory<X>>();
 		for (Class<? extends X> subtype : subtypes) {
-			factories.add((ValueFactory<X>) aNewInstanceOf(subtype));
+			factories.add((InstanceFactory<X>) aNewInstanceOf(subtype));
 		}
 		return factories;
 	}
@@ -445,7 +448,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private static final Map<Class<?>, ValueFactory> RANDOM_FACTORIES = new HashMap<Class<?>, ValueFactory>() {
+	private static final Map<Class<?>, InstanceFactory> RANDOM_FACTORIES = new HashMap<Class<?>, InstanceFactory>() {
 
 		private static final long serialVersionUID = 1L;
 
@@ -472,7 +475,7 @@ public class BeanBuilder<T> {
 		}
 	};
 
-	private static final Map<Class<?>, ValueFactory> EMPTY_FACTORIES = new HashMap<Class<?>, ValueFactory>() {
+	private static final Map<Class<?>, InstanceFactory> EMPTY_FACTORIES = new HashMap<Class<?>, InstanceFactory>() {
 
 		private static final long serialVersionUID = 1L;
 
