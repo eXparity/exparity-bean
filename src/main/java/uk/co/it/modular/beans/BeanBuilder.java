@@ -307,7 +307,7 @@ public class BeanBuilder<T> {
 	}
 
 	private <E> E createValue(final ValueFactory<E> factory, final Class<E> type) {
-		E value = factory != null ? factory.createValue(type) : null;
+		E value = factory != null ? factory.createValue() : null;
 		LOG.trace("Create Value [{}] for Type [{}]", value, type(type).simpleName());
 		return value;
 	}
@@ -496,22 +496,8 @@ public class BeanBuilder<T> {
 			put(String.class, aNullValue());
 			put(BigDecimal.class, aNullValue());
 			put(Date.class, aNullValue());
-			put(Enum.class, aNullValue());
 		}
 	};
-
-	public static ValueFactory<Object> aNewInstance() {
-		return new ValueFactory<Object>() {
-
-			public Object createValue(final Class<Object> type) {
-				try {
-					return type.newInstance();
-				} catch (Exception e) {
-					throw new BeanBuilderException("Failed to instantiate instance of '" + type.getCanonicalName() + "'", e);
-				}
-			}
-		};
-	}
 
 	private static enum BeanBuilderType {
 		RANDOM, EMPTY, NULL

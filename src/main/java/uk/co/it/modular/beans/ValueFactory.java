@@ -11,5 +11,5 @@ package uk.co.it.modular.beans;
  */
 public interface ValueFactory<T> {
 
-	public T createValue(Class<T> type);
+	public T createValue();
 }

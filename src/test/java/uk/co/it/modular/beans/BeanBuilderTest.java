@@ -98,7 +98,7 @@ public class BeanBuilderTest {
 		BigDecimal overrideValue = new BigDecimal("4.0");
 		Car car = aRandomInstanceOf(Car.class).with("engine", new ValueFactory<Engine>() {
 
-			public Engine createValue(final Class<Engine> type) {
+			public Engine createValue() {
 				return new Engine(new BigDecimal("4.0"));
 			}
 		}).build();
@@ -110,7 +110,7 @@ public class BeanBuilderTest {
 		final Integer overrideValue = 12345;
 		Car car = aRandomInstanceOf(Car.class).with(Wheel.class, new ValueFactory<Wheel>() {
 
-			public Wheel createValue(final Class<Wheel> type) {
+			public Wheel createValue() {
 				return new Wheel(overrideValue);
 			}
 		}).build();

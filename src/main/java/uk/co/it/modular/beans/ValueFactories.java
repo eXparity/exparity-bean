@@ -30,7 +30,7 @@ public abstract class ValueFactories {
 	public static <T> ValueFactory<T> theValue(final T value) {
 		return new ValueFactory<T>() {
 
-			public T createValue(final Class<T> type) {
+			public T createValue() {
 				return value;
 			}
 		};
@@ -39,7 +39,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Object> aNullValue() {
 		return new ValueFactory<Object>() {
 
-			public Object createValue(final Class<Object> type) {
+			public Object createValue() {
 				return null;
 			}
 		};
@@ -48,7 +48,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<String> aRandomString() {
 		return new ValueFactory<String>() {
 
-			public String createValue(final Class<String> type) {
+			public String createValue() {
 				return randomAlphanumeric(MAX_STRING_LENGTH);
 			}
 		};
@@ -57,7 +57,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Integer> aRandomInteger() {
 		return new ValueFactory<Integer>() {
 
-			public Integer createValue(final Class<Integer> type) {
+			public Integer createValue() {
 				return Integer.valueOf(nextInt());
 			}
 		};
@@ -66,7 +66,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Short> aRandomShort() {
 		return new ValueFactory<Short>() {
 
-			public Short createValue(final Class<Short> type) {
+			public Short createValue() {
 				return Short.valueOf((short) nextInt(Short.MAX_VALUE));
 			}
 		};
@@ -75,7 +75,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Long> aRandomLong() {
 		return new ValueFactory<Long>() {
 
-			public Long createValue(final Class<Long> type) {
+			public Long createValue() {
 				return Long.valueOf(nextLong());
 			}
 		};
@@ -84,7 +84,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Double> aRandomDouble() {
 		return new ValueFactory<Double>() {
 
-			public Double createValue(final Class<Double> type) {
+			public Double createValue() {
 				return Double.valueOf(nextDouble());
 			}
 		};
@@ -93,7 +93,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Float> aRandomFloat() {
 		return new ValueFactory<Float>() {
 
-			public Float createValue(final Class<Float> type) {
+			public Float createValue() {
 				return Float.valueOf(nextFloat());
 			}
 		};
@@ -102,7 +102,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Boolean> aRandomBoolean() {
 		return new ValueFactory<Boolean>() {
 
-			public Boolean createValue(final Class<Boolean> type) {
+			public Boolean createValue() {
 				return Boolean.valueOf(nextBoolean());
 			}
 		};
@@ -111,7 +111,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Date> aRandomDate() {
 		return new ValueFactory<Date>() {
 
-			public Date createValue(final Class<Date> type) {
+			public Date createValue() {
 				return addSeconds(new Date(), nextInt(SECONDS_IN_A_YEAR));
 			}
 		};
@@ -120,7 +120,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<BigDecimal> aRandomDecimal() {
 		return new ValueFactory<BigDecimal>() {
 
-			public BigDecimal createValue(final Class<BigDecimal> type) {
+			public BigDecimal createValue() {
 				return BigDecimal.valueOf(nextDouble());
 			}
 		};
@@ -129,17 +129,8 @@ public abstract class ValueFactories {
 	public static ValueFactory<Byte> aRandomByte() {
 		return new ValueFactory<Byte>() {
 
-			public Byte createValue(final Class<Byte> type) {
+			public Byte createValue() {
 				return (byte) nextInt(Byte.MAX_VALUE);
-			}
-		};
-	}
-
-	public static ValueFactory<Object> aRandomInstance() {
-		return new ValueFactory<Object>() {
-
-			public Object createValue(final Class<Object> type) {
-				return BeanBuilder.aRandomInstanceOf(type).build();
 			}
 		};
 	}
@@ -147,7 +138,7 @@ public abstract class ValueFactories {
 	public static ValueFactory<Character> aRandomChar() {
 		return new ValueFactory<Character>() {
 
-			public Character createValue(final Class<Character> type) {
+			public Character createValue() {
 				return randomAlphabetic(1).charAt(0);
 			}
 		};
@@ -156,7 +147,7 @@ public abstract class ValueFactories {
 	public static <E> ValueFactory<E> aRandomEnum(final Class<E> enumType) {
 		return new ValueFactory<E>() {
 
-			public E createValue(final Class<E> type) {
+			public E createValue() {
 				E[] enumerationValues = enumType.getEnumConstants();
 				if (enumerationValues.length == 0) {
 					return null;
@@ -175,7 +166,7 @@ public abstract class ValueFactories {
 				Object array = Array.newInstance(type, size);
 				if (array != null) {
 					for (int i = 0; i < size; ++i) {
-						Array.set(array, i, typeFactory.createValue(type));
+						Array.set(array, i, typeFactory.createValue());
 					}
 				}
 				return (A[]) array;
@@ -186,7 +177,7 @@ public abstract class ValueFactories {
 	public static <T> ValueFactory<T> aNewInstanceOf(final Class<T> type) {
 		return new ValueFactory<T>() {
 
-			public T createValue(final Class<T> type) {
+			public T createValue() {
 				try {
 					return type.newInstance();
 				} catch (Exception e) {
@@ -205,8 +196,8 @@ public abstract class ValueFactories {
 
 			private final List<ValueFactory<T>> candidates = new ArrayList<ValueFactory<T>>(factories);
 
-			public T createValue(final Class<T> type) {
-				return candidates.get(nextInt(candidates.size())).createValue(type);
+			public T createValue() {
+				return candidates.get(nextInt(candidates.size())).createValue();
 			}
 		};
 	}
