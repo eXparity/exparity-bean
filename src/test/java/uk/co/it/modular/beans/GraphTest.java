@@ -191,9 +191,9 @@ public class GraphTest {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		Person instance = new Person();
 		graph(instance).visit(visitor);
-		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq("person.firstname"), any(Object[].class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq("person.surname"), any(Object[].class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq("person.siblings"), any(Object[].class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class));
 		verifyNoMoreInteractions(visitor);
 	}
 

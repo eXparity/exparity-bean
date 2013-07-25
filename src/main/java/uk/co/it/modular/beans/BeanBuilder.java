@@ -163,10 +163,10 @@ public class BeanBuilder<T> {
 	}
 
 	public T build() {
-		return populate(createNewInstance(), new PropertyPath(type(type).camelName()), new Stack(type(type)));
+		return populate(createNewInstance(), new BeanPropertyPath(type(type).camelName()), new Stack(type(type)));
 	}
 
-	private <I> I populate(final I instance, final PropertyPath path, final Stack stack) {
+	private <I> I populate(final I instance, final BeanPropertyPath path, final Stack stack) {
 		if (instance != null) {
 			for (BeanProperty property : type(instance).propertyList()) {
 				populateProperty(instance, property, path.append(property.getName()), stack);
@@ -177,7 +177,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private void populateProperty(final Object instance, final BeanProperty property, final PropertyPath path, final Stack stack) {
+	private void populateProperty(final Object instance, final BeanProperty property, final BeanPropertyPath path, final Stack stack) {
 
 		if (isExcludedPath(path) || isExcludedProperty(property)) {
 			LOG.trace("Ignore [{}]. Explicity excluded", path);
@@ -219,7 +219,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private boolean isOverflowing(final BeanProperty property, final PropertyPath path, final Stack stack) {
+	private boolean isOverflowing(final BeanProperty property, final BeanPropertyPath path, final Stack stack) {
 		if (stack.contains(property.getType())) {
 			LOG.trace("Ignore {}. Avoids stack overflow caused by type {}", path, property.getTypeSimpleName());
 			return true;
@@ -234,10 +234,10 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	public InstanceFactory factoryForPath(final BeanProperty property, final PropertyPath path) {
+	public InstanceFactory factoryForPath(final BeanProperty property, final BeanPropertyPath path) {
 		InstanceFactory factory = paths.get(path.fullPath());
 		if (factory == null) {
-			factory = paths.get(path.noIndexes());
+			factory = paths.get(path.fullPathWithNoIndexes());
 			if (factory == null) {
 				factory = properties.get(property.getName());
 			}
@@ -249,11 +249,11 @@ public class BeanBuilder<T> {
 		return excludedProperties.contains(property.getName());
 	}
 
-	public boolean isExcludedPath(final PropertyPath path) {
-		return excludedPaths.contains(path.fullPath()) || excludedPaths.contains(path.noIndexes());
+	public boolean isExcludedPath(final BeanPropertyPath path) {
+		return excludedPaths.contains(path.fullPath()) || excludedPaths.contains(path.fullPathWithNoIndexes());
 	}
 
-	private boolean isChildOfAssignedPath(final PropertyPath path) {
+	private boolean isChildOfAssignedPath(final BeanPropertyPath path) {
 		for (String assignedPath : paths.keySet()) {
 			if (path.startsWith(assignedPath)) {
 				LOG.trace("Ignore {}. Child of assigned path {}", path, assignedPath);
@@ -263,7 +263,7 @@ public class BeanBuilder<T> {
 		return false;
 	}
 
-	private void assignValue(final Object instance, final BeanProperty property, final PropertyPath path, final Object value, final Stack stack) {
+	private void assignValue(final Object instance, final BeanProperty property, final BeanPropertyPath path, final Object value, final Stack stack) {
 		if (value != null) {
 			LOG.trace("Assign {} value [{}:{}]", new Object[] {
 					path, value.getClass().getSimpleName(), identityHashCode(value)
@@ -315,7 +315,7 @@ public class BeanBuilder<T> {
 		return value;
 	}
 
-	private <E> Object createArray(final Class<E> type, final PropertyPath path, final Stack stack) {
+	private <E> Object createArray(final Class<E> type, final BeanPropertyPath path, final Stack stack) {
 		switch (builderType) {
 			case EMPTY:
 			case RANDOM:
@@ -329,7 +329,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <E> Set<E> createSet(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
+	private <E> Set<E> createSet(final Class<E> type, final int length, final BeanPropertyPath path, final Stack stack) {
 		switch (builderType) {
 			case EMPTY:
 			case RANDOM:
@@ -346,7 +346,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <E> List<E> createList(final Class<E> type, final int length, final PropertyPath path, final Stack stack) {
+	private <E> List<E> createList(final Class<E> type, final int length, final BeanPropertyPath path, final Stack stack) {
 		switch (builderType) {
 			case EMPTY:
 			case RANDOM:
@@ -363,7 +363,7 @@ public class BeanBuilder<T> {
 		}
 	}
 
-	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType, final int length, final PropertyPath path, final Stack stack) {
+	private <K, V> Map<K, V> createMap(final Class<K> keyType, final Class<V> valueType, final int length, final BeanPropertyPath path, final Stack stack) {
 		switch (builderType) {
 			case EMPTY:
 			case RANDOM:

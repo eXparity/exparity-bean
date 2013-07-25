@@ -23,5 +23,5 @@ public interface BeanVisitor {
 	 * @param stack
 	 *            a stack of the objects that have been visited to get to the current object. The latest object is last in the array.
 	 */
-	public void visit(final BeanPropertyInstance property, final Object current, final String path, final Object[] stack);
+	public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack);
 }
