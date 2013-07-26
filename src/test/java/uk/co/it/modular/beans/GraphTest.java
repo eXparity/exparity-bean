@@ -4,6 +4,13 @@
 
 package uk.co.it.modular.beans;
 
+import java.util.List;
+import java.util.Map;
+import org.junit.Test;
+import org.mockito.Mockito;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Thrower;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.any;
@@ -11,16 +18,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.co.it.modular.beans.Bean.bean;
-import static uk.co.it.modular.beans.Graph.graph;
 import static uk.co.it.modular.beans.BeanFunctions.setValue;
 import static uk.co.it.modular.beans.BeanPredicates.named;
 import static uk.co.it.modular.beans.BeanPredicates.ofType;
-import java.util.List;
-import java.util.Map;
-import org.junit.Test;
-import org.mockito.Mockito;
-import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
-import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
+import static uk.co.it.modular.beans.Graph.graph;
 
 /**
  * @author Stewart.Bissett
@@ -201,6 +202,15 @@ public class GraphTest {
 	public void canVisitABeanWithNoProperties() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		graph(new NameMismatch()).visit(visitor);
+		Mockito.verifyNoMoreInteractions(visitor);
+	}
+
+	@Test
+	public void canVisitABeanWhichThrowsAnException() {
+		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
+		Thrower instance = new Thrower();
+		graph(instance).visit(visitor);
+		verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("thrower.property")), any(Object[].class));
 		Mockito.verifyNoMoreInteractions(visitor);
 	}
 

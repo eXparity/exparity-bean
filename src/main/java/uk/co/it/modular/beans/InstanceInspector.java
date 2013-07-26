@@ -178,9 +178,13 @@ class InstanceInspector {
 						inspectMap(stack, nextPath, value, visitor);
 					}
 				} else {
-					Object propertyValue = property.getValue(instance);
-					if (propertyValue != null) {
-						inspectObject(stack, nextPath, propertyValue, visitor);
+					try {
+						Object propertyValue = property.getValue(instance);
+						if (propertyValue != null) {
+							inspectObject(stack, nextPath, propertyValue, visitor);
+						}
+					} catch (Exception e) {
+						LOG.trace("Skip {}. Exception thrown on calling get", property);
 					}
 				}
 			}
