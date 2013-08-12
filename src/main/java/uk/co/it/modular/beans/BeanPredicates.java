@@ -110,6 +110,18 @@ public abstract class BeanPredicates {
 	}
 
 	/**
+	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name and matches the supplied regular expression
+	 */
+	public static BeanPropertyPredicate likeValue(final String name, final String pattern) {
+		return new BeanPropertyPredicate() {
+
+			public boolean matches(final BeanPropertyInstance property) {
+				return property.hasName(name) && property.isString() && !property.isNull() && property.getValue(String.class).matches(pattern);
+			}
+		};
+	}
+
+	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the types as it's declaring type
 	 */
 	public static BeanPropertyPredicate ofDeclaringType(final Class<?>... types) {

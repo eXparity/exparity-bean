@@ -4,14 +4,11 @@
 
 package uk.co.it.modular.beans;
 
-import static uk.co.it.modular.beans.BeanPredicates.anyProperty;
-import static uk.co.it.modular.beans.BeanPredicates.matchesAll;
-import static uk.co.it.modular.beans.BeanPredicates.named;
-import static uk.co.it.modular.beans.BeanPredicates.ofType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static uk.co.it.modular.beans.BeanPredicates.*;
 
 /**
  * @author Stewart Bissett
@@ -179,6 +176,10 @@ abstract class Instance {
 
 	public boolean hasProperty(final String name) {
 		return hasProperty(named(name));
+	}
+
+	public boolean hasProperty(final String name, final Object value) {
+		return hasProperty(withValue(name, value));
 	}
 
 	public boolean setProperty(final String name, final Object value) {
