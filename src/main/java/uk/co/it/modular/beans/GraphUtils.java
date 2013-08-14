@@ -179,7 +179,7 @@ public abstract class GraphUtils {
 	 * Get the requested property from the graph or return <code>null</code> if the property is not present. For example</p>
 	 * 
 	 * <pre>
-	 * BeanProperty surname = GraphUtils.property(myUser, &quot;surname&quot;)
+	 * BeanPropertyInstance surname = GraphUtils.propertyNamed(myUser, &quot;surname&quot;)
 	 * </pre>
 	 * 
 	 * @param instance an object to get the property from
@@ -187,6 +187,34 @@ public abstract class GraphUtils {
 	 */
 	public static BeanPropertyInstance propertyNamed(final Object instance, final String name) {
 		return graph(instance).propertyNamed(name);
+	}
+
+	/**
+	 * Get the requested property from the graph or return <code>null</code> if the property is not present. For example</p>
+	 * 
+	 * <pre>
+	 * BeanPropertyInstance surname = GraphUtils.get(myUser, &quot;surname&quot;)
+	 * </pre>
+	 * 
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static BeanPropertyInstance get(final Object instance, final String name) {
+		return graph(instance).get(name);
+	}
+
+	/**
+	 * Get the firt property from the graph which matches the predicate or return <code>null</code> if the property is not present. For example</p>
+	 * 
+	 * <pre>
+	 * BeanPropertyInstance surname = GraphUtils.get(myUser, BeanPredicates.named(&quot;surname&quot;))
+	 * </pre>
+	 * 
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static BeanPropertyInstance get(final Object instance, final BeanPropertyPredicate predicate) {
+		return graph(instance).get(predicate);
 	}
 
 	/**
@@ -248,6 +276,53 @@ public abstract class GraphUtils {
 	 */
 	public static <T> T propertyValue(final Object instance, final String propertyName, final Class<T> type) {
 		return graph(instance).propertyValue(propertyName, type);
+	}
+
+	/**
+	 * Return the first property value on the instance for the property which matches the supplied predicate or return <code>null</code> if the property is not present on the
+	 * graph. For example:
+	 * <p/>
+	 * 
+	 * <pre>
+	 * Object age = GraphUtils.propertyValue(myUser, BeanPredicates.named(&quot;age&quot;))
+	 * </pre>
+	 * 
+	 * @param instance an object to get the property from
+	 * @param predicate a predicate to match the property
+	 */
+	public static Object propertyValue(final Object instance, final BeanPropertyPredicate predicate) {
+		return graph(instance).propertyValue(predicate);
+	}
+
+	/**
+	 * Return the first property value on the instance for the property which matches the supplied predicate or return <code>null</code> if the property is not present on the
+	 * graph. For example:
+	 * <p/>
+	 * 
+	 * <pre>
+	 * Intenger age = GraphUtils.propertyValue(myUser, BeanPredicates.named(&quot;age&quot;), Integer.class)
+	 * </pre>
+	 * 
+	 * @param instance an object to get the property from
+	 * @param predicate a predicate to match the property
+	 * @param type the type to return the property as
+	 */
+	public static <T> T propertyValue(final Object instance, final BeanPropertyPredicate predicate, final Class<T> type) {
+		return graph(instance).propertyValue(predicate, type);
+	}
+
+	/**
+	 * Return the property type on the instance for the first property which matches the predicate or <code>null</code> if no matching property exists. For example:</p>
+	 * 
+	 * <pre>
+	 * Class&lt;?&gt; managerType = GraphUtils.propertyType(myUser, BeanPr&quot;person.manager&quot;)
+	 * </pre>
+	 * 
+	 * @param instance an object to get the property from
+	 * @param predicate a predicate to match the property
+	 */
+	public static Class<?> propertyType(final Object instance, final BeanPropertyPredicate predicate) {
+		return graph(instance).propertyType(predicate);
 	}
 
 	/**

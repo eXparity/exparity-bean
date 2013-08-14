@@ -21,177 +21,187 @@ import static uk.co.it.modular.beans.Bean.bean;
 import static uk.co.it.modular.beans.BeanFunctions.setValue;
 import static uk.co.it.modular.beans.BeanPredicates.named;
 import static uk.co.it.modular.beans.BeanPredicates.ofType;
-import static uk.co.it.modular.beans.Graph.graph;
+import static uk.co.it.modular.beans.GraphUtils.*;
 
 /**
  * @author Stewart.Bissett
  */
 @SuppressWarnings("rawtypes")
-public class GraphTest {
+public class GraphUtilsTest {
 
 	@Test
 	public void canGetAPropertyByName() {
-		assertThat(graph(new Person()).propertyNamed("firstname"), notNullValue());
+		assertThat(propertyNamed(new Person(), "firstname"), notNullValue());
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canGetAPropertyByNameIncorrectProperty() {
-		graph(new Person()).propertyNamed("missing");
+		propertyNamed(new Person(), "missing");
 	}
 
 	@Test
 	public void canGetAPropertyValueByName() {
 		Person instance = new Person();
 		instance.setFirstname("Tina");
-		assertThat(graph(instance).propertyValue("firstname"), equalTo((Object) "Tina"));
+		assertThat(propertyValue(instance, "firstname"), equalTo((Object) "Tina"));
 	}
 
 	@Test
 	public void canGetAPropertyTypesValueByName() {
 		Person instance = new Person();
 		instance.setFirstname("Tina");
-		assertThat(graph(instance).propertyValue("firstname", String.class), equalTo("Tina"));
+		assertThat(propertyValue(instance, "firstname", String.class), equalTo("Tina"));
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canGetAPropertyValueByNameIncorrectProperty() {
-		graph(new Person()).propertyValue("missing");
+		propertyValue(new Person(), "missing");
 	}
 
 	@Test
 	public void canGetAPropertyValueByPredicate() {
 		Person instance = new Person();
 		instance.setFirstname("Tina");
-		assertThat(graph(instance).propertyValue(named("firstname")), equalTo((Object) "Tina"));
+		assertThat(propertyValue(instance, named("firstname")), equalTo((Object) "Tina"));
 	}
 
 	@Test
 	public void canGetAPropertyValueByPredicateNoMatch() {
-		assertThat(graph(new Person()).propertyValue(named("missing")), nullValue());
+		assertThat(propertyValue(new Person(), named("missing")), nullValue());
 	}
 
 	@Test
 	public void canGetAPropertyTypedValueByName() {
 		Person instance = new Person();
 		instance.setFirstname("Tina");
-		assertThat(graph(instance).propertyValue(named("firstname"), String.class), equalTo("Tina"));
+		assertThat(propertyValue(instance, named("firstname"), String.class), equalTo("Tina"));
 	}
 
 	@Test
 	public void canGetAPropertyTypedValueByPredicateNoMatch() {
-		assertThat(graph(new Person()).propertyValue(named("missing"), String.class), nullValue());
+		assertThat(propertyValue(new Person(), named("missing"), String.class), nullValue());
 	}
 
 	@Test
 	public void canSetAPropertyByName() {
-		assertThat(graph(new Person()).setProperty("firstname", "Bob"), equalTo(true));
+		assertThat(setProperty(new Person(), "firstname", "Bob"), equalTo(true));
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canSetAPropertyByNameIncorrectProperty() {
-		graph(new Person()).setProperty("missing", "Bob");
+		setProperty(new Person(), "missing", "Bob");
 	}
 
 	@Test
 	public void canSetAPropertyByPredicate() {
-		assertThat(graph(new Person()).setProperty(named("firstname"), "Bob"), equalTo(true));
+		assertThat(setProperty(new Person(), named("firstname"), "Bob"), equalTo(true));
 	}
 
 	@Test
 	public void canSetAPropertyByPredicateNoMatch() {
-		assertThat(graph(new Person()).setProperty(named("missing"), "Bob"), equalTo(false));
+		assertThat(setProperty(new Person(), named("missing"), "Bob"), equalTo(false));
 	}
 
 	@Test
 	public void canGetAPropertyByNameShortForm() {
-		assertThat(graph(new Person()).get("firstname"), notNullValue());
+		assertThat(get(new Person(), "firstname"), notNullValue());
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canGetAPropertyByNameShortFormIncorrectProperty() {
-		graph(new Person()).get("missing");
+		get(new Person(), "missing");
 	}
 
 	@Test
 	public void canGetAPropertyByPredicate() {
-		assertThat(graph(new Person()).get(named("firstname")), notNullValue());
+		assertThat(get(new Person(), named("firstname")), notNullValue());
 	}
 
 	@Test
 	public void canGetAPropertyByPredicateNoMatch() {
-		assertThat(graph(new Person()).get(named("missing")), nullValue());
+		assertThat(get(new Person(), named("missing")), nullValue());
 	}
 
 	@Test
 	public void canGetAPropertyType() {
-		assertThat(graph(new Person()).propertyType("firstname"), equalTo((Class) String.class));
+		assertThat(propertyType(new Person(), "firstname"), equalTo((Class) String.class));
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canGetAPropertyTypeMissingProperty() {
-		graph(new Person()).propertyType("missing");
+		propertyType(new Person(), "missing");
 	}
 
 	@Test
 	public void canGetAPropertyTypeByPredicate() {
-		assertThat(graph(new Person()).propertyType(named("firstname")), equalTo((Class) String.class));
+		assertThat(propertyType(new Person(), named("firstname")), equalTo((Class) String.class));
 	}
 
 	@Test
 	public void canGetAPropertyTypeByPredicateNoMatch() {
-		assertThat(graph(new Person()).propertyType(named("missing")), nullValue());
+		assertThat(propertyType(new Person(), named("missing")), nullValue());
 	}
 
 	@Test
 	public void canCheckIfPropertyExists() {
-		assertThat(graph(new Person()).hasProperty("firstname"), equalTo(true));
+		assertThat(hasProperty(new Person(), "firstname"), equalTo(true));
 	}
 
 	@Test
 	public void canCheckIfPropertyExistsNotFound() {
-		assertThat(graph(new Person()).hasProperty("missing"), equalTo(false));
+		assertThat(hasProperty(new Person(), "missing"), equalTo(false));
 	}
 
 	@Test
 	public void canCheckIfPropertyExistsByPredicate() {
-		assertThat(graph(new Person()).hasProperty(named("firstname")), equalTo(true));
+		assertThat(hasProperty(new Person(), named("firstname")), equalTo(true));
 	}
 
 	@Test
 	public void canCheckIfPropertyExistsByPredicateNoMatch() {
-		assertThat(graph(new Person()).hasProperty(named("missing")), equalTo(false));
+		assertThat(hasProperty(new Person(), named("missing")), equalTo(false));
+	}
+
+	@Test
+	public void canCheckIfPropertyExistsWithValue() {
+		assertThat(hasProperty(new Person("Bob", "Onion"), "firstname", "Bob"), equalTo(true));
+	}
+
+	@Test
+	public void canCheckIfPropertyExistsWithValueNoMatch() {
+		assertThat(hasProperty(new Person("Bob", "Onion"), "firstname", "Tina"), equalTo(false));
 	}
 
 	@Test
 	public void canCheckPropertyType() {
-		assertThat(graph(new Person()).isPropertyType("firstname", String.class), equalTo(true));
+		assertThat(isPropertyType(new Person(), "firstname", String.class), equalTo(true));
 	}
 
 	@Test
 	public void canCheckPropertyTypeDifferent() {
-		assertThat(graph(new Person()).isPropertyType("firstname", Integer.class), equalTo(false));
+		assertThat(isPropertyType(new Person(), "firstname", Integer.class), equalTo(false));
 	}
 
 	@Test(expected = BeanPropertyException.class)
 	public void canCheckPropertyTypeMissingProperty() {
-		graph(new Person()).isPropertyType("missing", String.class);
+		isPropertyType(new Person(), "missing", String.class);
 	}
 
 	@Test
 	public void canCheckPropertyTypeByPredicate() {
-		assertThat(graph(new Person()).isPropertyType(named("firstname"), String.class), equalTo(true));
+		assertThat(isPropertyType(new Person(), named("firstname"), String.class), equalTo(true));
 	}
 
 	@Test
 	public void canCheckPropertyTypeByPredicateNoMatch() {
-		assertThat(graph(new Person()).isPropertyType(named("missing"), String.class), equalTo(false));
+		assertThat(isPropertyType(new Person(), named("missing"), String.class), equalTo(false));
 	}
 
 	@Test
 	public void canVisitABean() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		Person instance = new Person();
-		graph(instance).visit(visitor);
+		visit(instance, visitor);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class));
@@ -201,7 +211,7 @@ public class GraphTest {
 	@Test
 	public void canVisitABeanWithNoProperties() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		graph(new NameMismatch()).visit(visitor);
+		visit(new NameMismatch(), visitor);
 		Mockito.verifyNoMoreInteractions(visitor);
 	}
 
@@ -209,7 +219,7 @@ public class GraphTest {
 	public void canVisitABeanWhichThrowsAnException() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		Thrower instance = new Thrower();
-		graph(instance).visit(visitor);
+		visit(instance, visitor);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("thrower.property")), any(Object[].class));
 		Mockito.verifyNoMoreInteractions(visitor);
 	}
@@ -217,7 +227,7 @@ public class GraphTest {
 	@Test
 	public void canGetAListOfProperties() {
 		Person instance = new Person();
-		List<BeanPropertyInstance> properties = graph(instance).propertyList();
+		List<BeanPropertyInstance> properties = propertyList(instance);
 		assertThat(properties, hasSize(3));
 		assertThat(properties, hasItem(equalTo(bean(instance).propertyNamed("firstname"))));
 		assertThat(properties, hasItem(equalTo(bean(instance).propertyNamed("surname"))));
@@ -226,13 +236,13 @@ public class GraphTest {
 
 	@Test
 	public void canGetAListOfPropertiesNotABean() {
-		assertThat(graph(NameMismatch.class).propertyList().size(), equalTo(0));
+		assertThat(propertyList(NameMismatch.class).size(), equalTo(0));
 	}
 
 	@Test
 	public void canGetAMapOfProperties() {
 		Person instance = new Person();
-		Map<String, BeanPropertyInstance> properties = graph(instance).propertyMap();
+		Map<String, BeanPropertyInstance> properties = propertyMap(instance);
 		assertThat(properties.size(), equalTo(3));
 		assertThat(properties, hasEntry("firstname", bean(instance).propertyNamed("firstname")));
 		assertThat(properties, hasEntry("surname", bean(instance).propertyNamed("surname")));
@@ -241,7 +251,7 @@ public class GraphTest {
 
 	@Test
 	public void canGetAMapOfPropertiesNotABean() {
-		assertThat(graph(new NameMismatch()).propertyMap().size(), equalTo(0));
+		assertThat(propertyMap(new NameMismatch()).size(), equalTo(0));
 	}
 
 	@Test
@@ -249,7 +259,7 @@ public class GraphTest {
 		Person instance = new Person();
 		assertThat(instance.getFirstname(), not(equalTo("Applied")));
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
-		graph(instance).apply(new BeanPropertyFunction() {
+		apply(instance, new BeanPropertyFunction() {
 
 			public void apply(final BeanPropertyInstance property) {
 				if (property.isType(String.class)) {
@@ -264,12 +274,23 @@ public class GraphTest {
 	@Test
 	public void canFindAPropertyOnABean() {
 		Person instance = new Person();
-		assertThat(graph(instance).find(named("firstname")), hasItem(equalTo(bean(instance).propertyNamed("firstname"))));
+		assertThat(find(instance, named("firstname")), hasItem(equalTo(bean(instance).propertyNamed("firstname"))));
 	}
 
 	@Test
 	public void canNotFindAPropertyOnABean() {
-		assertThat(graph(new Person()).find(named("missing")), hasSize(0));
+		assertThat(find(new Person(), named("missing")), hasSize(0));
+	}
+
+	@Test
+	public void canFindTheFirstPropertyOnABean() {
+		Person instance = new Person();
+		assertThat(findAny(instance, named("firstname")), equalTo(bean(instance).propertyNamed("firstname")));
+	}
+
+	@Test
+	public void canNotFindTheFirstPropertyOnABean() {
+		assertThat(findAny(new Person(), named("missing")), nullValue());
 	}
 
 	@Test
@@ -277,7 +298,7 @@ public class GraphTest {
 		Person instance = new Person();
 		assertThat(instance.getFirstname(), not(equalTo("Applied")));
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
-		graph(instance).apply(setValue("Applied"), ofType(String.class));
+		apply(instance, setValue("Applied"), ofType(String.class));
 		assertThat(instance.getFirstname(), equalTo("Applied"));
 		assertThat(instance.getSurname(), equalTo("Applied"));
 	}
