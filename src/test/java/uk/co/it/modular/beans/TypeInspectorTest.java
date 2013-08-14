@@ -13,7 +13,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.GetterWithArgs;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.OverloadedSetter;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
-import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.SetterWithNotArgs;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.SetterWithNoArgs;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.TypeMismatch;
 
 /**
@@ -49,7 +49,7 @@ public class TypeInspectorTest {
 	@Test
 	public void canSkipInspectATypeWhichHasSetterWithNoArgs() {
 		TypeVisitor visitor = Mockito.mock(TypeVisitor.class);
-		new TypeInspector().inspect(SetterWithNotArgs.class, visitor);
+		new TypeInspector().inspect(SetterWithNoArgs.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 

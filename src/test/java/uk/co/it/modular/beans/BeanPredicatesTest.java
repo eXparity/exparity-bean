@@ -7,7 +7,6 @@ package uk.co.it.modular.beans;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static uk.co.it.modular.beans.Bean.bean;
-import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
 import static uk.co.it.modular.beans.BeanPredicates.*;
 import org.junit.Test;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
@@ -109,7 +108,8 @@ public class BeanPredicatesTest {
 	}
 
 	private void assertMatch(final BeanPropertyPredicate predicate, final boolean expected) {
-		Person person = aRandomInstanceOf(Person.class).with("firstname", "Bob").build();
+		Person person = new Person();
+		person.setFirstname("Bob");
 		BeanPropertyInstance firstName = bean(person).get("firstname");
 		assertThat(predicate.matches(firstName), equalTo(expected));
 	}

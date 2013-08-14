@@ -4,25 +4,13 @@
 
 package uk.co.it.modular.beans;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.co.it.modular.beans.Bean.bean;
-import static uk.co.it.modular.beans.BeanBuilder.aRandomInstanceOf;
-import static uk.co.it.modular.beans.BeanBuilder.anEmptyInstanceOf;
-import static uk.co.it.modular.beans.BeanBuilder.anInstanceOf;
-import static uk.co.it.modular.beans.InstanceInspector.beanInspector;
-import static uk.co.it.modular.beans.InstanceInspector.graphInspector;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Engine;
@@ -30,9 +18,24 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.GetterWithArgs;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.OverloadedSetter;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
-import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.SetterWithNotArgs;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.SetterWithNoArgs;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.TypeMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Wheel;
+import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static uk.co.it.modular.beans.Bean.bean;
+import static uk.co.it.modular.beans.InstanceInspector.beanInspector;
+import static uk.co.it.modular.beans.InstanceInspector.graphInspector;
+import static uk.co.it.modular.beans.testutils.BeanUtilTestFixture.aPopulatedCar;
+import static uk.co.it.modular.beans.testutils.BeanUtilTestFixture.aPopulatedPerson;
 
 /**
  * @author Stewart Bissett
@@ -41,7 +44,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectABean() {
-		Person instance = aRandomInstanceOf(Person.class).build();
+		Person instance = BeanUtilTestFixture.aPopulatedPerson();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(instance, visitor);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), aStackOf(instance));
@@ -52,7 +55,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAnEmptyBean() {
-		Person instance = anEmptyInstanceOf(Person.class).build();
+		Person instance = new Person();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(instance, visitor);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), aStackOf(instance));
@@ -70,7 +73,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAGraph() {
-		Car car = aRandomInstanceOf(Car.class).aCollectionSizeOf(4).build();
+		Car car = aPopulatedCar();
 		Engine engine = car.getEngine();
 		List<Wheel> wheels = car.getWheels();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
@@ -87,7 +90,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAGraphAndNotOverflow() {
-		Person brother = anEmptyInstanceOf(Person.class).build(), sister = anEmptyInstanceOf(Person.class).build();
+		Person brother = aPopulatedPerson(), sister = aPopulatedPerson();
 		brother.setSiblings(asList(sister));
 		sister.setSiblings(asList(brother));
 		BeanVisitor visitor = mock(BeanVisitor.class);
@@ -103,7 +106,7 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectABeanWithOverloadedSetter() {
-		OverloadedSetter instance = aRandomInstanceOf(OverloadedSetter.class).build();
+		OverloadedSetter instance = new OverloadedSetter();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(instance, visitor);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("property")),
@@ -115,38 +118,51 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAllTypes() {
-		AllTypes instance = aRandomInstanceOf(AllTypes.class).build();
-		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
-		// verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("overloadedSetter.property"), argThat(arrayContaining(((Object)
-		// instance))));
-		// verifyNoMoreInteractions(visitor);
+		AllTypes instance = BeanUtilTestFixture.aPopulatedAllTypes();
+		beanInspector().inspect(instance, new BeanVisitor() {
+
+			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+				assertThat(property.getValue(), notNullValue());
+			}
+		});
 	}
 
 	@Test
 	public void canInspectAllTypesAreEmpty() {
-		AllTypes instance = anEmptyInstanceOf(AllTypes.class).build();
+		AllTypes instance = BeanUtilTestFixture.anEmptyAllTypes();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(instance, visitor);
-		// verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("overloadedSetter.property"), argThat(arrayContaining(((Object)
-		// instance))));
-		// verifyNoMoreInteractions(visitor);
+		beanInspector().inspect(instance, new BeanVisitor() {
+
+			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+				if (property.isCollection() || property.isMap() || property.isArray()) {
+					assertThat(property.getValue(), notNullValue());
+				}
+			}
+		});
 	}
 
 	@Test
 	public void canInspectAllTypesAreNull() {
-		AllTypes instance = anInstanceOf(AllTypes.class).build();
+		AllTypes instance = new AllTypes();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(instance, visitor);
-		// verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("overloadedSetter.property"), argThat(arrayContaining(((Object)
-		// instance))));
-		// verifyNoMoreInteractions(visitor);
+		beanInspector().inspect(instance, new BeanVisitor() {
+
+			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+				if (!property.isPrimitive()) {
+					assertThat(property.getValue(), nullValue());
+				}
+			}
+		});
 	}
 
 	@Test
 	public void canInspectAMap() {
-		Person bob = aRandomInstanceOf(Person.class).with("surname", "Onion").build();
-		Person tina = aRandomInstanceOf(Person.class).with("surname", "Melon").build();
+		Person bob = aPopulatedPerson();
+		bob.setSurname("Onion");
+		Person tina = aPopulatedPerson();
+		tina.setSurname("Melon");
 		Map<String, Person> instance = new HashMap<String, Person>();
 		instance.put("Bob", bob);
 		instance.put("Tina", tina);
@@ -163,8 +179,10 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectAnArrray() {
-		Person bob = aRandomInstanceOf(Person.class).with("surname", "Onion").build();
-		Person tina = aRandomInstanceOf(Person.class).with("surname", "Melon").build();
+		Person bob = BeanUtilTestFixture.aPopulatedPerson();
+		bob.setSurname("Onion");
+		Person tina = BeanUtilTestFixture.aPopulatedPerson();
+		tina.setSurname("Melon");
 		Person[] people = {
 				bob, tina
 		};
@@ -181,8 +199,10 @@ public class InstanceInspectorTest {
 
 	@Test
 	public void canInspectACollection() {
-		Person bob = aRandomInstanceOf(Person.class).with("surname", "Onion").build();
-		Person tina = aRandomInstanceOf(Person.class).with("surname", "Melon").build();
+		Person bob = aPopulatedPerson();
+		bob.setSurname("Onion");
+		Person tina = aPopulatedPerson();
+		tina.setSurname("Melon");
 		List<Person> people = Arrays.asList(bob, tina);
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(people, visitor);
@@ -205,7 +225,7 @@ public class InstanceInspectorTest {
 	@Test
 	public void canInspectABeanWhichHasSetterWithNoArgs() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(SetterWithNotArgs.class, visitor);
+		beanInspector().inspect(SetterWithNoArgs.class, visitor);
 		verifyNoMoreInteractions(visitor);
 	}
 
