@@ -21,8 +21,7 @@ public abstract class BeanUtils {
 	 * <code>
 	 * List&lt;BeanProperty&gt; properties = BeanUtils.propertyList(myObject);
 	 * </code>
-	 * @param instance
-	 *            an object to get the properties list from
+	 * @param instance an object to get the properties list from
 	 */
 	public static List<BeanPropertyInstance> propertyList(final Object instance) {
 		return bean(instance).propertyList();
@@ -34,8 +33,7 @@ public abstract class BeanUtils {
 	 * <code>
 	 * List&lt;BeanProperty&gt; properties = BeanUtils.propertyList(MyObject.class);
 	 * </code>
-	 * @param type
-	 *            a class to get the properties list from
+	 * @param type a class to get the properties list from
 	 */
 	public static List<BeanProperty> propertyList(final Class<?> type) {
 		return type(type).propertyList();
@@ -48,8 +46,7 @@ public abstract class BeanUtils {
 	 * <code>
 	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.propertyMap(myObject);
 	 * </code>
-	 * @param instance
-	 *            an object to get the properties for
+	 * @param instance an object to get the properties for
 	 */
 	public static Map<String, BeanPropertyInstance> propertyMap(final Object instance) {
 		return bean(instance).propertyMap();
@@ -62,8 +59,7 @@ public abstract class BeanUtils {
 	 * <code>
 	 * Map&lt;String, BeanProperty&gt; propertyMap = BeanUtils.propertyMap(MyObject.class);
 	 * </code>
-	 * @param instance
-	 *            an object to get the properties for
+	 * @param instance an object to get the properties for
 	 */
 	public static Map<String, BeanProperty> propertyMap(final Class<?> type) {
 		return type(type).propertyMap();
@@ -77,10 +73,8 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.hasProperty(user, "surname")) == true;
 	 * </code>
-	 * @param instance
-	 *            an object to test against
-	 * @param name
-	 *            the property name
+	 * @param instance an object to test against
+	 * @param name the property name
 	 */
 	public static boolean hasProperty(final Object instance, final String name) {
 		return bean(instance).hasProperty(name);
@@ -94,10 +88,8 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.hasProperty(user, "surname")) == true;
 	 * </code>
-	 * @param instance
-	 *            an object to test against
-	 * @param name
-	 *            the property name
+	 * @param instance an object to test against
+	 * @param name the property name
 	 */
 	public static boolean hasProperty(final Object instance, final BeanPropertyPredicate predicate) {
 		return bean(instance).hasProperty(predicate);
@@ -111,10 +103,8 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.hasProperty(Person.class, "surname")) == true;
 	 * </code>
-	 * @param type
-	 *            an type to test against
-	 * @param name
-	 *            the property name
+	 * @param type an type to test against
+	 * @param name the property name
 	 */
 	public static boolean hasProperty(final Class<?> type, final String name) {
 		return type(type).hasProperty(name);
@@ -132,10 +122,8 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanProperty surname = BeanUtils.property(myUser, &quot;surname&quot;);
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
+	 * @param instance an object to get the property from
+	 * @param name the property name
 	 */
 	public static BeanPropertyInstance propertyNamed(final Object instance, final String name) {
 		return bean(instance).propertyNamed(name);
@@ -149,13 +137,56 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanProperty surname = BeanUtils.property(Person.class, &quot;surname&quot;);
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
+	 * @param instance an object to get the property from
+	 * @param name the property name
 	 */
 	public static BeanProperty propertyNamed(final Class<?> type, final String name) {
 		return type(type).propertyNamed(name);
+	}
+
+	/**
+	 * Get the requested property from the instance or return <code>null</code> if the property is not present
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * BeanProperty surname = BeanUtils.property(myUser, &quot;surname&quot;);
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static BeanPropertyInstance get(final Object instance, final String name) {
+		return bean(instance).get(name);
+	}
+
+	/**
+	 * Get the requested property from the type or return <code>null</code> if the property is not present
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * BeanProperty surname = BeanUtils.property(Person.class, &quot;surname&quot;);
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static BeanProperty get(final Class<?> type, final String name) {
+		return type(type).get(name);
+	}
+
+	/**
+	 * Get the requested property from the instance or return <code>null</code> if the property is not present
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * BeanProperty surname = BeanUtils.property(myUser, &quot;surname&quot;);
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static BeanPropertyInstance get(final Object instance, final BeanPropertyPredicate predicate) {
+		return bean(instance).get(predicate);
 	}
 
 	/**
@@ -166,12 +197,9 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.setProperty(myUser, &quot;surname&quot;, &quot;Smith&quot;);
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param value
-	 *            the value to set the property to
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param value the value to set the property to
 	 */
 	public static boolean setProperty(final Object instance, final String name, final Object value) {
 		return bean(instance).setProperty(name, value);
@@ -185,12 +213,9 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.setProperty(myUser, &quot;surname&quot;, &quot;Smith&quot;);
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param value
-	 *            the value to set the property to
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param value the value to set the property to
 	 */
 	public static boolean setProperty(final Object instance, final BeanPropertyPredicate predicate, final Object value) {
 		return bean(instance).setProperty(predicate, value);
@@ -204,13 +229,26 @@ public abstract class BeanUtils {
 	 * <code>
 	 * &quot;Smith&quot;.equals(BeanUtils.propertyValue(myUser, &quot;surname&quot;));
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
+	 * @param instance an object to get the property from
+	 * @param name the property name
 	 */
 	public static Object propertyValue(final Object instance, final String propertyName) {
 		return bean(instance).propertyValue(propertyName);
+	}
+
+	/**
+	 * Return the property value on the instance for the supplied property name or return <code>null</code> if the property is not present on the instance
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * &quot;Smith&quot;.equals(BeanUtils.propertyValue(myUser, &quot;surname&quot;));
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static Object propertyValue(final Object instance, final BeanPropertyPredicate predicated) {
+		return bean(instance).propertyValue(predicated);
 	}
 
 	/**
@@ -221,15 +259,28 @@ public abstract class BeanUtils {
 	 * <code>
 	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;, String.class));
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param name
-	 *            the type to return the property as
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param name the type to return the property as
 	 */
 	public static <T> T propertyValue(final Object instance, final String propertyName, final Class<T> type) {
 		return bean(instance).propertyValue(propertyName, type);
+	}
+
+	/**
+	 * Return the property value on the instance to the supplied value or return <code>null</code> if the property was not present on the instance
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * &quot;Smith&quot;.equals(BeanUtils.getPropertyValue(myUser, &quot;surname&quot;, String.class));
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param name the type to return the property as
+	 */
+	public static <T> T propertyValue(final Object instance, final BeanPropertyPredicate predicate, final Class<T> type) {
+		return bean(instance).propertyValue(predicate, type);
 	}
 
 	/**
@@ -240,10 +291,8 @@ public abstract class BeanUtils {
 	 * <code>
 	 * String.class.equals(BeanUtils.propertyType(myUser, &quot;surname&quot;));
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
+	 * @param instance an object to get the property from
+	 * @param name the property name
 	 */
 	public static Class<?> propertyType(final Object instance, final String propertyName) {
 		return bean(instance).propertyType(propertyName);
@@ -257,13 +306,26 @@ public abstract class BeanUtils {
 	 * <code>
 	 * String.class.equals(BeanUtils.propertyType(Person.class, &quot;surname&quot;));
 	 * </code>
-	 * @param type
-	 *            the type to get the property from
-	 * @param name
-	 *            the property name
+	 * @param type the type to get the property from
+	 * @param name the property name
 	 */
 	public static Class<?> propertyType(final Class<?> type, final String propertyName) {
 		return type(type).propertyType(propertyName);
+	}
+
+	/**
+	 * Return the property type on the instance for the supplied property name or <code>null</code> if the property doesn't exist
+	 * <p/>
+	 * For example, a class with a property getSurname() and setSurname(...):
+	 * 
+	 * <code>
+	 * String.class.equals(BeanUtils.propertyType(myUser, &quot;surname&quot;));
+	 * </code>
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 */
+	public static Class<?> propertyType(final Object instance, final BeanPropertyPredicate predicate) {
+		return bean(instance).propertyType(predicate);
 	}
 
 	/**
@@ -274,12 +336,9 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.isPropertyType(myUser, &quot;surname&quot;, String.class) == true;
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param type
-	 *            the expected type of the property
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param type the expected type of the property
 	 */
 	public static boolean isPropertyType(final Object instance, final String propertyName, final Class<?> type) {
 		return bean(instance).isPropertyType(propertyName, type);
@@ -293,12 +352,9 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.isPropertyType(myUser, &quot;surname&quot;, String.class) == true;
 	 * </code>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param type
-	 *            the expected type of the property
+	 * @param instance an object to get the property from
+	 * @param name the property name
+	 * @param type the expected type of the property
 	 */
 	public static boolean isPropertyType(final Object instance, final BeanPropertyPredicate predicate, final Class<?> type) {
 		return bean(instance).isPropertyType(predicate, type);
@@ -312,12 +368,9 @@ public abstract class BeanUtils {
 	 * <code>
 	 * BeanUtils.isPropertyType(Person.class, &quot;surname&quot;, String.class) == true;
 	 * </code>
-	 * @param type
-	 *            an object to get the property from
-	 * @param name
-	 *            the property name
-	 * @param expectedType
-	 *            the expected type of the property
+	 * @param type an object to get the property from
+	 * @param name the property name
+	 * @param expectedType the expected type of the property
 	 */
 	public static boolean isPropertyType(final Class<?> type, final String propertyName, final Class<?> expectedType) {
 		return type(type).isPropertyType(propertyName, expectedType);
@@ -382,10 +435,8 @@ public abstract class BeanUtils {
 	 * 	}
 	 * });
 	 * </pre>
-	 * @param instance
-	 *            an object to get the property from
-	 * @param visitor
-	 *            the visitor which will be notified of every bean property encountered
+	 * @param instance an object to get the property from
+	 * @param visitor the visitor which will be notified of every bean property encountered
 	 */
 	public static void visit(final Object instance, final BeanVisitor visitor) {
 		bean(instance).visit(visitor);

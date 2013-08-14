@@ -4,19 +4,21 @@
 
 package uk.co.it.modular.beans;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.co.it.modular.beans.Type.type;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes.EnumValues;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Employee;
+import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Manager;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static uk.co.it.modular.beans.Type.type;
 
 /**
  * @author Stewart Bissett
@@ -142,6 +144,11 @@ public class TypeTest {
 		assertThat(type(AllTypes.class).canonicalName(), equalTo("uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes"));
 	}
 
+	@Test
+	public void canGetAPackageNameForAType() {
+		assertThat(type(AllTypes.class).packageName(), equalTo("uk.co.it.modular.beans.testutils"));
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void canThrowIllegalArgumentExceptionIfConstructedWithNull() {
 		type(null);
@@ -169,4 +176,55 @@ public class TypeTest {
 		Class<?>[] superTypes = type(Employee.class).typeHierachy();
 		assertThat(superTypes, arrayContaining((Object) Employee.class, (Object) Person.class));
 	}
+
+	@Test
+	public void canTestIfTypeIsSame() {
+		assertThat(type(Person.class).is(Person.class), equalTo(true));
+	}
+
+	@Test
+	public void canTestIfTypeIsASubclass() {
+		assertThat(type(Manager.class).is(Person.class), equalTo(true));
+	}
+
+	@Test
+	public void canTestIfTypeIsASuperclass() {
+		assertThat(type(Person.class).is(Manager.class), equalTo(false));
+	}
+
+	@Test
+	public void canTestIfTypeIsDifferent() {
+		assertThat(type(Person.class).is(AllTypes.class), equalTo(false));
+	}
+
+	@Test
+	public void canTestIfTypeIsEnum() {
+		assertThat(type(EnumValues.class).isEnum(), equalTo(true));
+	}
+
+	@Test
+	public void canTestIfTypeIsNotEnum() {
+		assertThat(type(Person.class).isEnum(), equalTo(false));
+	}
+
+	@Test
+	public void canTestIfTypeIsPrimitive() {
+		assertThat(type(int.class).isPrimitive(), equalTo(true));
+	}
+
+	@Test
+	public void canTestIfTypeIsNotPrimitive() {
+		assertThat(type(Integer.class).isPrimitive(), equalTo(false));
+	}
+
+	@Test
+	public void canTestIfTypeIsArray() {
+		assertThat(type(int[].class).isArray(), equalTo(true));
+	}
+
+	@Test
+	public void canTestIfTypeIsNotArray() {
+		assertThat(type(Integer.class).isArray(), equalTo(false));
+	}
+
 }
