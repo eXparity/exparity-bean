@@ -96,11 +96,7 @@ abstract class Instance {
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		BeanPropertyInstance property = findAny(named(propertyName));
-		if (property == null) {
-			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
-		}
-		return property;
+		return findAny(named(propertyName));
 	}
 
 	public Class<?> propertyType(final String name) {
