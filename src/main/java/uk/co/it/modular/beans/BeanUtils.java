@@ -3,6 +3,8 @@ package uk.co.it.modular.beans;
 
 import java.util.List;
 import java.util.Map;
+import static uk.co.it.modular.beans.Bean.bean;
+import static uk.co.it.modular.beans.Type.type;
 
 /**
  * Utility methods for inspecting Objects which expose properties which follow the Java Bean get/set standard
@@ -10,36 +12,6 @@ import java.util.Map;
  * @author Stewart Bissett
  */
 public abstract class BeanUtils {
-
-	/**
-	 * Static factory to return an instance of a {@link Bean} class for the given instance. For example:</p>
-	 * 
-	 * <pre>
-	 * Bean bean = BeanUtils.bean(myObject)
-	 * </pre>
-	 * 
-	 * An instance of a {@link Bean} can also be created using the {@link Bean#bean(Object)} factory methodm</p>
-	 * 
-	 * @param instance an object instance
-	 */
-	public static Bean bean(final Object instance) {
-		return Bean.bean(instance);
-	}
-
-	/**
-	 * Static factory to return an instance of a {@link Type} class for the given type. For example:</p>
-	 * 
-	 * <pre>
-	 * Type type = BeanUtils.type(MyObject.class)
-	 * </pre>
-	 * 
-	 * An instance of a {@link Type} can also be created using the {@link Type#type(Object)} factory method</p>
-	 * 
-	 * @param instance an object instance
-	 */
-	public static Type type(final Class<?> type) {
-		return Type.type(type);
-	}
 
 	/**
 	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
@@ -186,6 +158,20 @@ public abstract class BeanUtils {
 	 */
 	public static BeanPropertyInstance get(final Object instance, final String name) {
 		return bean(instance).get(name);
+	}
+
+	/**
+	 * Get the property which matches the predicate from the instance or return <code>null</code> if not matching property is found. For example:</p>
+	 * 
+	 * <pre>
+	 * BeanPropertyInstance surname = BeanUtils.get(aUser, BeanPredicates.named(&quot;surname&quot;))
+	 * </pre>
+	 * 
+	 * @param instance an instance to get the property from
+	 * @param predicate a predicate to match the property
+	 */
+	public static BeanPropertyInstance get(final Object instance, final BeanPropertyPredicate predicate) {
+		return bean(instance).get(predicate);
 	}
 
 	/**

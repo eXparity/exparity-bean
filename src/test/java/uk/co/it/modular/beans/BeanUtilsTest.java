@@ -11,6 +11,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.co.it.modular.beans.BeanUtils.*;
+import static uk.co.it.modular.beans.Bean.bean;
 import static uk.co.it.modular.beans.BeanFunctions.setValue;
 import static uk.co.it.modular.beans.BeanPredicates.named;
 import static uk.co.it.modular.beans.BeanPredicates.ofType;
@@ -133,12 +134,12 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canGetAPropertyByPredicate() {
-		assertThat(get(new Person(), named("firstname")), notNullValue());
+		assertThat(BeanUtils.get(new Person(), named("firstname")), notNullValue());
 	}
 
 	@Test
 	public void canGetAPropertyByPredicateNoMatch() {
-		assertThat(get(new Person(), named("missing")), nullValue());
+		assertThat(BeanUtils.get(new Person(), named("missing")), nullValue());
 	}
 
 	@Test
