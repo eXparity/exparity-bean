@@ -23,7 +23,7 @@ public abstract class BeanUtils {
 	 * 
 	 * @param instance an object to get the properties list from
 	 */
-	public static List<BeanPropertyInstance> propertyList(final Object instance) {
+	public static List<BeanProperty> propertyList(final Object instance) {
 		return bean(instance).propertyList();
 	}
 
@@ -37,7 +37,7 @@ public abstract class BeanUtils {
 	 * 
 	 * @param type a class to get the properties list from
 	 */
-	public static List<BeanProperty> propertyList(final Class<?> type) {
+	public static List<TypeProperty> propertyList(final Class<?> type) {
 		return type(type).propertyList();
 	}
 
@@ -51,7 +51,7 @@ public abstract class BeanUtils {
 	 * 
 	 * @param instance an object to get the properties for
 	 */
-	public static Map<String, BeanPropertyInstance> propertyMap(final Object instance) {
+	public static Map<String, BeanProperty> propertyMap(final Object instance) {
 		return bean(instance).propertyMap();
 	}
 
@@ -65,7 +65,7 @@ public abstract class BeanUtils {
 	 * 
 	 * @param type a type to get the properties for
 	 */
-	public static Map<String, BeanProperty> propertyMap(final Class<?> type) {
+	public static Map<String, TypeProperty> propertyMap(final Class<?> type) {
 		return type(type).propertyMap();
 	}
 
@@ -128,7 +128,7 @@ public abstract class BeanUtils {
 	 * @param instance an object to get the property from
 	 * @param name the property name
 	 */
-	public static BeanPropertyInstance propertyNamed(final Object instance, final String name) {
+	public static BeanProperty propertyNamed(final Object instance, final String name) {
 		return bean(instance).propertyNamed(name);
 	}
 
@@ -142,7 +142,7 @@ public abstract class BeanUtils {
 	 * @param type a type to get the property from
 	 * @param name the property name
 	 */
-	public static BeanProperty propertyNamed(final Class<?> type, final String name) {
+	public static TypeProperty propertyNamed(final Class<?> type, final String name) {
 		return type(type).propertyNamed(name);
 	}
 
@@ -156,7 +156,7 @@ public abstract class BeanUtils {
 	 * @param instance an instance to get the property from
 	 * @param name the property name
 	 */
-	public static BeanPropertyInstance get(final Object instance, final String name) {
+	public static BeanProperty get(final Object instance, final String name) {
 		return bean(instance).get(name);
 	}
 
@@ -170,7 +170,7 @@ public abstract class BeanUtils {
 	 * @param instance an instance to get the property from
 	 * @param predicate a predicate to match the property
 	 */
-	public static BeanPropertyInstance get(final Object instance, final BeanPropertyPredicate predicate) {
+	public static BeanProperty get(final Object instance, final BeanPropertyPredicate predicate) {
 		return bean(instance).get(predicate);
 	}
 
@@ -184,7 +184,7 @@ public abstract class BeanUtils {
 	 * @param type a type to get the property from
 	 * @param name the property name
 	 */
-	public static BeanProperty get(final Class<?> type, final String name) {
+	public static TypeProperty get(final Class<?> type, final String name) {
 		return type(type).get(name);
 	}
 
@@ -387,7 +387,7 @@ public abstract class BeanUtils {
 	 * @param instance an object to get the property from
 	 * @param predicate a predicate to match the properties
 	 */
-	public static List<BeanPropertyInstance> find(final Object instance, final BeanPropertyPredicate predicate) {
+	public static List<BeanProperty> find(final Object instance, final BeanPropertyPredicate predicate) {
 		return bean(instance).find(predicate);
 	}
 
@@ -401,7 +401,7 @@ public abstract class BeanUtils {
 	 * @param instance an object to get the property from
 	 * @param predicate a predicate to match the properties
 	 */
-	public static BeanPropertyInstance findAny(final Object instance, final BeanPropertyPredicate predicate) {
+	public static BeanProperty findAny(final Object instance, final BeanPropertyPredicate predicate) {
 		return bean(instance).findAny(predicate);
 	}
 

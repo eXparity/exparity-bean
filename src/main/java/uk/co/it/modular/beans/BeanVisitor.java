@@ -16,5 +16,5 @@ public interface BeanVisitor {
 	 * @param path a dot notation path of the properties navigated to get to this property
 	 * @param stack a stack of the objects that have been visited to get to the current object. The latest object is last in the array.
 	 */
-	public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack);
+	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack);
 }

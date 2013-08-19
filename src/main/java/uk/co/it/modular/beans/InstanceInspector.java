@@ -159,9 +159,9 @@ class InstanceInspector {
 		} else {
 			BeanPropertyPath rootPath = path.isEmpty() ? new BeanPropertyPath(uncapitalize(type(instance.getClass()).simpleName())) : path;
 			stack.add(instance);
-			for (BeanProperty property : type.propertyList()) {
+			for (TypeProperty property : type.propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
-				visitor.visit(new BeanPropertyInstance(property, instance), instance, nextPath, stack.toArray());
+				visitor.visit(new BeanProperty(property, instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {
 					Object value = property.getValue(instance);
 					if (value != null) {

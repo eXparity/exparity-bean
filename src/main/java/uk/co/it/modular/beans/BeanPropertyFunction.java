@@ -6,5 +6,5 @@ package uk.co.it.modular.beans;
  */
 public interface BeanPropertyFunction {
 
-	public void apply(final BeanPropertyInstance property);
+	public void apply(final BeanProperty property);
 }

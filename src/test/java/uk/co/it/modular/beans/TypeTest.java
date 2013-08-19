@@ -102,7 +102,7 @@ public class TypeTest {
 	@Test
 	public void canGetAListOfProperties() {
 		Type type = type(Person.class);
-		List<BeanProperty> properties = type.propertyList();
+		List<TypeProperty> properties = type.propertyList();
 		assertThat(properties, hasSize(3));
 		assertThat(properties, hasItem(equalTo(type.propertyNamed("firstname"))));
 		assertThat(properties, hasItem(equalTo(type.propertyNamed("surname"))));
@@ -117,7 +117,7 @@ public class TypeTest {
 	@Test
 	public void canGetAMapOfProperties() {
 		Type type = type(Person.class);
-		Map<String, BeanProperty> properties = type.propertyMap();
+		Map<String, TypeProperty> properties = type.propertyMap();
 		assertThat(properties.size(), equalTo(3));
 		assertThat(properties, hasEntry("firstname", type.propertyNamed("firstname")));
 		assertThat(properties, hasEntry("surname", type.propertyNamed("surname")));

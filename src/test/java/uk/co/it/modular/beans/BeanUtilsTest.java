@@ -259,7 +259,7 @@ public class BeanUtilsTest {
 	@Test
 	public void canGetAListOfProperties() {
 		Person person = new Person();
-		List<BeanPropertyInstance> properties = propertyList(person);
+		List<BeanProperty> properties = propertyList(person);
 		Bean bean = bean(person);
 		assertThat(properties, hasSize(3));
 		assertThat(properties, hasItem(equalTo(bean.propertyNamed("firstname"))));
@@ -275,7 +275,7 @@ public class BeanUtilsTest {
 	@Test
 	public void canGetAMapOfProperties() {
 		Person instance = new Person();
-		Map<String, BeanPropertyInstance> properties = propertyMap(instance);
+		Map<String, BeanProperty> properties = propertyMap(instance);
 		Bean bean = bean(instance);
 		assertThat(properties.size(), equalTo(3));
 		assertThat(properties, hasEntry("firstname", bean.propertyNamed("firstname")));
@@ -290,7 +290,7 @@ public class BeanUtilsTest {
 
 	@Test
 	public void canGetAMapOfPropertiesForType() {
-		Map<String, BeanProperty> properties = propertyMap(Person.class);
+		Map<String, TypeProperty> properties = propertyMap(Person.class);
 		Type bean = Type.type(Person.class);
 		assertThat(properties.size(), equalTo(3));
 		assertThat(properties, hasEntry("firstname", bean.propertyNamed("firstname")));
@@ -305,7 +305,7 @@ public class BeanUtilsTest {
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
 		apply(instance, new BeanPropertyFunction() {
 
-			public void apply(final BeanPropertyInstance property) {
+			public void apply(final BeanProperty property) {
 				if (property.isType(String.class)) {
 					property.setValue("Applied");
 				}

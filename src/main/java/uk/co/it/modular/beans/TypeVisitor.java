@@ -13,5 +13,5 @@ public interface TypeVisitor {
 	 * 
 	 * @param property the property being visited
 	 */
-	public void visit(final BeanProperty property);
+	public void visit(final TypeProperty property);
 }

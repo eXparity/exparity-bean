@@ -78,7 +78,7 @@ public abstract class GraphUtils {
 	 * @param instance an object to find the properties on
 	 * @param predicate the predicate to select which properties to return
 	 */
-	public static List<BeanPropertyInstance> find(final Object instance, final BeanPropertyPredicate predicate) {
+	public static List<BeanProperty> find(final Object instance, final BeanPropertyPredicate predicate) {
 		return graph(instance).find(predicate);
 	}
 
@@ -92,7 +92,7 @@ public abstract class GraphUtils {
 	 * @param instance an object to find the properties on
 	 * @param predicate the predicate to select which properties to return
 	 */
-	public static BeanPropertyInstance findAny(final Object instance, final BeanPropertyPredicate predicate) {
+	public static BeanProperty findAny(final Object instance, final BeanPropertyPredicate predicate) {
 		return graph(instance).findAny(predicate);
 	}
 
@@ -106,7 +106,7 @@ public abstract class GraphUtils {
 	 * 
 	 * @param instance an object to get the properties list from
 	 */
-	public static List<BeanPropertyInstance> propertyList(final Object instance) {
+	public static List<BeanProperty> propertyList(final Object instance) {
 		return graph(instance).propertyList();
 	}
 
@@ -122,7 +122,7 @@ public abstract class GraphUtils {
 	 * 
 	 * @param instance an object to get the properties for
 	 */
-	public static Map<String, BeanPropertyInstance> propertyMap(final Object instance) {
+	public static Map<String, BeanProperty> propertyMap(final Object instance) {
 		return graph(instance).propertyMap();
 	}
 
@@ -185,7 +185,7 @@ public abstract class GraphUtils {
 	 * @param instance an object to get the property from
 	 * @param name the property name
 	 */
-	public static BeanPropertyInstance propertyNamed(final Object instance, final String name) {
+	public static BeanProperty propertyNamed(final Object instance, final String name) {
 		return graph(instance).propertyNamed(name);
 	}
 
@@ -199,7 +199,7 @@ public abstract class GraphUtils {
 	 * @param instance an object to get the property from
 	 * @param name the property name
 	 */
-	public static BeanPropertyInstance get(final Object instance, final String name) {
+	public static BeanProperty get(final Object instance, final String name) {
 		return graph(instance).get(name);
 	}
 
@@ -213,7 +213,7 @@ public abstract class GraphUtils {
 	 * @param instance an object to get the property from
 	 * @param name the property name
 	 */
-	public static BeanPropertyInstance get(final Object instance, final BeanPropertyPredicate predicate) {
+	public static BeanProperty get(final Object instance, final BeanPropertyPredicate predicate) {
 		return graph(instance).get(predicate);
 	}
 

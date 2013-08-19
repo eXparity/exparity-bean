@@ -110,7 +110,7 @@ public class BeanPredicatesTest {
 	private void assertMatch(final BeanPropertyPredicate predicate, final boolean expected) {
 		Person person = new Person();
 		person.setFirstname("Bob");
-		BeanPropertyInstance firstName = bean(person).get("firstname");
+		BeanProperty firstName = bean(person).get("firstname");
 		assertThat(predicate.matches(firstName), equalTo(expected));
 	}
 

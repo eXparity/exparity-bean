@@ -58,22 +58,22 @@ public class Type implements Typed {
 		inspector.inspect(type, visitor);
 	}
 
-	public List<BeanProperty> propertyList() {
-		final List<BeanProperty> propertyList = new ArrayList<BeanProperty>();
+	public List<TypeProperty> propertyList() {
+		final List<TypeProperty> propertyList = new ArrayList<TypeProperty>();
 		visit(new TypeVisitor() {
 
-			public void visit(final BeanProperty property) {
+			public void visit(final TypeProperty property) {
 				propertyList.add(property);
 			}
 		});
 		return propertyList;
 	}
 
-	public Map<String, BeanProperty> propertyMap() {
-		final Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
+	public Map<String, TypeProperty> propertyMap() {
+		final Map<String, TypeProperty> propertyMap = new HashMap<String, TypeProperty>();
 		visit(new TypeVisitor() {
 
-			public void visit(final BeanProperty property) {
+			public void visit(final TypeProperty property) {
 				propertyMap.put(property.getName(), property);
 			}
 		});
@@ -83,8 +83,8 @@ public class Type implements Typed {
 	/**
 	 * @throws BeanPropertyNotFoundException
 	 */
-	public BeanProperty propertyNamed(final String propertyName) {
-		BeanProperty property = propertyMap().get(propertyName);
+	public TypeProperty propertyNamed(final String propertyName) {
+		TypeProperty property = propertyMap().get(propertyName);
 		if (property == null) {
 			throw new BeanPropertyNotFoundException(type, propertyName);
 		}
@@ -94,7 +94,7 @@ public class Type implements Typed {
 	/**
 	 * @throws BeanPropertyNotFoundException
 	 */
-	public BeanProperty get(final String propertyName) {
+	public TypeProperty get(final String propertyName) {
 		return propertyNamed(propertyName);
 	}
 

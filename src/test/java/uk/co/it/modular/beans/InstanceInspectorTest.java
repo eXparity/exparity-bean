@@ -121,7 +121,7 @@ public class InstanceInspectorTest {
 		AllTypes instance = BeanUtilTestFixture.aPopulatedAllTypes();
 		beanInspector().inspect(instance, new BeanVisitor() {
 
-			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				assertThat(property.getValue(), notNullValue());
 			}
 		});
@@ -134,7 +134,7 @@ public class InstanceInspectorTest {
 		beanInspector().inspect(instance, visitor);
 		beanInspector().inspect(instance, new BeanVisitor() {
 
-			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				if (property.isCollection() || property.isMap() || property.isArray()) {
 					assertThat(property.getValue(), notNullValue());
 				}
@@ -149,7 +149,7 @@ public class InstanceInspectorTest {
 		beanInspector().inspect(instance, visitor);
 		beanInspector().inspect(instance, new BeanVisitor() {
 
-			public void visit(final BeanPropertyInstance property, final Object current, final BeanPropertyPath path, final Object[] stack) {
+			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				if (!property.isPrimitive()) {
 					assertThat(property.getValue(), nullValue());
 				}

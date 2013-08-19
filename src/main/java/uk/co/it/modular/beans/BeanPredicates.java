@@ -16,7 +16,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate matchesAll(final BeanPropertyPredicate... predicates) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				for (BeanPropertyPredicate predicate : predicates) {
 					if (!predicate.matches(property)) {
 						return false;
@@ -33,7 +33,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate matchesOneOf(final BeanPropertyPredicate... predicates) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				for (BeanPropertyPredicate predicate : predicates) {
 					if (predicate.matches(property)) {
 						return true;
@@ -50,7 +50,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate anyProperty() {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				return true;
 			}
 		};
@@ -62,7 +62,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate named(final String name) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				return equalsIgnoreCase(name, property.getName());
 			}
 		};
@@ -74,7 +74,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate withValue(final Object value) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				return value.equals(property.getValue());
 			}
 		};
@@ -86,7 +86,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate withValue(final String name, final Object value) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				return property.hasName(name) && value.equals(property.getValue());
 			}
 		};
@@ -98,7 +98,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate ofType(final Class<?>... types) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				for (Class<?> type : types) {
 					if (property.getType().equals(type)) {
 						return true;
@@ -115,7 +115,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate likeValue(final String name, final String pattern) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				return property.hasName(name) && property.isString() && !property.isNull() && property.getValue(String.class).matches(pattern);
 			}
 		};
@@ -127,7 +127,7 @@ public abstract class BeanPredicates {
 	public static BeanPropertyPredicate ofDeclaringType(final Class<?>... types) {
 		return new BeanPropertyPredicate() {
 
-			public boolean matches(final BeanPropertyInstance property) {
+			public boolean matches(final BeanProperty property) {
 				for (Class<?> type : types) {
 					if (property.getDeclaringType().equals(type)) {
 						return true;

@@ -6,8 +6,8 @@ package uk.co.it.modular.beans.testutils;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
+import uk.co.it.modular.beans.TypeProperty;
 import uk.co.it.modular.beans.BeanProperty;
-import uk.co.it.modular.beans.BeanPropertyInstance;
 
 /**
  * A Static factory to produce hamcrest {@link org.hamcrest.Matcher} instance for testing {@link BeanProperty}
@@ -33,7 +33,7 @@ public abstract class BeanPropertyMatchers {
 	/**
 	 * @author Stewart.Bissett
 	 */
-	private static final class BeanPropertyMatcher extends TypeSafeDiagnosingMatcher<BeanProperty> {
+	private static final class BeanPropertyMatcher extends TypeSafeDiagnosingMatcher<TypeProperty> {
 
 		private final Class<?> propertyType;
 		private final String propertyName;
@@ -48,7 +48,7 @@ public abstract class BeanPropertyMatchers {
 		}
 
 		@Override
-		protected boolean matchesSafely(final BeanProperty item, final Description mismatchDescription) {
+		protected boolean matchesSafely(final TypeProperty item, final Description mismatchDescription) {
 			if (!item.getName().equals(propertyName)) {
 				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
 				return false;
@@ -68,7 +68,7 @@ public abstract class BeanPropertyMatchers {
 	/**
 	 * @author Stewart.Bissett
 	 */
-	private static final class BeanPropertyInstanceMatcher extends TypeSafeDiagnosingMatcher<BeanPropertyInstance> {
+	private static final class BeanPropertyInstanceMatcher extends TypeSafeDiagnosingMatcher<BeanProperty> {
 
 		private final Class<?> propertyType;
 		private final String propertyName;
@@ -83,7 +83,7 @@ public abstract class BeanPropertyMatchers {
 		}
 
 		@Override
-		protected boolean matchesSafely(final BeanPropertyInstance item, final Description mismatchDescription) {
+		protected boolean matchesSafely(final BeanProperty item, final Description mismatchDescription) {
 			if (!item.getName().equals(propertyName)) {
 				mismatchDescription.appendText(createDescription(item.getName(), item.getType()));
 				return false;

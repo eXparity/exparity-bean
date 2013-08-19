@@ -227,7 +227,7 @@ public class GraphUtilsTest {
 	@Test
 	public void canGetAListOfProperties() {
 		Person instance = new Person();
-		List<BeanPropertyInstance> properties = propertyList(instance);
+		List<BeanProperty> properties = propertyList(instance);
 		assertThat(properties, hasSize(3));
 		assertThat(properties, hasItem(equalTo(bean(instance).propertyNamed("firstname"))));
 		assertThat(properties, hasItem(equalTo(bean(instance).propertyNamed("surname"))));
@@ -242,7 +242,7 @@ public class GraphUtilsTest {
 	@Test
 	public void canGetAMapOfProperties() {
 		Person instance = new Person();
-		Map<String, BeanPropertyInstance> properties = propertyMap(instance);
+		Map<String, BeanProperty> properties = propertyMap(instance);
 		assertThat(properties.size(), equalTo(3));
 		assertThat(properties, hasEntry("firstname", bean(instance).propertyNamed("firstname")));
 		assertThat(properties, hasEntry("surname", bean(instance).propertyNamed("surname")));
@@ -261,7 +261,7 @@ public class GraphUtilsTest {
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
 		apply(instance, new BeanPropertyFunction() {
 
-			public void apply(final BeanPropertyInstance property) {
+			public void apply(final BeanProperty property) {
 				if (property.isType(String.class)) {
 					property.setValue("Applied");
 				}

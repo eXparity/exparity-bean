@@ -56,7 +56,7 @@ class TypeInspector {
 
 	private void inspectType(final String path, final Class<?> type, final TypeVisitor visitor) {
 		logInspection(path, "Object", type);
-		for (BeanProperty property : propertyList(type)) {
+		for (TypeProperty property : propertyList(type)) {
 			visitor.visit(property);
 		}
 	}
@@ -67,9 +67,9 @@ class TypeInspector {
 		});
 	}
 
-	private List<BeanProperty> propertyList(final Class<?> type) {
+	private List<TypeProperty> propertyList(final Class<?> type) {
 		Map<String, List<Method>> mutatorMap = createMutatorMap(type);
-		List<BeanProperty> properties = new ArrayList<BeanProperty>();
+		List<TypeProperty> properties = new ArrayList<TypeProperty>();
 		for (Method accessor : type.getMethods()) {
 			final String methodName = accessor.getName();
 			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
@@ -77,7 +77,7 @@ class TypeInspector {
 					String propertyName = convertToPropertyName(methodName, prefix.length());
 					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
 					if (mutator != null) {
-						properties.add(new BeanProperty(propertyName, accessor, mutator));
+						properties.add(new TypeProperty(propertyName, accessor, mutator));
 					}
 					break;
 				}
