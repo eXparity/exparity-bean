@@ -84,8 +84,7 @@ public class BeanProperty {
 	/**
 	 * Return the value of this property from the given object cast to the given type. Will throw a {@link ClassCastException} if the value is not of the given type.
 	 * 
-	 * @param type
-	 *            the type to return the value as
+	 * @param type the type to return the value as
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getValue(final Object instance, final Class<T> type) {
@@ -96,8 +95,7 @@ public class BeanProperty {
 	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
 	 * property was successfullly set.
 	 * 
-	 * @param value
-	 *            the value to set this property to on the instance
+	 * @param value the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object instance, final Object value) {
 		return MethodUtils.invoke(mutator, instance, value);
@@ -193,8 +191,7 @@ public class BeanProperty {
 	/**
 	 * Test if the property type is assignable from the supplied type
 	 * 
-	 * @param type
-	 *            any type to check to see if this properties type is assignable to it
+	 * @param type any type to check to see if this properties type is assignable to it
 	 */
 	public boolean isType(final Class<?> type) {
 		return this.type.is(type);
@@ -203,8 +200,7 @@ public class BeanProperty {
 	/**
 	 * Test if the property type is assignable from any one of the supplied types
 	 * 
-	 * @param types
-	 *            types to check to see if this properties type is assignable to it
+	 * @param types types to check to see if this properties type is assignable to it
 	 */
 	public boolean isType(final Class<?>... types) {
 		for (Class<?> type : types) {

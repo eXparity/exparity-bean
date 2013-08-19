@@ -13,7 +13,7 @@ import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Car;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.Person;
 
 /**
- * @author <a href="mailto:stewart@modular-it.co.uk">Stewart Bissett</a>
+ * @author Stewart Bissett
  */
 public class BeanPredicatesTest {
 

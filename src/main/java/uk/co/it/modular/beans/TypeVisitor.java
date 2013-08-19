@@ -1,6 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
 
 package uk.co.it.modular.beans;
 
@@ -14,8 +11,7 @@ public interface TypeVisitor {
 	/**
 	 * Callback fired for each {@link BeanProperty} found on an object
 	 * 
-	 * @param property
-	 *            the property being visited
+	 * @param property the property being visited
 	 */
 	public void visit(final BeanProperty property);
 }

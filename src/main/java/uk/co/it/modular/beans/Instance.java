@@ -1,6 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
 
 package uk.co.it.modular.beans;
 
@@ -96,7 +93,11 @@ abstract class Instance {
 	}
 
 	public BeanPropertyInstance propertyNamed(final String propertyName) {
-		return findAny(named(propertyName));
+		BeanPropertyInstance property = findAny(named(propertyName));
+		if (property == null) {
+			throw new BeanPropertyNotFoundException(this.instance.getClass(), propertyName);
+		}
+		return property;
 	}
 
 	public Class<?> propertyType(final String name) {

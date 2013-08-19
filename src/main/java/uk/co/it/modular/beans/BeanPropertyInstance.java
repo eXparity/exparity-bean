@@ -1,6 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
 
 package uk.co.it.modular.beans;
 
@@ -44,8 +41,7 @@ public class BeanPropertyInstance {
 	/**
 	 * Return the value of this property from the given object cast to the given type. Will throw a {@link ClassCastException} if the value is not of the given type.
 	 * 
-	 * @param type
-	 *            the type to return the value as
+	 * @param type the type to return the value as
 	 */
 	public <T> T getValue(final Class<T> type) {
 		return property.getValue(instance, type);
@@ -54,8 +50,7 @@ public class BeanPropertyInstance {
 	/**
 	 * Return the value of this property from the contained instance
 	 * 
-	 * @param type
-	 *            the type to return the value as
+	 * @param type the type to return the value as
 	 */
 	public Object getValue() {
 		return property.getValue(instance);
@@ -86,8 +81,7 @@ public class BeanPropertyInstance {
 	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
 	 * property was successfullly set.
 	 * 
-	 * @param value
-	 *            the value to set this property to on the instance
+	 * @param value the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object value) {
 		return property.setValue(instance, value);
