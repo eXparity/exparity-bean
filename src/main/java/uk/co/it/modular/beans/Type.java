@@ -1,6 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
 
 package uk.co.it.modular.beans;
 
@@ -14,7 +11,7 @@ import org.apache.commons.lang.ArrayUtils;
 /**
  * @author Stewart.Bissett
  */
-public class Type {
+public class Type implements Typed {
 
 	public static Type type(final Class<?> type) {
 		return new Type(type);
