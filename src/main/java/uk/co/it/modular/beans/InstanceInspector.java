@@ -91,10 +91,8 @@ class InstanceInspector {
 	/**
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
 	 * 
-	 * @param instance
-	 *            an object instance to inspect for Java Bean properties
-	 * @param visitor
-	 *            the visitor to raise events when Java Bean properties are found
+	 * @param instance an object instance to inspect for Java Bean properties
+	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Object instance, final BeanVisitor visitor) {
 		inspect(instance, new BeanPropertyPath(null), visitor);
@@ -106,12 +104,9 @@ class InstanceInspector {
 	 * The root object will be referred to be the supplied rootPath parameter.
 	 * </p>
 	 * 
-	 * @param instance
-	 *            an object instance to inspect for Java Bean properties
-	 * @param rootPath
-	 *            a name to be used as the root object name for the path included when the visitor is notified
-	 * @param visitor
-	 *            the visitor to raise events when Java Bean properties are found
+	 * @param instance an object instance to inspect for Java Bean properties
+	 * @param rootPath a name to be used as the root object name for the path included when the visitor is notified
+	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Object instance, final BeanPropertyPath rootPath, final BeanVisitor visitor) {
 		try {
@@ -161,7 +156,7 @@ class InstanceInspector {
 			stack.add(instance);
 			for (TypeProperty property : type.propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
-				visitor.visit(new BeanProperty(property, instance), instance, nextPath, stack.toArray());
+				visitor.visit(new BeanProperty(property.getName(), property.getAccessor(), property.getMutator(), instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {
 					Object value = property.getValue(instance);
 					if (value != null) {
