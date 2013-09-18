@@ -190,4 +190,9 @@ abstract class Instance {
 	public boolean isPropertyType(final BeanPropertyPredicate predicate, final Class<?> type) {
 		return hasProperty(matchesAll(predicate, ofType(type)));
 	}
+
+	public void setNamingStrategy(final BeanNamingStrategy strategy) {
+		inspector.setNamingStrategy(strategy);
+	}
+
 }

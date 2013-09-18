@@ -1,8 +1,6 @@
 
 package uk.co.it.modular.beans;
 
-import static java.lang.Character.toLowerCase;
-import static java.lang.System.identityHashCode;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static java.lang.System.identityHashCode;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
@@ -25,13 +24,13 @@ class TypeInspector {
 			"is", "get"
 	};
 
+	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
+
 	/**
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
 	 * 
-	 * @param instance
-	 *            an object instance to inspect for Java Bean properties
-	 * @param visitor
-	 *            the visitor to raise events when Java Bean properties are found
+	 * @param instance an object instance to inspect for Java Bean properties
+	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Class<?> type, final TypeVisitor visitor) {
 		inspect(type, "", visitor);
@@ -43,12 +42,9 @@ class TypeInspector {
 	 * The root object will be referred to be the supplied rootPath parameter.
 	 * </p>
 	 * 
-	 * @param instance
-	 *            an object instance to inspect for Java Bean properties
-	 * @param rootPath
-	 *            a name to be used as the root object name for the path included when the visitor is notified
-	 * @param visitor
-	 *            the visitor to raise events when Java Bean properties are found
+	 * @param instance an object instance to inspect for Java Bean properties
+	 * @param rootPath a name to be used as the root object name for the path included when the visitor is notified
+	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Class<?> type, final String rootPath, final TypeVisitor visitor) {
 		inspectType(rootPath, type, visitor);
@@ -74,7 +70,7 @@ class TypeInspector {
 			final String methodName = accessor.getName();
 			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
 				if (methodName.startsWith(prefix) && accessor.getParameterTypes().length == 0) {
-					String propertyName = convertToPropertyName(methodName, prefix.length());
+					String propertyName = naming.describeProperty(accessor, prefix);
 					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
 					if (mutator != null) {
 						properties.add(new TypeProperty(propertyName, accessor, mutator));
@@ -103,7 +99,7 @@ class TypeInspector {
 		for (Method method : type.getMethods()) {
 			String methodName = method.getName();
 			if (isMutator(method, methodName)) {
-				String propertyName = convertToPropertyName(methodName, MUTATOR_PROPERTY_NAME.length());
+				String propertyName = naming.describeProperty(method, MUTATOR_PROPERTY_NAME);
 				List<Method> list = mutatorMap.get(propertyName);
 				if (list == null) {
 					list = new ArrayList<Method>();
@@ -121,7 +117,7 @@ class TypeInspector {
 		return methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1;
 	}
 
-	private static String convertToPropertyName(final String methodName, final int startPos) {
-		return toLowerCase(methodName.charAt(startPos)) + methodName.substring(startPos + 1);
+	public void setNamingStrategy(final BeanNamingStrategy strategy) {
+		this.naming = strategy;
 	}
 }

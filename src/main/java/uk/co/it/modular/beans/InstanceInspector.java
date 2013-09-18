@@ -3,13 +3,13 @@ package uk.co.it.modular.beans;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;
-import static org.apache.commons.lang.StringUtils.uncapitalize;
 import static uk.co.it.modular.beans.Type.type;
 
 /**
@@ -84,6 +84,8 @@ class InstanceInspector {
 		}
 	};
 
+	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
+
 	InstanceInspector(final BeanInspectorConfiguration config) {
 		this.config = config;
 	}
@@ -152,9 +154,9 @@ class InstanceInspector {
 		} else if (type.is(Map.class)) {
 			inspectMap(new ArrayList<Object>(), path, (Map) instance, visitor);
 		} else {
-			BeanPropertyPath rootPath = path.isEmpty() ? new BeanPropertyPath(uncapitalize(type(instance.getClass()).simpleName())) : path;
+			BeanPropertyPath rootPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(instance.getClass())) : path;
 			stack.add(instance);
-			for (TypeProperty property : type.propertyList()) {
+			for (TypeProperty property : type.setNamingStrategy(naming).propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
 				visitor.visit(new BeanProperty(property.getName(), property.getAccessor(), property.getMutator(), instance), instance, nextPath, stack.toArray());
 				if (property.isArray()) {
@@ -189,7 +191,7 @@ class InstanceInspector {
 	private void inspectMap(final List<Object> stack, final BeanPropertyPath path, final Map<?, ?> instance, final BeanVisitor visitor) {
 		logInspection(path, "Map", instance);
 		for (Map.Entry<?, ?> entry : instance.entrySet()) {
-			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath("map") : path;
+			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Map.class)) : path;
 			inspectObject(stack, nextPath.appendIndex(entry.getKey().toString()), entry.getValue(), visitor);
 		}
 	}
@@ -197,7 +199,7 @@ class InstanceInspector {
 	private void inspectArray(final List<Object> stack, final BeanPropertyPath path, final Object instance, final BeanVisitor visitor) {
 		logInspection(path, "Array", instance);
 		for (int i = 0; i < Array.getLength(instance); ++i) {
-			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath("array") : path;
+			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Array.class)) : path;
 			inspectObject(stack, nextPath.appendIndex(i), Array.get(instance, i), visitor);
 		}
 	}
@@ -206,7 +208,7 @@ class InstanceInspector {
 		logInspection(path, "Iterable", instance);
 		int seq = 0;
 		for (Object object : instance) {
-			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath("collection") : path;
+			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Collection.class)) : path;
 			inspectObject(stack, nextPath.appendIndex(seq++), object, visitor);
 		}
 	}
@@ -215,5 +217,9 @@ class InstanceInspector {
 		LOG.trace("Inspect Path [{}]. {} [{}:{}]", new Object[] {
 				path.fullPath(), loggedType, instance.getClass().getSimpleName(), identityHashCode(instance)
 		});
+	}
+
+	public void setNamingStrategy(final BeanNamingStrategy strategy) {
+		this.naming = strategy;
 	}
 }

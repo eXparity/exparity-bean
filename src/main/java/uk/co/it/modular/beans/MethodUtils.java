@@ -64,4 +64,12 @@ class MethodUtils {
 		return true;
 	}
 
+	public static Method getMethod(final Class<?> type, final String methodName) {
+		try {
+			return type.getMethod(methodName);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

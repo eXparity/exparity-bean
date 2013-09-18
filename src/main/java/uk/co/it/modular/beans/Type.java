@@ -58,6 +58,11 @@ public class Type implements Typed {
 		inspector.inspect(type, visitor);
 	}
 
+	public Type setNamingStrategy(final BeanNamingStrategy strategy) {
+		inspector.setNamingStrategy(strategy);
+		return this;
+	}
+
 	public List<TypeProperty> propertyList() {
 		final List<TypeProperty> propertyList = new ArrayList<TypeProperty>();
 		visit(new TypeVisitor() {
