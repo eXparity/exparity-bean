@@ -2,9 +2,10 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package uk.co.it.modular.beans;
+package uk.co.it.modular.beans.naming;
 
 import java.lang.reflect.Method;
+import uk.co.it.modular.beans.BeanNamingStrategy;
 import static uk.co.it.modular.beans.Type.type;
 import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.apache.commons.lang.StringUtils.uncapitalize;

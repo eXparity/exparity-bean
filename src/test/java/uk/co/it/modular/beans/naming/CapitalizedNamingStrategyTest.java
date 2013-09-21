@@ -2,9 +2,10 @@
  * Copyright (c) Modular IT Limited.
  */
 
-package uk.co.it.modular.beans;
+package uk.co.it.modular.beans.naming;
 
 import org.junit.Test;
+import uk.co.it.modular.beans.naming.CapitalizedNamingStrategy;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

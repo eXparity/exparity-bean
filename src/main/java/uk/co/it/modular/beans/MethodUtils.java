@@ -14,7 +14,7 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @author Stewart Bissett
  */
-class MethodUtils {
+public class MethodUtils {
 
 	public static Class<?>[] genericArgs(final Method accessor) {
 		Type type = accessor.getGenericReturnType();
