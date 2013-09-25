@@ -4,6 +4,8 @@
 
 package uk.co.it.modular.beans.naming;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.junit.Test;
 import static uk.co.it.modular.beans.MethodUtils.getMethod;
 import uk.co.it.modular.beans.naming.CamelCaseNamingStrategy;
@@ -19,6 +21,21 @@ public class CamelCaseNamingStrategyTest {
 	@Test
 	public void canDescribeAType() {
 		assertThat(new CamelCaseNamingStrategy().describeType(AllTypes.class), equalTo("allTypes"));
+	}
+
+	@Test
+	public void canDescribeAnArrayType() {
+		assertThat(new CamelCaseNamingStrategy().describeType(AllTypes[].class), equalTo("allTypes"));
+	}
+
+	@Test
+	public void canDescribeAMapType() {
+		assertThat(new CamelCaseNamingStrategy().describeType(HashMap.class), equalTo("map"));
+	}
+
+	@Test
+	public void canDescribeACollectionType() {
+		assertThat(new CamelCaseNamingStrategy().describeType(ArrayList.class), equalTo("collection"));
 	}
 
 	@Test

@@ -188,12 +188,12 @@ public class InstanceInspectorTest {
 		};
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
 		beanInspector().inspect(people, visitor);
-		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("array[0].firstname")), aStackOf(bob));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("array[0].surname")), aStackOf(bob));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("array[0].siblings")), aStackOf(bob));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), eq(new BeanPropertyPath("array[1].firstname")), aStackOf(tina));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), eq(new BeanPropertyPath("array[1].surname")), aStackOf(tina));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), eq(new BeanPropertyPath("array[1].siblings")), aStackOf(tina));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("person[0].firstname")), aStackOf(bob));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("person[0].surname")), aStackOf(bob));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("person[0].siblings")), aStackOf(bob));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), eq(new BeanPropertyPath("person[1].firstname")), aStackOf(tina));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), eq(new BeanPropertyPath("person[1].surname")), aStackOf(tina));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), eq(new BeanPropertyPath("person[1].siblings")), aStackOf(tina));
 		verifyNoMoreInteractions(visitor);
 	}
 

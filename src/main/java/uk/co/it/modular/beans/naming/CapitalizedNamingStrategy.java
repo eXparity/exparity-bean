@@ -6,15 +6,18 @@ package uk.co.it.modular.beans.naming;
 
 import java.lang.reflect.Method;
 import uk.co.it.modular.beans.BeanNamingStrategy;
-import static uk.co.it.modular.beans.Type.type;
 
 /**
  * @author Stewart Bissett
  */
-public class CapitalizedNamingStrategy implements BeanNamingStrategy {
+public class CapitalizedNamingStrategy extends AbstractNamingStrategy implements BeanNamingStrategy {
+
+	public String describeRoot(final Class<?> type) {
+		return describeType(type);
+	}
 
 	public String describeType(final Class<?> type) {
-		return type(type).simpleName();
+		return typeName(type);
 	}
 
 	public String describeProperty(final Method method, final String prefix) {

@@ -14,6 +14,13 @@ import java.lang.reflect.Method;
 public interface BeanNamingStrategy {
 
 	/**
+	 * Return a textual description of the type specific to the root type
+	 * 
+	 * @param type the type to describe
+	 */
+	public String describeRoot(final Class<?> type);
+
+	/**
 	 * Return a textual description of the type
 	 * 
 	 * @param type the type to describe

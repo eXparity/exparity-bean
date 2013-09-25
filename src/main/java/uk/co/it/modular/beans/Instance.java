@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import uk.co.it.modular.beans.naming.CamelCaseNamingStrategy;
 import static uk.co.it.modular.beans.BeanPredicates.*;
 
 /**
@@ -14,6 +15,7 @@ abstract class Instance {
 
 	private final InstanceInspector inspector;
 	private final Object instance;
+	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
 
 	protected Instance(final InstanceInspector inspector, final Object instance) {
 		this.inspector = inspector;
@@ -168,7 +170,7 @@ abstract class Instance {
 	}
 
 	public void visit(final BeanVisitor visitor) {
-		inspector.inspect(instance, visitor);
+		inspector.inspect(instance, naming, visitor);
 	}
 
 	public boolean hasProperty(final String name) {
@@ -191,8 +193,8 @@ abstract class Instance {
 		return hasProperty(matchesAll(predicate, ofType(type)));
 	}
 
-	public void setNamingStrategy(final BeanNamingStrategy strategy) {
-		inspector.setNamingStrategy(strategy);
+	public void setNamingStrategy(final BeanNamingStrategy naming) {
+		this.naming = naming;
 	}
 
 }

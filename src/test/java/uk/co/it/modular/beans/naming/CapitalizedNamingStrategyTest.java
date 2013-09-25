@@ -4,6 +4,8 @@
 
 package uk.co.it.modular.beans.naming;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.junit.Test;
 import uk.co.it.modular.beans.naming.CapitalizedNamingStrategy;
 import uk.co.it.modular.beans.testutils.BeanUtilTestFixture.AllTypes;
@@ -19,6 +21,21 @@ public class CapitalizedNamingStrategyTest {
 	@Test
 	public void canDescribeAType() {
 		assertThat(new CapitalizedNamingStrategy().describeType(AllTypes.class), equalTo("AllTypes"));
+	}
+
+	@Test
+	public void canDescribeAnArrayType() {
+		assertThat(new CapitalizedNamingStrategy().describeType(AllTypes[].class), equalTo("AllTypes"));
+	}
+
+	@Test
+	public void canDescribeAMapType() {
+		assertThat(new CapitalizedNamingStrategy().describeType(HashMap.class), equalTo("Map"));
+	}
+
+	@Test
+	public void canDescribeACollectionType() {
+		assertThat(new CapitalizedNamingStrategy().describeType(ArrayList.class), equalTo("Collection"));
 	}
 
 	@Test

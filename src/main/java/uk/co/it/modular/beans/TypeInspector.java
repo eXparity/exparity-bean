@@ -25,8 +25,6 @@ class TypeInspector {
 			"is", "get"
 	};
 
-	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
-
 	/**
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
 	 * 
@@ -34,26 +32,23 @@ class TypeInspector {
 	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
 	void inspect(final Class<?> type, final TypeVisitor visitor) {
-		inspect(type, "", visitor);
+		inspect(type, new CamelCaseNamingStrategy(), visitor);
 	}
 
 	/**
-	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object.
-	 * <p>
-	 * The root object will be referred to be the supplied rootPath parameter.
-	 * </p>
+	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
 	 * 
 	 * @param instance an object instance to inspect for Java Bean properties
-	 * @param rootPath a name to be used as the root object name for the path included when the visitor is notified
+	 * @param naming the naming strategy to use for the Java Bean properties
 	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
-	void inspect(final Class<?> type, final String rootPath, final TypeVisitor visitor) {
-		inspectType(rootPath, type, visitor);
+	void inspect(final Class<?> type, final BeanNamingStrategy naming, final TypeVisitor visitor) {
+		inspectType(type, naming, visitor);
 	}
 
-	private void inspectType(final String path, final Class<?> type, final TypeVisitor visitor) {
-		logInspection(path, "Object", type);
-		for (TypeProperty property : propertyList(type)) {
+	private void inspectType(final Class<?> type, final BeanNamingStrategy naming, final TypeVisitor visitor) {
+		logInspection(naming.describeRoot(type), "Object", type);
+		for (TypeProperty property : propertyList(type, naming)) {
 			visitor.visit(property);
 		}
 	}
@@ -64,8 +59,8 @@ class TypeInspector {
 		});
 	}
 
-	private List<TypeProperty> propertyList(final Class<?> type) {
-		Map<String, List<Method>> mutatorMap = createMutatorMap(type);
+	private List<TypeProperty> propertyList(final Class<?> type, final BeanNamingStrategy naming) {
+		Map<String, List<Method>> mutatorMap = createMutatorMap(type, naming);
 		List<TypeProperty> properties = new ArrayList<TypeProperty>();
 		for (Method accessor : type.getMethods()) {
 			final String methodName = accessor.getName();
@@ -95,7 +90,7 @@ class TypeInspector {
 		return null;
 	}
 
-	private Map<String, List<Method>> createMutatorMap(final Class<?> type) {
+	private Map<String, List<Method>> createMutatorMap(final Class<?> type, final BeanNamingStrategy naming) {
 		Map<String, List<Method>> mutatorMap = new HashMap<String, List<Method>>();
 		for (Method method : type.getMethods()) {
 			String methodName = method.getName();
@@ -116,9 +111,5 @@ class TypeInspector {
 
 	private boolean isMutator(final Method method, final String methodName) {
 		return methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1;
-	}
-
-	public void setNamingStrategy(final BeanNamingStrategy strategy) {
-		this.naming = strategy;
 	}
 }

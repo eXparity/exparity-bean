@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
+import uk.co.it.modular.beans.naming.CamelCaseNamingStrategy;
 
 /**
  * @author Stewart.Bissett
@@ -23,6 +24,7 @@ public class Type implements Typed {
 
 	private final TypeInspector inspector = new TypeInspector();
 	private final Class<?> type;
+	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
 
 	public Type(final Class<?> type) {
 		if (type == null) {
@@ -37,6 +39,22 @@ public class Type implements Typed {
 
 	public String simpleName() {
 		return type.getSimpleName();
+	}
+
+	/**
+	 * Return the name for the {@link Class#getComponentType()}, For a scalar Class this returns the same as {@link #canonicalName()} but for an array it this return the class
+	 * simple name but without the [].
+	 */
+	public String componentName() {
+		return isArray() ? type.getComponentType().getName() : canonicalName();
+	}
+
+	/**
+	 * Return the simple name for the {@link Class#getComponentType()}, For a scalar Class this returns the same as {@link #simpleName()} but for an array it this return the class
+	 * simple name but without the [].
+	 */
+	public String componentSimpleName() {
+		return isArray() ? type.getComponentType().getSimpleName() : simpleName();
 	}
 
 	public String canonicalName() {
@@ -55,11 +73,11 @@ public class Type implements Typed {
 	}
 
 	public void visit(final TypeVisitor visitor) {
-		inspector.inspect(type, visitor);
+		inspector.inspect(type, naming, visitor);
 	}
 
-	public Type setNamingStrategy(final BeanNamingStrategy strategy) {
-		inspector.setNamingStrategy(strategy);
+	public Type setNamingStrategy(final BeanNamingStrategy naming) {
+		this.naming = naming;
 		return this;
 	}
 
