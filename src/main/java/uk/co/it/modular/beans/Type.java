@@ -92,6 +92,13 @@ public class Type implements Typed {
 		return propertyList;
 	}
 
+	/**
+	 * Return a list of the accessors exposed on this type
+	 */
+	public List<ImmutableTypeProperty> accessorList() {
+		return inspector.accessorList(type, naming);
+	}
+
 	public Map<String, TypeProperty> propertyMap() {
 		final Map<String, TypeProperty> propertyMap = new HashMap<String, TypeProperty>();
 		visit(new TypeVisitor() {

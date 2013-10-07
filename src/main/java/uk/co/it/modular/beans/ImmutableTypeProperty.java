@@ -8,28 +8,20 @@ import static uk.co.it.modular.beans.MethodUtils.genericArgs;
 import static uk.co.it.modular.beans.Type.type;
 
 /**
- * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard.</p>
+ * Immutable value object to encapsulate an property on an Object which follows the get/is Java beans standard for accessors.</p>
  * <p>
  * An instance of this class is not bound to a specific instance of an object, rather it represents a re-usable defintion of a get/set pair on a given class
  * </p>
  * 
  * @author Stewart Bissett
  */
-public class TypeProperty extends InstanceProperty {
+public class ImmutableTypeProperty extends InstanceProperty {
 
-	/**
-	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given class.</p> Returns <code>null</code> if the property is not present.</p>
-	 */
-	public static final TypeProperty typeProperty(final Class<?> instance, final String name) {
-		return type(instance).propertyNamed(name);
-	}
+	private final Method accessor;
 
-	private final Method accessor, mutator;
-
-	public TypeProperty(final String propertyName, final Method accessor, final Method mutator) {
+	public ImmutableTypeProperty(final String propertyName, final Method accessor) {
 		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
 		this.accessor = accessor;
-		this.mutator = mutator;
 	}
 
 	/**
@@ -37,13 +29,6 @@ public class TypeProperty extends InstanceProperty {
 	 */
 	public Method getAccessor() {
 		return accessor;
-	}
-
-	/**
-	 * Return the mutator {@link Method} for this property
-	 */
-	public Method getMutator() {
-		return mutator;
 	}
 
 	/**
@@ -63,25 +48,15 @@ public class TypeProperty extends InstanceProperty {
 		return (T) getValue(instance);
 	}
 
-	/**
-	 * Set the value of this property on the object to the given value. Will throw a {@link RuntimeException} if the property does not exist or return <code>true</code> if the
-	 * property was successfullly set.
-	 * 
-	 * @param value the value to set this property to on the instance
-	 */
-	public boolean setValue(final Object instance, final Object value) {
-		return MethodUtils.invoke(getMutator(), instance, value);
-	}
-
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == this) {
 			return true;
 		}
-		if (!(obj instanceof TypeProperty)) {
+		if (!(obj instanceof ImmutableTypeProperty)) {
 			return false;
 		}
-		TypeProperty rhs = (TypeProperty) obj;
+		ImmutableTypeProperty rhs = (ImmutableTypeProperty) obj;
 		return new EqualsBuilder().append(getDeclaringType(), rhs.getDeclaringType()).append(getName(), rhs.getName()).isEquals();
 	}
 
@@ -92,6 +67,6 @@ public class TypeProperty extends InstanceProperty {
 
 	@Override
 	public String toString() {
-		return "TypeProperty [" + getDeclaringType() + "." + getName() + "]";
+		return "ImmutableTypeProperty [" + getDeclaringType() + "." + getName() + "]";
 	}
 }

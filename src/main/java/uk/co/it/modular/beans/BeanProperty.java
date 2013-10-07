@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import static uk.co.it.modular.beans.Bean.bean;
+import static uk.co.it.modular.beans.MethodUtils.genericArgs;
+import static uk.co.it.modular.beans.Type.type;
 
 /**
  * A {@link BeanProperty} which is bound to a particular instance
@@ -22,10 +24,13 @@ public class BeanProperty extends InstanceProperty {
 	}
 
 	private final Object instance;
+	private final Method accessor, mutator;
 
 	public BeanProperty(final String propertyName, final Method accessor, final Method mutator, final Object instance) {
-		super(propertyName, accessor, mutator);
+		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
 		this.instance = instance;
+		this.accessor = accessor;
+		this.mutator = mutator;
 	}
 
 	/**
@@ -33,6 +38,20 @@ public class BeanProperty extends InstanceProperty {
 	 */
 	public Object getInstance() {
 		return instance;
+	}
+
+	/**
+	 * Return the accessor {@link Method} for this property
+	 */
+	public Method getAccessor() {
+		return accessor;
+	}
+
+	/**
+	 * Return the mutator {@link Method} for this property
+	 */
+	public Method getMutator() {
+		return mutator;
 	}
 
 	/**

@@ -10,6 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.it.modular.beans.naming.CamelCaseNamingStrategy;
 import static java.lang.System.identityHashCode;
+import static uk.co.it.modular.beans.MethodUtils.isAccessor;
+import static uk.co.it.modular.beans.MethodUtils.isSetter;
+import static uk.co.it.modular.beans.MethodUtils.toPropertyName;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
@@ -19,11 +22,6 @@ import static java.lang.System.identityHashCode;
 class TypeInspector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TypeInspector.class);
-
-	private static final String MUTATOR_PROPERTY_NAME = "set";
-	private static final String[] ACCESSOR_PROPERTY_NAMES = new String[] {
-			"is", "get"
-	};
 
 	/**
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
@@ -46,6 +44,31 @@ class TypeInspector {
 		inspectType(type, naming, visitor);
 	}
 
+	List<TypeProperty> propertyList(final Class<?> type, final BeanNamingStrategy naming) {
+		Map<String, List<Method>> mutatorMap = createMutatorMap(type, naming);
+		List<TypeProperty> properties = new ArrayList<TypeProperty>();
+		for (Method accessor : type.getMethods()) {
+			if (isAccessor(accessor)) {
+				String propertyName = toPropertyName(accessor, naming);
+				Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
+				if (mutator != null) {
+					properties.add(new TypeProperty(propertyName, accessor, mutator));
+				}
+			}
+		}
+		return properties;
+	}
+
+	List<ImmutableTypeProperty> accessorList(final Class<?> type, final BeanNamingStrategy naming) {
+		List<ImmutableTypeProperty> properties = new ArrayList<ImmutableTypeProperty>();
+		for (Method accessor : type.getMethods()) {
+			if (isAccessor(accessor)) {
+				properties.add(new ImmutableTypeProperty(toPropertyName(accessor, naming), accessor));
+			}
+		}
+		return properties;
+	}
+
 	private void inspectType(final Class<?> type, final BeanNamingStrategy naming, final TypeVisitor visitor) {
 		logInspection(naming.describeRoot(type), "Object", type);
 		for (TypeProperty property : propertyList(type, naming)) {
@@ -57,25 +80,6 @@ class TypeInspector {
 		LOG.trace("Inspect Path [{}]. {} [{}:{}]", new Object[] {
 				path, loggedType, instance.getClass().getSimpleName(), identityHashCode(instance)
 		});
-	}
-
-	private List<TypeProperty> propertyList(final Class<?> type, final BeanNamingStrategy naming) {
-		Map<String, List<Method>> mutatorMap = createMutatorMap(type, naming);
-		List<TypeProperty> properties = new ArrayList<TypeProperty>();
-		for (Method accessor : type.getMethods()) {
-			final String methodName = accessor.getName();
-			for (String prefix : ACCESSOR_PROPERTY_NAMES) {
-				if (methodName.startsWith(prefix) && accessor.getParameterTypes().length == 0) {
-					String propertyName = naming.describeProperty(accessor, prefix);
-					Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
-					if (mutator != null) {
-						properties.add(new TypeProperty(propertyName, accessor, mutator));
-					}
-					break;
-				}
-			}
-		}
-		return properties;
 	}
 
 	private Method getMutatorFor(final String propertyName, final Class<?> type, final Map<String, List<Method>> mutatorMap) {
@@ -93,9 +97,8 @@ class TypeInspector {
 	private Map<String, List<Method>> createMutatorMap(final Class<?> type, final BeanNamingStrategy naming) {
 		Map<String, List<Method>> mutatorMap = new HashMap<String, List<Method>>();
 		for (Method method : type.getMethods()) {
-			String methodName = method.getName();
-			if (isMutator(method, methodName)) {
-				String propertyName = naming.describeProperty(method, MUTATOR_PROPERTY_NAME);
+			if (isSetter(method)) {
+				String propertyName = toPropertyName(method, naming);
 				List<Method> list = mutatorMap.get(propertyName);
 				if (list == null) {
 					list = new ArrayList<Method>();
@@ -107,9 +110,5 @@ class TypeInspector {
 			}
 		}
 		return mutatorMap;
-	}
-
-	private boolean isMutator(final Method method, final String methodName) {
-		return methodName.startsWith(MUTATOR_PROPERTY_NAME) && method.getParameterTypes().length == 1;
 	}
 }

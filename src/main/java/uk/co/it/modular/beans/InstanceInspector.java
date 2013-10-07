@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.it.modular.beans.naming.CamelCaseNamingStrategy;
 import static java.lang.System.identityHashCode;
+import static uk.co.it.modular.beans.InstanceInspector.InspectionDepth.DEEP;
+import static uk.co.it.modular.beans.InstanceInspector.Overflow.DENY_OVERFLOW;
 import static uk.co.it.modular.beans.Type.type;
 
 /**
@@ -20,63 +22,25 @@ import static uk.co.it.modular.beans.Type.type;
  */
 class InstanceInspector {
 
-	static InstanceInspector beanInspector() {
-		return new InstanceInspector(new BeanInspectorConfiguration() {
+	enum InspectionDepth {
+		SHALLOW, DEEP
+	};
 
-			{
-				setInspectChildren(false);
-				setOverflowLimit(0);
-				setStopOverflow(true);
-			}
-		});
+	enum Overflow {
+		ALLOW_OVERFLOW, DENY_OVERFLOW
+	};
+
+	static InstanceInspector beanInspector() {
+		return new InstanceInspector(InspectionDepth.SHALLOW, Overflow.DENY_OVERFLOW);
 	}
 
 	static InstanceInspector graphInspector() {
-		return new InstanceInspector(new BeanInspectorConfiguration() {
-
-			{
-				setInspectChildren(true);
-				setOverflowLimit(0);
-				setStopOverflow(true);
-			}
-		});
+		return new InstanceInspector(InspectionDepth.DEEP, Overflow.DENY_OVERFLOW);
 	};
 
-	static class BeanInspectorConfiguration {
-
-		private boolean inspectChildren = false;
-		private boolean stopOverflow = true;
-		private Integer overflowLimit = 0;
-
-		boolean isInspectChildren() {
-			return inspectChildren;
-		}
-
-		void setInspectChildren(final boolean inspectChildren) {
-			this.inspectChildren = inspectChildren;
-		}
-
-		boolean isStopOverflow() {
-			return stopOverflow;
-		}
-
-		void setStopOverflow(final boolean stopOverflow) {
-			this.stopOverflow = stopOverflow;
-		}
-
-		Integer getOverflowLimit() {
-			return overflowLimit;
-		}
-
-		void setOverflowLimit(final Integer overflowLimit) {
-			this.overflowLimit = overflowLimit;
-		}
-
-	}
-
 	private static final Logger LOG = LoggerFactory.getLogger(InstanceInspector.class);
+	private static final Integer OBJECT_HITS_BEFORE_OVERFLOW = 0;
 
-	private final BeanInspectorConfiguration config;
 	private final ThreadLocal<Map<Object, Integer>> inspected = new ThreadLocal<Map<Object, Integer>>() {
 
 		@Override
@@ -84,9 +48,12 @@ class InstanceInspector {
 			return new HashMap<Object, Integer>();
 		}
 	};
+	private final InspectionDepth depth;
+	private final Overflow overflow;
 
-	InstanceInspector(final BeanInspectorConfiguration config) {
-		this.config = config;
+	InstanceInspector(final InspectionDepth depth, final Overflow overflow) {
+		this.depth = depth;
+		this.overflow = overflow;
 	}
 
 	/**
@@ -126,11 +93,11 @@ class InstanceInspector {
 		final List<Object> stack = new ArrayList<Object>(currentStack);
 		logInspection(path, "Object", instance);
 
-		if (config.isStopOverflow()) {
+		if (isDenyOverflow()) {
 			int instanceKey = identityHashCode(instance);
 			Integer hits = inspected.get().get(instanceKey);
 			if (hits != null) {
-				if (hits > config.getOverflowLimit()) {
+				if (hits > OBJECT_HITS_BEFORE_OVERFLOW) {
 					return;
 				} else {
 					inspected.get().put(instanceKey, ++hits);
@@ -140,7 +107,7 @@ class InstanceInspector {
 			}
 		}
 
-		if (!config.isInspectChildren() && currentStack.size() > 0) {
+		if (!isInspectChildren() && currentStack.size() > 0) {
 			return;
 		}
 
@@ -184,6 +151,14 @@ class InstanceInspector {
 				}
 			}
 		}
+	}
+
+	private boolean isDenyOverflow() {
+		return DENY_OVERFLOW.equals(overflow);
+	}
+
+	private boolean isInspectChildren() {
+		return DEEP.equals(depth);
 	}
 
 	private void inspectMap(final List<Object> stack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Map<?, ?> instance, final BeanVisitor visitor) {

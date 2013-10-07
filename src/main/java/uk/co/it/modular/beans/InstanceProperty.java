@@ -1,8 +1,6 @@
 
 package uk.co.it.modular.beans;
 
-import static uk.co.it.modular.beans.MethodUtils.genericArgs;
-import static uk.co.it.modular.beans.Type.type;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +11,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import static uk.co.it.modular.beans.MethodUtils.genericArgs;
+import static uk.co.it.modular.beans.Type.type;
 
 /**
  * Base type for all types in the BeanUtils library which represent a single property
@@ -25,15 +25,17 @@ abstract class InstanceProperty {
 	private final String name;
 	private final Type type;
 	private final Class<?>[] params;
-	private final Method accessor, mutator;
 
+	@Deprecated
 	protected InstanceProperty(final String propertyName, final Method accessor, final Method mutator) {
-		this.declaringType = accessor.getDeclaringClass();
-		this.name = propertyName;
-		this.accessor = accessor;
-		this.mutator = mutator;
-		this.type = type(accessor.getReturnType());
-		this.params = genericArgs(accessor);
+		this(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
+	}
+
+	protected InstanceProperty(final Class<?> declaringType, final String name, final Type type, final Class<?>[] params) {
+		this.declaringType = declaringType;
+		this.name = name;
+		this.type = type;
+		this.params = params;
 	}
 
 	/**
@@ -41,20 +43,6 @@ abstract class InstanceProperty {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	/**
-	 * Return the accessor {@link Method} for this property
-	 */
-	public Method getAccessor() {
-		return accessor;
-	}
-
-	/**
-	 * Return the mutator {@link Method} for this property
-	 */
-	public Method getMutator() {
-		return mutator;
 	}
 
 	/**
