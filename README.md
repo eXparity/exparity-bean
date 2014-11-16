@@ -1,30 +1,26 @@
-Bean Utils
+eXparity Bean
 =============
 
-A library of utilities for performing operations and inspections of Java classes and objects following the Java Bean standard
+A Java library of bean utilities for manipulating and inspecting Java classes implementing the Java Beans standard.
 
 Licensed under [BSD License][].
 
 Downloads
 ---------
-You can obtain Bean Utils binaries from [maven central][]. To include your project in:
+You can obtain the eXparity-bean jar from [maven central][]. To include your project in:
 
 A maven project
 
     <dependency>
-        <groupId>uk.co.modular-it</groupId>
-        <artifactId>bean-utils</artifactId>
-        <version>0.9.6</version>
+        <groupId>org.exparity</groupId>
+        <artifactId>exparity-bean</artifactId>
+        <version>1.0.0</version>
     </dependency>
 
 A project which uses ivy for dependency management
 
-    <dependency org="uk.co.modular-it" name="bean-utils" rev="0.9.6"/>
+    <dependency org="org.exparity" name="exparity-bean" rev="1.0.0"/>
             
-Binaries
---------
-Bean Utils has a single binary, bean-utils.jar. Sources and JavaDoc jars are available.
-
 Usage
 -------------
 
