@@ -1,4 +1,4 @@
-eXparity Bean  [![Build Status](https://travis-ci.org/eXparity/exparity-bean.svg?branch=master)](https://travis-ci.org/eXparity/exparity-bean) [![Coverage Status](https://img.shields.io/coveralls/eXparity/exparity-bean.svg)](https://coveralls.io/r/eXparity/exparity-bean)
+eXparity Bean  [![Build Status](https://travis-ci.org/eXparity/exparity-bean.svg?branch=master)](https://travis-ci.org/eXparity/exparity-bean) [![Coverage Status](https://coveralls.io/repos/eXparity/exparity-bean/badge.png?branch=master)](https://coveralls.io/r/eXparity/exparity-bean?branch=master)
 =============
 
 A Java library of bean utilities for manipulating and inspecting Java classes implementing the Java Beans standard.
