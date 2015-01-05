@@ -1,11 +1,11 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 /**
  * Any BeanUtils class which can be considered to represent a single class and therefore can have it's type information examined should inherit the {@link Typed} interface so as to
  * expose a consistent group of methods for examining type information
  * 
- * Stewart Bissett
+ * @author Stewart Bissett
  */
 public interface Typed {
 

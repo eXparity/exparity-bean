@@ -1,13 +1,11 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import static org.exparity.beans.Bean.bean;
-import static org.exparity.beans.MethodUtils.genericArgs;
 import static org.exparity.beans.Type.type;
+import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * A {@link BeanProperty} which is bound to a particular instance
@@ -15,14 +13,6 @@ import static org.exparity.beans.Type.type;
  * @author Stewart Bissett
  */
 public class BeanProperty extends InstanceProperty {
-
-	/**
-	 * Static factory method for constructing a {@link BeanPropertyInstance} for the property name on the given instance.</p> Returns <code>null</code> if the property is not
-	 * present.</p>
-	 */
-	public static final BeanProperty beanProperty(final Object instance, final String name) {
-		return bean(instance).propertyNamed(name);
-	}
 
 	private final Object instance;
 	private final Method accessor, mutator;

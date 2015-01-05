@@ -1,7 +1,3 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans.testutils;
 
 import java.math.BigDecimal;

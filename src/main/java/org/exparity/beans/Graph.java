@@ -1,7 +1,10 @@
 
 package org.exparity.beans;
 
-import static org.exparity.beans.InstanceInspector.graphInspector;
+import org.exparity.beans.core.BeanNamingStrategy;
+import org.exparity.beans.core.Instance;
+import org.exparity.beans.naming.CamelCaseNamingStrategy;
+import static org.exparity.beans.core.InstanceInspector.graphInspector;
 
 /**
  * @author Stewart Bissett
@@ -9,10 +12,18 @@ import static org.exparity.beans.InstanceInspector.graphInspector;
 public class Graph extends Instance {
 
 	public static Graph graph(final Object instance) {
-		return new Graph(instance);
+		return graph(instance, new CamelCaseNamingStrategy());
+	}
+
+	public static Graph graph(final Object instance, final BeanNamingStrategy naming) {
+		return new Graph(instance, naming);
+	}
+
+	public Graph(final Object instance, final BeanNamingStrategy naming) {
+		super(graphInspector(), instance, naming);
 	}
 
 	public Graph(final Object instance) {
-		super(graphInspector(), instance);
+		this(instance, new CamelCaseNamingStrategy());
 	}
 }

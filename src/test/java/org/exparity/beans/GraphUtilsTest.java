@@ -1,25 +1,20 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import java.util.List;
 import java.util.Map;
-
-import org.exparity.beans.BeanProperty;
-import org.exparity.beans.BeanPropertyException;
-import org.exparity.beans.BeanPropertyFunction;
-import org.exparity.beans.BeanPropertyNotFoundException;
-import org.exparity.beans.BeanPropertyPath;
-import org.exparity.beans.BeanVisitor;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyException;
+import org.exparity.beans.core.BeanPropertyFunction;
+import org.exparity.beans.core.BeanPropertyNotFoundException;
+import org.exparity.beans.core.BeanPropertyPath;
+import org.exparity.beans.core.BeanVisitor;
+import org.exparity.beans.functions.SetValue;
 import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Thrower;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.exparity.beans.Bean.bean;
-import static org.exparity.beans.BeanFunctions.setValue;
 import static org.exparity.beans.BeanPredicates.named;
 import static org.exparity.beans.BeanPredicates.ofType;
 import static org.exparity.beans.GraphUtils.*;
@@ -305,7 +300,7 @@ public class GraphUtilsTest {
 		Person instance = new Person();
 		assertThat(instance.getFirstname(), not(equalTo("Applied")));
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
-		apply(instance, setValue("Applied"), ofType(String.class));
+		apply(instance, new SetValue("Applied"), ofType(String.class));
 		assertThat(instance.getFirstname(), equalTo("Applied"));
 		assertThat(instance.getSurname(), equalTo("Applied"));
 	}

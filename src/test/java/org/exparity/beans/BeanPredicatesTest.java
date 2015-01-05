@@ -1,16 +1,11 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import static org.exparity.beans.Bean.bean;
 import static org.exparity.beans.BeanPredicates.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-
-import org.exparity.beans.BeanProperty;
-import org.exparity.beans.BeanPropertyPredicate;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyPredicate;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.junit.Test;

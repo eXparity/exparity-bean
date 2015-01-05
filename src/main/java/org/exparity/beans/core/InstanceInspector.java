@@ -1,5 +1,5 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -7,36 +7,35 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;
-import static org.exparity.beans.InstanceInspector.InspectionDepth.DEEP;
-import static org.exparity.beans.InstanceInspector.Overflow.DENY_OVERFLOW;
 import static org.exparity.beans.Type.type;
+import static org.exparity.beans.core.InstanceInspector.InspectionDepth.GRAPH;
+import static org.exparity.beans.core.InstanceInspector.Overflow.DENY_OVERFLOW;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
  * 
  * @author Stewart Bissett
  */
-class InstanceInspector {
+public class InstanceInspector {
 
-	enum InspectionDepth {
-		SHALLOW, DEEP
+	public enum InspectionDepth {
+		BEAN, GRAPH
 	};
 
-	enum Overflow {
+	public enum Overflow {
 		ALLOW_OVERFLOW, DENY_OVERFLOW
 	};
 
-	static InstanceInspector beanInspector() {
-		return new InstanceInspector(InspectionDepth.SHALLOW, Overflow.DENY_OVERFLOW);
+	public static InstanceInspector beanInspector() {
+		return new InstanceInspector(InspectionDepth.BEAN, Overflow.DENY_OVERFLOW);
 	}
 
-	static InstanceInspector graphInspector() {
-		return new InstanceInspector(InspectionDepth.DEEP, Overflow.DENY_OVERFLOW);
+	public static InstanceInspector graphInspector() {
+		return new InstanceInspector(InspectionDepth.GRAPH, Overflow.DENY_OVERFLOW);
 	};
 
 	private static final Logger LOG = LoggerFactory.getLogger(InstanceInspector.class);
@@ -61,20 +60,10 @@ class InstanceInspector {
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
 	 * 
 	 * @param instance an object instance to inspect for Java Bean properties
-	 * @param visitor the visitor to raise events when Java Bean properties are found
-	 */
-	void inspect(final Object instance, final BeanVisitor visitor) {
-		inspect(instance, new CamelCaseNamingStrategy(), visitor);
-	}
-
-	/**
-	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
-	 * 
-	 * @param instance an object instance to inspect for Java Bean properties
 	 * @param naming the naming strategy to use for the Java Bean properties
 	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
-	void inspect(final Object instance, final BeanNamingStrategy naming, final BeanVisitor visitor) {
+	public void inspect(final Object instance, final BeanNamingStrategy naming, final BeanVisitor visitor) {
 		try {
 			if (instance != null) {
 				inspectObject(new ArrayList<Object>(), new BeanPropertyPath(naming.describeRoot(instance.getClass())), naming, instance, visitor);
@@ -159,7 +148,7 @@ class InstanceInspector {
 	}
 
 	private boolean isInspectChildren() {
-		return DEEP.equals(depth);
+		return GRAPH.equals(depth);
 	}
 
 	private void inspectMap(final List<Object> stack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Map<?, ?> instance, final BeanVisitor visitor) {

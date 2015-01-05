@@ -4,6 +4,9 @@ package org.exparity.beans;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyPath;
+import org.exparity.beans.core.BeanVisitor;
 
 /**
  * Static repository of {@link BeanVisitor} implementations

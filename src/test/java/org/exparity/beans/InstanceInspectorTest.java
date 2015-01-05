@@ -1,17 +1,13 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.exparity.beans.BeanProperty;
-import org.exparity.beans.BeanPropertyPath;
-import org.exparity.beans.BeanVisitor;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyPath;
+import org.exparity.beans.core.BeanVisitor;
+import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import org.exparity.beans.testutils.BeanUtilTestFixture;
 import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
@@ -27,8 +23,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import static java.util.Arrays.asList;
 import static org.exparity.beans.Bean.bean;
-import static org.exparity.beans.InstanceInspector.beanInspector;
-import static org.exparity.beans.InstanceInspector.graphInspector;
+import static org.exparity.beans.core.InstanceInspector.beanInspector;
+import static org.exparity.beans.core.InstanceInspector.graphInspector;
 import static org.exparity.beans.testutils.BeanUtilTestFixture.aPopulatedCar;
 import static org.exparity.beans.testutils.BeanUtilTestFixture.aPopulatedPerson;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,7 +46,9 @@ public class InstanceInspectorTest {
 	public void canInspectABean() {
 		Person instance = BeanUtilTestFixture.aPopulatedPerson();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), aStackOf(instance));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), aStackOf(instance));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), aStackOf(instance));
@@ -61,7 +59,9 @@ public class InstanceInspectorTest {
 	public void canInspectAnEmptyBean() {
 		Person instance = new Person();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), aStackOf(instance));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), aStackOf(instance));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), aStackOf(instance));
@@ -71,7 +71,8 @@ public class InstanceInspectorTest {
 	@Test
 	public void canInspectANull() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(null, visitor);
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(null, new CamelCaseNamingStrategy(), visitor1);
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -81,7 +82,9 @@ public class InstanceInspectorTest {
 		Engine engine = car.getEngine();
 		List<Wheel> wheels = car.getWheels();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		graphInspector().inspect(car, visitor);
+		final Object instance = car;
+		final BeanVisitor visitor1 = visitor;
+		graphInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(car).get("engine")), eq(car), eq(new BeanPropertyPath("car.engine")), aStackOf(car));
 		verify(visitor).visit(eq(bean(engine).get("capacity")), eq(engine), eq(new BeanPropertyPath("car.engine.capacity")), aStackOf(car, engine));
 		verify(visitor).visit(eq(bean(car).get("wheels")), eq(car), eq(new BeanPropertyPath("car.wheels")), aStackOf(car));
@@ -98,7 +101,9 @@ public class InstanceInspectorTest {
 		brother.setSiblings(asList(sister));
 		sister.setSiblings(asList(brother));
 		BeanVisitor visitor = mock(BeanVisitor.class);
-		graphInspector().inspect(brother, visitor);
+		final Object instance = brother;
+		final BeanVisitor visitor1 = visitor;
+		graphInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(brother).get("firstname")), eq(brother), eq(new BeanPropertyPath("person.firstname")), aStackOf(brother));
 		verify(visitor).visit(eq(bean(brother).get("surname")), eq(brother), eq(new BeanPropertyPath("person.surname")), aStackOf(brother));
 		verify(visitor).visit(eq(bean(brother).get("siblings")), eq(brother), eq(new BeanPropertyPath("person.siblings")), aStackOf(brother));
@@ -112,7 +117,9 @@ public class InstanceInspectorTest {
 	public void canInspectABeanWithOverloadedSetter() {
 		OverloadedSetter instance = new OverloadedSetter();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("property")),
 				eq(instance),
 				eq(new BeanPropertyPath("overloadedSetter.property")),
@@ -123,8 +130,9 @@ public class InstanceInspectorTest {
 	@Test
 	public void canInspectAllTypes() {
 		AllTypes instance = BeanUtilTestFixture.aPopulatedAllTypes();
-		beanInspector().inspect(instance, new BeanVisitor() {
-
+		final Object instance1 = instance;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), new BeanVisitor() {
+		
 			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				assertThat(property.getValue(), notNullValue());
 			}
@@ -135,9 +143,12 @@ public class InstanceInspectorTest {
 	public void canInspectAllTypesAreEmpty() {
 		AllTypes instance = BeanUtilTestFixture.anEmptyAllTypes();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
-		beanInspector().inspect(instance, new BeanVisitor() {
-
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
+		final Object instance2 = instance;
+		beanInspector().inspect(instance2, new CamelCaseNamingStrategy(), new BeanVisitor() {
+		
 			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				if (property.isCollection() || property.isMap() || property.isArray()) {
 					assertThat(property.getValue(), notNullValue());
@@ -150,9 +161,12 @@ public class InstanceInspectorTest {
 	public void canInspectAllTypesAreNull() {
 		AllTypes instance = new AllTypes();
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
-		beanInspector().inspect(instance, new BeanVisitor() {
-
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
+		final Object instance2 = instance;
+		beanInspector().inspect(instance2, new CamelCaseNamingStrategy(), new BeanVisitor() {
+		
 			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
 				if (!property.isPrimitive()) {
 					assertThat(property.getValue(), nullValue());
@@ -171,7 +185,9 @@ public class InstanceInspectorTest {
 		instance.put("Bob", bob);
 		instance.put("Tina", tina);
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(instance, visitor);
+		final Object instance1 = instance;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("map[Bob].firstname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("map[Bob].surname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("map[Bob].siblings")), aStackOf(bob));
@@ -191,7 +207,9 @@ public class InstanceInspectorTest {
 				bob, tina
 		};
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(people, visitor);
+		final Object instance = people;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("person[0].firstname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("person[0].surname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("person[0].siblings")), aStackOf(bob));
@@ -209,7 +227,9 @@ public class InstanceInspectorTest {
 		tina.setSurname("Melon");
 		List<Person> people = Arrays.asList(bob, tina);
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(people, visitor);
+		final Object instance = people;
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("collection[0].firstname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("collection[0].surname")), aStackOf(bob));
 		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("collection[0].siblings")), aStackOf(bob));
@@ -222,28 +242,32 @@ public class InstanceInspectorTest {
 	@Test
 	public void canInspectABeanWhichHasGetterWithArgs() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(new GetterWithArgs(), visitor);
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(new GetterWithArgs(), new CamelCaseNamingStrategy(), visitor1);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canInspectABeanWhichHasSetterWithNoArgs() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(SetterWithNoArgs.class, visitor);
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(SetterWithNoArgs.class, new CamelCaseNamingStrategy(), visitor1);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canInspectABeanWhichHasMismatchedTypes() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(new TypeMismatch(), visitor);
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(new TypeMismatch(), new CamelCaseNamingStrategy(), visitor1);
 		verifyNoMoreInteractions(visitor);
 	}
 
 	@Test
 	public void canInspectABeanWhichHasANameMismatch() {
 		BeanVisitor visitor = Mockito.mock(BeanVisitor.class);
-		beanInspector().inspect(new NameMismatch(), visitor);
+		final BeanVisitor visitor1 = visitor;
+		beanInspector().inspect(new NameMismatch(), new CamelCaseNamingStrategy(), visitor1);
 		verifyNoMoreInteractions(visitor);
 	}
 

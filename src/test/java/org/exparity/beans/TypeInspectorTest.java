@@ -1,15 +1,10 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import static org.exparity.beans.Type.type;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import org.exparity.beans.TypeInspector;
-import org.exparity.beans.TypeVisitor;
+import org.exparity.beans.core.TypeInspector;
+import org.exparity.beans.core.TypeVisitor;
 import org.exparity.beans.testutils.BeanUtilTestFixture.GetterWithArgs;
 import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import org.exparity.beans.testutils.BeanUtilTestFixture.OverloadedSetter;

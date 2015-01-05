@@ -2,9 +2,12 @@
 package org.exparity.beans;
 
 import static org.exparity.beans.Graph.graph;
-
 import java.util.List;
 import java.util.Map;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyFunction;
+import org.exparity.beans.core.BeanPropertyPredicate;
+import org.exparity.beans.core.BeanVisitor;
 
 /**
  * Utility methods for inspecting objects which expose properties which follow the Java Bean get/set standard.</p>

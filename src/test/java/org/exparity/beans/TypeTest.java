@@ -1,17 +1,12 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import java.util.List;
 import java.util.Map;
-
-import org.exparity.beans.BeanPropertyException;
-import org.exparity.beans.BeanPropertyNotFoundException;
 import org.exparity.beans.Type;
-import org.exparity.beans.TypeProperty;
-import org.exparity.beans.TypeVisitor;
+import org.exparity.beans.core.BeanPropertyException;
+import org.exparity.beans.core.BeanPropertyNotFoundException;
+import org.exparity.beans.core.TypeProperty;
+import org.exparity.beans.core.TypeVisitor;
 import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Employee;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Manager;
@@ -35,6 +30,11 @@ public class TypeTest {
 	@Test
 	public void canGetAPropertyByName() {
 		assertThat(type(Person.class).propertyNamed("firstname"), notNullValue());
+	}
+
+	@Test(expected = BeanPropertyNotFoundException.class)
+	public void canGetAPropertyByNameIsCaseSensitive() {
+		assertThat(type(Person.class).propertyNamed("Firstname"), notNullValue());
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)

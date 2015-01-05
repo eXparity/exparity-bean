@@ -1,12 +1,8 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans.naming;
 
 import java.lang.reflect.Method;
-import org.exparity.beans.BeanNamingStrategy;
-import org.exparity.beans.MethodUtils;
+import org.exparity.beans.core.BeanNamingStrategy;
+import org.exparity.beans.core.MethodUtils;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
 import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;

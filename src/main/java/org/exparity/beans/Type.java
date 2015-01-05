@@ -1,13 +1,21 @@
 
 package org.exparity.beans;
 
-import static org.apache.commons.lang.StringUtils.uncapitalize;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
+import org.exparity.beans.core.BeanNamingStrategy;
+import org.exparity.beans.core.BeanPropertyNotFoundException;
+import org.exparity.beans.core.ImmutableTypeProperty;
+import org.exparity.beans.core.TypeInspector;
+import org.exparity.beans.core.TypeProperty;
+import org.exparity.beans.core.TypeVisitor;
+import org.exparity.beans.core.Typed;
 import org.exparity.beans.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.naming.CapitalizedNamingStrategy;
+import static org.apache.commons.lang.StringUtils.uncapitalize;
 
 /**
  * @author Stewart.Bissett
@@ -15,22 +23,35 @@ import org.exparity.beans.naming.CamelCaseNamingStrategy;
 public class Type implements Typed {
 
 	public static Type type(final Class<?> type) {
-		return new Type(type);
+		return new Type(type, new CamelCaseNamingStrategy());
+	}
+
+	public static Type type(final Class<?> type, final BeanNamingStrategy namingStrategy) {
+		return new Type(type, namingStrategy);
 	}
 
 	public static Type type(final Object instance) {
-		return new Type(instance.getClass());
+		return new Type(instance.getClass(), new CamelCaseNamingStrategy());
+	}
+
+	public static Type type(final Object instance, final BeanNamingStrategy namingStrategy) {
+		return new Type(instance.getClass(), namingStrategy);
 	}
 
 	private final TypeInspector inspector = new TypeInspector();
 	private final Class<?> type;
-	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
+	private BeanNamingStrategy naming;
 
 	public Type(final Class<?> type) {
+		this(type, new CapitalizedNamingStrategy());
+	}
+
+	public Type(final Class<?> type, final BeanNamingStrategy namingStrategy) {
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");
 		}
 		this.type = type;
+		this.naming = namingStrategy;
 	}
 
 	public String camelName() {
@@ -137,7 +158,7 @@ public class Type implements Typed {
 
 	public Class<?>[] typeHierachy() {
 		return (Class<?>[]) ArrayUtils.addAll(new Class<?>[] {
-			this.type
+				this.type
 		}, superTypes());
 	}
 

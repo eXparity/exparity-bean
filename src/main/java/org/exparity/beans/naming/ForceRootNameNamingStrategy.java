@@ -1,7 +1,7 @@
 package org.exparity.beans.naming;
 
 import java.lang.reflect.Method;
-import org.exparity.beans.BeanNamingStrategy;
+import org.exparity.beans.core.BeanNamingStrategy;
 
 /**
  * Implementation of a {@link BeanNamingStrategy} which decorates an existing naming strategy but forces the return of {@link #describeRoot(Class)}

@@ -1,8 +1,4 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Method;
 

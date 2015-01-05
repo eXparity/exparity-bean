@@ -2,6 +2,8 @@
 package org.exparity.beans;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyPredicate;
 
 /**
  * Static repository of useful {@link BeanPropertyPredicate} instances

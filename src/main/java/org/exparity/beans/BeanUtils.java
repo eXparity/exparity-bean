@@ -3,7 +3,12 @@ package org.exparity.beans;
 
 import java.util.List;
 import java.util.Map;
-
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyFunction;
+import org.exparity.beans.core.BeanPropertyPredicate;
+import org.exparity.beans.core.BeanVisitor;
+import org.exparity.beans.core.TypeProperty;
+import org.exparity.beans.core.TypeVisitor;
 import static org.exparity.beans.Bean.bean;
 import static org.exparity.beans.Type.type;
 
@@ -13,20 +18,6 @@ import static org.exparity.beans.Type.type;
  * @author Stewart Bissett
  */
 public abstract class BeanUtils {
-
-	/**
-	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
-	 * <p/>
-	 * 
-	 * <pre>
-	 * List&lt;BeanPropertyInstance&gt; properties = BeanUtils.propertyList(myObject)
-	 * </pre>
-	 * 
-	 * @param instance an object to get the properties list from
-	 */
-	public static List<BeanProperty> propertyList(final Object instance) {
-		return bean(instance).propertyList();
-	}
 
 	/**
 	 * Return a list of the publicly exposes get/set properties on a class. For example:

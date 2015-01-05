@@ -1,16 +1,10 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans.naming;
 
 import static org.exparity.beans.Type.type;
-
 import java.util.Collection;
 import java.util.Map;
-
-import org.exparity.beans.BeanNamingStrategy;
 import org.exparity.beans.Type;
+import org.exparity.beans.core.BeanNamingStrategy;
 
 /**
  * @author Stewart Bissett

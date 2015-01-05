@@ -1,5 +1,5 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import static org.apache.commons.lang.StringUtils.countMatches;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;

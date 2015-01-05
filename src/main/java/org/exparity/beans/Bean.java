@@ -1,8 +1,12 @@
 
 package org.exparity.beans;
 
-import static org.exparity.beans.InstanceInspector.beanInspector;
+import org.exparity.beans.core.BeanNamingStrategy;
+import org.exparity.beans.core.Instance;
+import org.exparity.beans.core.Typed;
+import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import static org.exparity.beans.Type.type;
+import static org.exparity.beans.core.InstanceInspector.beanInspector;
 
 /**
  * @author Stewart Bissett
@@ -12,11 +16,19 @@ public class Bean extends Instance implements Typed {
 	private final Type type;
 
 	public static Bean bean(final Object instance) {
-		return new Bean(instance);
+		return bean(instance, new CamelCaseNamingStrategy());
+	}
+
+	public static Bean bean(final Object instance, final BeanNamingStrategy naming) {
+		return new Bean(instance, naming);
 	}
 
 	public Bean(final Object instance) {
-		super(beanInspector(), instance);
+		this(instance, new CamelCaseNamingStrategy());
+	}
+
+	public Bean(final Object instance, final BeanNamingStrategy naming) {
+		super(beanInspector(), instance, naming);
 		this.type = type(instance);
 	}
 

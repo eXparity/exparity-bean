@@ -1,11 +1,7 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans.testutils;
 
-import org.exparity.beans.BeanProperty;
-import org.exparity.beans.TypeProperty;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.TypeProperty;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 

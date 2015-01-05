@@ -1,5 +1,5 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 /**
  * Exception raised when an explicitly requested bean property is not found on a {@link Bean}, {@link Graph}, or {@link Type}

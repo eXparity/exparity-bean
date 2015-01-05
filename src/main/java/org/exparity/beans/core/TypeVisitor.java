@@ -1,5 +1,5 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 /**
  * A callback interface which is fired for each property found by {@link BeanUtils#visit(Object, BeanVisitor)}

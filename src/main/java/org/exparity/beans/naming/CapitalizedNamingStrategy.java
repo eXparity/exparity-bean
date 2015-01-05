@@ -1,12 +1,7 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans.naming;
 
 import java.lang.reflect.Method;
-
-import org.exparity.beans.BeanNamingStrategy;
+import org.exparity.beans.core.BeanNamingStrategy;
 
 /**
  * @author Stewart Bissett

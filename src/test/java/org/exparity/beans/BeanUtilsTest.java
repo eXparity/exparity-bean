@@ -1,11 +1,6 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
 import static org.exparity.beans.Bean.bean;
-import static org.exparity.beans.BeanFunctions.setValue;
 import static org.exparity.beans.BeanPredicates.named;
 import static org.exparity.beans.BeanPredicates.ofType;
 import static org.exparity.beans.BeanUtils.*;
@@ -18,17 +13,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.List;
 import java.util.Map;
-
 import org.exparity.beans.Bean;
-import org.exparity.beans.BeanProperty;
-import org.exparity.beans.BeanPropertyException;
-import org.exparity.beans.BeanPropertyFunction;
-import org.exparity.beans.BeanPropertyNotFoundException;
-import org.exparity.beans.BeanPropertyPath;
 import org.exparity.beans.BeanUtils;
-import org.exparity.beans.BeanVisitor;
 import org.exparity.beans.Type;
-import org.exparity.beans.TypeProperty;
+import org.exparity.beans.core.BeanProperty;
+import org.exparity.beans.core.BeanPropertyException;
+import org.exparity.beans.core.BeanPropertyFunction;
+import org.exparity.beans.core.BeanPropertyNotFoundException;
+import org.exparity.beans.core.BeanPropertyPath;
+import org.exparity.beans.core.BeanVisitor;
+import org.exparity.beans.core.TypeProperty;
+import org.exparity.beans.functions.SetValue;
 import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.junit.Test;
@@ -270,7 +265,8 @@ public class BeanUtilsTest {
 	@Test
 	public void canGetAListOfProperties() {
 		Person person = new Person();
-		List<BeanProperty> properties = propertyList(person);
+		final Object instance = person;
+		List<BeanProperty> properties = bean(instance).propertyList();
 		Bean bean = bean(person);
 		assertThat(properties, hasSize(3));
 		assertThat(properties, hasItem(equalTo(bean.propertyNamed("firstname"))));
@@ -353,7 +349,7 @@ public class BeanUtilsTest {
 		Person instance = new Person();
 		assertThat(instance.getFirstname(), not(equalTo("Applied")));
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
-		apply(instance, setValue("Applied"), ofType(String.class));
+		apply(instance, new SetValue("Applied"), ofType(String.class));
 		assertThat(instance.getFirstname(), equalTo("Applied"));
 		assertThat(instance.getSurname(), equalTo("Applied"));
 	}

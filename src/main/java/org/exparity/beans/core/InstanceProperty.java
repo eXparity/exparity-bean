@@ -1,5 +1,5 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -11,16 +11,16 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import static org.exparity.beans.MethodUtils.genericArgs;
+import org.exparity.beans.Type;
 import static org.exparity.beans.Type.type;
+import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * Base type for all types in the BeanUtils library which represent a single property
  * 
  * @author Stewart Bissett
  */
-abstract class InstanceProperty {
+public abstract class InstanceProperty {
 
 	private final Class<?> declaringType;
 	private final String name;

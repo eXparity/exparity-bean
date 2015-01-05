@@ -1,29 +1,35 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
-
 import static org.exparity.beans.BeanPredicates.*;
 
 /**
  * @author Stewart Bissett
  */
-abstract class Instance {
+public abstract class Instance {
 
 	private final InstanceInspector inspector;
 	private final Object instance;
-	private BeanNamingStrategy naming = new CamelCaseNamingStrategy();
+	private BeanNamingStrategy naming;
 
-	protected Instance(final InstanceInspector inspector, final Object instance) {
+	protected Instance(final InstanceInspector inspector, final Object instance, final BeanNamingStrategy naming) {
 		this.inspector = inspector;
 		this.instance = instance;
+		this.naming = naming;
 	}
 
+	/**
+	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
+	 * <p/>
+	 * 
+	 * <pre>
+	 * List&lt;BeanPropertyInstance&gt; properties = Bean.bean(myObject).propertyList()
+	 * </pre>
+	 */
 	public List<BeanProperty> propertyList() {
 		final List<BeanProperty> propertyList = new ArrayList<BeanProperty>();
 		visit(new BeanVisitor() {

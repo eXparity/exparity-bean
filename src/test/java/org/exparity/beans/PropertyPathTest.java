@@ -1,10 +1,6 @@
-/*
- * Copyright (c) Modular IT Limited.
- */
-
 package org.exparity.beans;
 
-import org.exparity.beans.BeanPropertyPath;
+import org.exparity.beans.core.BeanPropertyPath;
 import org.junit.Test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;

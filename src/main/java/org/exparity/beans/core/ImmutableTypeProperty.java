@@ -1,12 +1,11 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import static org.exparity.beans.MethodUtils.genericArgs;
 import static org.exparity.beans.Type.type;
+import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * Immutable value object to encapsulate an property on an Object which follows the get/is Java beans standard for accessors.</p>

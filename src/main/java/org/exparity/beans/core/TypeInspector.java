@@ -1,26 +1,25 @@
 
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;
-import static org.exparity.beans.MethodUtils.isAccessor;
-import static org.exparity.beans.MethodUtils.isSetter;
-import static org.exparity.beans.MethodUtils.toPropertyName;
+import static org.exparity.beans.core.MethodUtils.isAccessor;
+import static org.exparity.beans.core.MethodUtils.isSetter;
+import static org.exparity.beans.core.MethodUtils.toPropertyName;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
  * 
  * @author Stewart Bissett
  */
-class TypeInspector {
+public class TypeInspector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TypeInspector.class);
 
@@ -30,7 +29,7 @@ class TypeInspector {
 	 * @param instance an object instance to inspect for Java Bean properties
 	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
-	void inspect(final Class<?> type, final TypeVisitor visitor) {
+	public void inspect(final Class<?> type, final TypeVisitor visitor) {
 		inspect(type, new CamelCaseNamingStrategy(), visitor);
 	}
 
@@ -41,11 +40,11 @@ class TypeInspector {
 	 * @param naming the naming strategy to use for the Java Bean properties
 	 * @param visitor the visitor to raise events when Java Bean properties are found
 	 */
-	void inspect(final Class<?> type, final BeanNamingStrategy naming, final TypeVisitor visitor) {
+	public void inspect(final Class<?> type, final BeanNamingStrategy naming, final TypeVisitor visitor) {
 		inspectType(type, naming, visitor);
 	}
 
-	List<TypeProperty> propertyList(final Class<?> type, final BeanNamingStrategy naming) {
+	public List<TypeProperty> propertyList(final Class<?> type, final BeanNamingStrategy naming) {
 		Map<String, List<Method>> mutatorMap = createMutatorMap(type, naming);
 		List<TypeProperty> properties = new ArrayList<TypeProperty>();
 		for (Method accessor : type.getMethods()) {
@@ -60,7 +59,7 @@ class TypeInspector {
 		return properties;
 	}
 
-	List<ImmutableTypeProperty> accessorList(final Class<?> type, final BeanNamingStrategy naming) {
+	public List<ImmutableTypeProperty> accessorList(final Class<?> type, final BeanNamingStrategy naming) {
 		List<ImmutableTypeProperty> properties = new ArrayList<ImmutableTypeProperty>();
 		for (Method accessor : type.getMethods()) {
 			if (isAccessor(accessor)) {
