@@ -82,17 +82,51 @@ public class Type implements Typed {
 		return type.getCanonicalName();
 	}
 
+	/**
+	 * Test if the supplied type has a property with the given name. For example:</p>
+	 * 
+	 * <pre>
+	 * if ( type(MyObject.class).hasProperty("surname"))) {
+	 * 	// Do Something;
+	 * }
+	 * </pre>
+	 * 
+	 * @param name the property name
+	 */
 	public boolean hasProperty(final String name) {
 		return propertyMap().containsKey(name);
 	}
 
 	/**
-	 * @throws BeanPropertyNotFoundException
+	 * Test if the property on the type is of the supplied type. For example:</p>
+	 * 
+	 * <pre>
+	 * if (bean(MyObject.class).isPropertyType(&quot;surname&quot;, String.class)) {
+	 * 	// Do something
+	 * }
+	 * </pre>
+	 * @param name the property name
+	 * @param type the expected type of the property
 	 */
-	public boolean isPropertyType(final String propertyName, final Class<?> expectedType) {
-		return propertyNamed(propertyName).isType(expectedType);
+	public boolean isPropertyType(final String name, final Class<?> type) {
+		return propertyNamed(name).isType(type);
 	}
 
+	/**
+	 * Visit the supplied class and notify the visitor for each bean property found. For example:</p>
+	 * 
+	 * <pre>
+	 * type(MyObject.class).visit(new TypeVisitor() {
+	 * 
+	 * 	public void visit(final TypeProperty property) {
+	 * 		System.out.println(property.getName());
+	 * 	}
+	 * });
+	 * </pre>
+	 * 
+	 * @param type the type to get the property from
+	 * @param visitor the visitor which will be notified of every bean property encountered
+	 */
 	public void visit(final TypeVisitor visitor) {
 		inspector.inspect(type, naming, visitor);
 	}
@@ -102,6 +136,14 @@ public class Type implements Typed {
 		return this;
 	}
 
+	/**
+	 * Return a list of the publicly exposes get/set properties on a class. For example:
+	 * <p/>
+	 * 
+	 * <pre>
+	 * List&lt;TypeProperty&gt; properties = Type.type(MyObject.class).propertyList()
+	 * </pre>
+	 */
 	public List<TypeProperty> propertyList() {
 		final List<TypeProperty> propertyList = new ArrayList<TypeProperty>();
 		visit(new TypeVisitor() {
@@ -120,6 +162,14 @@ public class Type implements Typed {
 		return inspector.accessorList(type, naming);
 	}
 
+	/**
+	 * Return a map of the publicly exposes get/set properties on the type with the property name as the key and the initial character lowercased For example:
+	 * <p/>
+	 * 
+	 * <pre>
+	 * Map&lt;String, BeanProperty&gt; propertyMap = Bean.bean(MyObject.class).propertyMap()
+	 * </pre>
+	 */
 	public Map<String, TypeProperty> propertyMap() {
 		final Map<String, TypeProperty> propertyMap = new HashMap<String, TypeProperty>();
 		visit(new TypeVisitor() {
@@ -132,7 +182,13 @@ public class Type implements Typed {
 	}
 
 	/**
-	 * @throws BeanPropertyNotFoundException
+	 * Get the requested property from the type or return <code>null</code> if the property is not present. For example:</p>
+	 * 
+	 * <pre>
+	 * TypeProperty surname = type(MyObject.class).propertyNamed(MyObject.class, &quot;surname&quot;)
+	 * </pre>
+	 * 
+	 * @param name the property name
 	 */
 	public TypeProperty propertyNamed(final String propertyName) {
 		TypeProperty property = propertyMap().get(propertyName);
@@ -143,14 +199,28 @@ public class Type implements Typed {
 	}
 
 	/**
-	 * @throws BeanPropertyNotFoundException
+	 * Get the requested property from the type or return <code>null</code> if the property is not present. For example:</p>
+	 * 
+	 * <pre>
+	 * TypeProperty surname = type(MyObject.class).get(&quot;surname&quot;)
+	 * </pre>
+	 * 
+	 * @param propertyName the property name
 	 */
 	public TypeProperty get(final String propertyName) {
 		return propertyNamed(propertyName);
 	}
 
 	/**
-	 * @throws BeanPropertyNotFoundException
+	 * Return the property type on the type for the supplied property name or <code>null</code> if the property doesn't exist. For example:</p>
+	 * 
+	 * <pre>
+	 * if (String.class.equals(type(MyObject.class).propertyType(&quot;surname&quot;))) {
+	 * 	// Do something
+	 * }
+	 * </pre>
+	 * 
+	 * @param name the property name
 	 */
 	public Class<?> propertyType(final String propertyName) {
 		return propertyNamed(propertyName).getType();
