@@ -23,7 +23,7 @@ public abstract class Instance {
 	}
 
 	/**
-	 * Return a list of the publicly exposes get/set properties on the Bean. For example:
+	 * Return a list of the publicly exposes get/set properties on this instance. For example to list the properties on :
 	 * <p/>
 	 * 
 	 * <pre>
@@ -338,7 +338,7 @@ public abstract class Instance {
 	}
 
 	/**
-	 * Visit the supplied bean instance and notify the visitor for each bean property found. For example:</p>
+	 * Visit the supplied bean or graph instance and notify the visitor for each bean property found. For example:</p>
 	 * 
 	 * <pre>
 	 * bean(myObject).visit(new BeanVisitor() {
@@ -348,7 +348,6 @@ public abstract class Instance {
 	 * 	}
 	 * });
 	 * </pre>
-	 * 
 	 * @param visitor the visitor which will be notified of every bean property encountered
 	 */
 	public void visit(final BeanVisitor visitor) {

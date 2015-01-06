@@ -7,12 +7,16 @@ import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import static org.exparity.beans.core.InstanceInspector.graphInspector;
 
 /**
- * @author Stewart Bissett
+ * Utility class for inspecting objects which expose properties which follow the Java Bean get/set standard. For example;</p>
+ * 
+ * <pre>
+ * List&lt;BeanPropertyInstance&gt; = Graph.graph(myObject).propertyList()
+ * </pre>
  */
 public class Graph extends Instance {
 
 	public static Graph graph(final Object instance) {
-		return graph(instance, new CamelCaseNamingStrategy());
+		return graph(instance);
 	}
 
 	public static Graph graph(final Object instance, final BeanNamingStrategy naming) {

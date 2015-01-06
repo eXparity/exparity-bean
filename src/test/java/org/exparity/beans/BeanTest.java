@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Stewart Bissett
  */
 @SuppressWarnings("rawtypes")
-public class BeanUtilsTest {
+public class BeanTest {
 
 	@Test
 	public void canGetAPropertyByName() {

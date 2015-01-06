@@ -1,4 +1,4 @@
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import static org.exparity.beans.Type.type;
 import static org.mockito.Mockito.verify;

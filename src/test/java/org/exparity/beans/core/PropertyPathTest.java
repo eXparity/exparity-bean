@@ -1,4 +1,4 @@
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import org.exparity.beans.core.BeanPropertyPath;
 import org.junit.Test;

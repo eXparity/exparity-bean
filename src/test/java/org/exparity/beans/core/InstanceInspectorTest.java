@@ -1,4 +1,4 @@
-package org.exparity.beans;
+package org.exparity.beans.core;
 
 import java.util.Arrays;
 import java.util.HashMap;
