@@ -1,10 +1,15 @@
 
 package org.exparity.beans.core;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.exparity.beans.core.visitors.Print;
 import static org.exparity.beans.BeanPredicates.*;
 
 /**
@@ -155,7 +160,7 @@ public abstract class Instance {
 	 * 
 	 * <pre>
 	 * if ( bean(myObject).hasProperty(aUser, BeanPredicates.named("surname")))) {
-	 * 	// Do Something;
+	 * 	// Do Something
 	 * }
 	 * </pre>
 	 * 
@@ -358,8 +363,8 @@ public abstract class Instance {
 	 * Test if the supplied instance has a Bean property with the given name. For example</p>
 	 * 
 	 * <pre>
-	 * if ( bean(myObject).hasProperty(aUser, "surname"))) {
-	 * 	// Do Something;
+	 * if ( bean(myObject).hasProperty("surname"))) {
+	 * 	// Do Something
 	 * }
 	 * </pre>
 	 * @param name the property name
@@ -368,8 +373,19 @@ public abstract class Instance {
 		return hasProperty(named(name));
 	}
 
+	/**
+	 * Test if the supplied instance has a Bean property with the given name and value. For example</p>
+	 * 
+	 * <pre>
+	 * if ( bean(myObject).hasProperty("surname","Smith"))) {
+	 * 	// Do Something
+	 * }
+	 * </pre>
+	 * @param name the property name
+	 * @param value the value to test for
+	 */
 	public boolean hasProperty(final String name, final Object value) {
-		return hasProperty(withValue(name, value));
+		return hasProperty(hasPropertyValue(name, value));
 	}
 
 	/**
@@ -416,8 +432,37 @@ public abstract class Instance {
 		return hasProperty(matchesAll(predicate, ofType(type)));
 	}
 
+	/**
+	 * Override the default naming strategy
+	 */
 	public void setNamingStrategy(final BeanNamingStrategy naming) {
 		this.naming = naming;
+	}
+
+	/**
+	 * Write out all properties and their values on this object.
+	 * @param writer the writer to write the output to
+	 */
+	public void dump(final Writer writer) {
+		this.visit(new Print(writer));
+	}
+
+	/**
+	 * Write out all properties and their values on this object.
+	 * @param os the stream to write the output to
+	 */
+	public void dump(final OutputStream os) {
+		this.dump(new OutputStreamWriter(os));
+	}
+
+	/**
+	 * Write out all properties and their values on this object.
+	 * @param buffer the buffer to append the output to
+	 */
+	public void dump(final StringBuffer buffer) {
+		StringWriter writer = new StringWriter();
+		this.dump(writer);
+		buffer.append(writer);
 	}
 
 }

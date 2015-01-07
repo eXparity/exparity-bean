@@ -52,22 +52,22 @@ public class BeanPredicatesTest {
 
 	@Test
 	public void canMatchAValue() {
-		assertMatch(withValue("Bob"), true);
+		assertMatch(hasValue("Bob"), true);
 	}
 
 	@Test
 	public void canMatchAValueWhichIsDifferent() {
-		assertMatch(withValue("Tina"), false);
+		assertMatch(hasValue("Tina"), false);
 	}
 
 	@Test
 	public void canMatchANameAndValue() {
-		assertMatch(withValue("firstname", "Bob"), true);
+		assertMatch(hasPropertyValue("firstname", "Bob"), true);
 	}
 
 	@Test
 	public void canMatchANameAndValueWhichIsDifferent() {
-		assertMatch(withValue("firstname", "Tina"), false);
+		assertMatch(hasPropertyValue("firstname", "Tina"), false);
 	}
 
 	@Test

@@ -10,7 +10,7 @@ import org.exparity.beans.core.BeanPropertyNotFoundException;
 import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanVisitor;
 import org.exparity.beans.core.TypeProperty;
-import org.exparity.beans.functions.SetValue;
+import org.exparity.beans.core.functions.SetValue;
 import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.junit.Test;

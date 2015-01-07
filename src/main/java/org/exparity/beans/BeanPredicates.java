@@ -1,9 +1,16 @@
 
 package org.exparity.beans;
 
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyPredicate;
+import org.exparity.beans.core.predicates.HasType;
+import org.exparity.beans.core.predicates.MatchersPattern;
+import org.exparity.beans.core.predicates.MatchesAll;
+import org.exparity.beans.core.predicates.MatchesAlways;
+import org.exparity.beans.core.predicates.MatchesOneOf;
+import org.exparity.beans.core.predicates.Named;
+import org.exparity.beans.core.predicates.OfDeclaringType;
+import org.exparity.beans.core.predicates.WithPropertyValue;
+import org.exparity.beans.core.predicates.WithValue;
 
 /**
  * Static repository of useful {@link BeanPropertyPredicate} instances
@@ -16,128 +23,63 @@ public abstract class BeanPredicates {
 	 * Return a {@link BeanPredicates} which returns <code>true</code> when all of the supplied predicates match
 	 */
 	public static BeanPropertyPredicate matchesAll(final BeanPropertyPredicate... predicates) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				for (BeanPropertyPredicate predicate : predicates) {
-					if (!predicate.matches(property)) {
-						return false;
-					}
-				}
-				return true;
-			}
-		};
+		return new MatchesAll(predicates);
 	}
 
 	/**
 	 * Return a {@link BeanPredicates} which returns <code>true</code> when any of the supplied predicates match
 	 */
 	public static BeanPropertyPredicate matchesOneOf(final BeanPropertyPredicate... predicates) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				for (BeanPropertyPredicate predicate : predicates) {
-					if (predicate.matches(property)) {
-						return true;
-					}
-				}
-				return false;
-			}
-		};
+		return new MatchesOneOf(predicates);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which always returns <code>true</code>
 	 */
 	public static BeanPropertyPredicate anyProperty() {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				return true;
-			}
-		};
+		return new MatchesAlways();
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name
 	 */
 	public static BeanPropertyPredicate named(final String name) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				return equalsIgnoreCase(name, property.getName());
-			}
-		};
+		return new Named(name);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied value
 	 */
-	public static BeanPropertyPredicate withValue(final Object value) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				return value.equals(property.getValue());
-			}
-		};
+	public static BeanPropertyPredicate hasValue(final Object value) {
+		return new WithValue(value);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name and value
 	 */
-	public static BeanPropertyPredicate withValue(final String name, final Object value) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				return property.hasName(name) && value.equals(property.getValue());
-			}
-		};
+	public static BeanPropertyPredicate hasPropertyValue(final String name, final Object value) {
+		return new WithPropertyValue(value, name);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the supplied types
 	 */
 	public static BeanPropertyPredicate ofType(final Class<?>... types) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				for (Class<?> type : types) {
-					if (property.getType().equals(type)) {
-						return true;
-					}
-				}
-				return false;
-			}
-		};
+		return new HasType(types);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name and matches the supplied regular expression
 	 */
-	public static BeanPropertyPredicate likeValue(final String name, final String pattern) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				return property.hasName(name) && property.isString() && !property.isNull() && property.getValue(String.class).matches(pattern);
-			}
-		};
+	public static BeanPropertyPredicate matchesPattern(final String name, final String pattern) {
+		return new MatchersPattern(name, pattern);
 	}
 
 	/**
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has any of the types as it's declaring type
 	 */
 	public static BeanPropertyPredicate ofDeclaringType(final Class<?>... types) {
-		return new BeanPropertyPredicate() {
-
-			public boolean matches(final BeanProperty property) {
-				for (Class<?> type : types) {
-					if (property.getDeclaringType().equals(type)) {
-						return true;
-					}
-				}
-				return false;
-			}
-		};
+		return new OfDeclaringType(types);
 	}
 
 	/**

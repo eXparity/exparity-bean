@@ -1,4 +1,4 @@
-package org.exparity.beans.functions;
+package org.exparity.beans.core.functions;
 
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyFunction;
