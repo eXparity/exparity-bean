@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.exparity.beans.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class InstanceInspector {
 	public void inspect(final Object instance, final BeanNamingStrategy naming, final BeanVisitor visitor) {
 		try {
 			if (instance != null) {
-				inspectObject(new ArrayList<Object>(), new BeanPropertyPath(naming.describeRoot(instance.getClass())), naming, instance, visitor);
+				inspectObject(new ArrayList<Object>(), new BeanPropertyPath(naming.describeRoot(instance.getClass())), naming, instance, visitor, new AtomicBoolean());
 			}
 		} finally {
 			inspected.get().clear();
@@ -74,10 +75,17 @@ public class InstanceInspector {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void inspectObject(final List<Object> currentStack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Object instance, final BeanVisitor visitor) {
+	private void inspectObject(final List<Object> currentStack,
+			final BeanPropertyPath path,
+			final BeanNamingStrategy naming,
+			final Object instance,
+			final BeanVisitor visitor,
+			final AtomicBoolean stop) {
 
 		if (instance == null) {
 			return;
+		} else if (stop.get()) {
+			LOG.debug("Stopped Visit of {}. Stop set to true", path);
 		}
 
 		final List<Object> stack = new ArrayList<Object>(currentStack);
@@ -103,37 +111,41 @@ public class InstanceInspector {
 
 		Type type = type(instance.getClass());
 		if (type.isArray()) {
-			inspectArray(new ArrayList<Object>(), path, naming, instance, visitor);
+			inspectArray(new ArrayList<Object>(), path, naming, instance, visitor, stop);
 		} else if (type.is(Iterable.class)) {
-			inspectIterable(new ArrayList<Object>(), path, naming, (Iterable) instance, visitor);
+			inspectIterable(new ArrayList<Object>(), path, naming, (Iterable) instance, visitor, stop);
 		} else if (type.is(Map.class)) {
-			inspectMap(new ArrayList<Object>(), path, naming, (Map) instance, visitor);
+			inspectMap(new ArrayList<Object>(), path, naming, (Map) instance, visitor, stop);
 		} else {
 			BeanPropertyPath rootPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(instance.getClass())) : path;
 			stack.add(instance);
 			for (TypeProperty property : type.setNamingStrategy(naming).propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
-				visitor.visit(new BeanProperty(property.getName(), property.getAccessor(), property.getMutator(), instance), instance, nextPath, stack.toArray());
+				visitor.visit(new BeanProperty(property.getName(), property.getAccessor(), property.getMutator(), instance), instance, nextPath, stack.toArray(), stop);
+				if (stop.get()) {
+					LOG.debug("Stopped Visit of {}. Stop set to true", nextPath);
+					return;
+				}
 				if (property.isArray()) {
 					Object value = property.getValue(instance);
 					if (value != null) {
-						inspectArray(stack, nextPath, naming, value, visitor);
+						inspectArray(stack, nextPath, naming, value, visitor, stop);
 					}
 				} else if (property.isIterable()) {
 					Iterable value = property.getValue(instance, Iterable.class);
 					if (value != null) {
-						inspectIterable(stack, nextPath, naming, value, visitor);
+						inspectIterable(stack, nextPath, naming, value, visitor, stop);
 					}
 				} else if (property.isMap()) {
 					Map value = property.getValue(instance, Map.class);
 					if (value != null) {
-						inspectMap(stack, nextPath, naming, value, visitor);
+						inspectMap(stack, nextPath, naming, value, visitor, stop);
 					}
 				} else {
 					try {
 						Object propertyValue = property.getValue(instance);
 						if (propertyValue != null) {
-							inspectObject(stack, nextPath, naming, propertyValue, visitor);
+							inspectObject(stack, nextPath, naming, propertyValue, visitor, stop);
 						}
 					} catch (Exception e) {
 						LOG.trace("Skip {}. Exception thrown on calling get", property);
@@ -151,28 +163,43 @@ public class InstanceInspector {
 		return GRAPH.equals(depth);
 	}
 
-	private void inspectMap(final List<Object> stack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Map<?, ?> instance, final BeanVisitor visitor) {
+	private void inspectMap(final List<Object> stack,
+			final BeanPropertyPath path,
+			final BeanNamingStrategy naming,
+			final Map<?, ?> instance,
+			final BeanVisitor visitor,
+			final AtomicBoolean stop) {
 		logInspection(path, "Map", instance);
 		for (Map.Entry<?, ?> entry : instance.entrySet()) {
 			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Map.class)) : path;
-			inspectObject(stack, nextPath.appendIndex(entry.getKey().toString()), naming, entry.getValue(), visitor);
+			inspectObject(stack, nextPath.appendIndex(entry.getKey().toString()), naming, entry.getValue(), visitor, stop);
 		}
 	}
 
-	private void inspectArray(final List<Object> stack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Object instance, final BeanVisitor visitor) {
+	private void inspectArray(final List<Object> stack,
+			final BeanPropertyPath path,
+			final BeanNamingStrategy naming,
+			final Object instance,
+			final BeanVisitor visitor,
+			final AtomicBoolean stop) {
 		logInspection(path, "Array", instance);
 		for (int i = 0; i < Array.getLength(instance); ++i) {
 			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Array.class)) : path;
-			inspectObject(stack, nextPath.appendIndex(i), naming, Array.get(instance, i), visitor);
+			inspectObject(stack, nextPath.appendIndex(i), naming, Array.get(instance, i), visitor, stop);
 		}
 	}
 
-	private void inspectIterable(final List<Object> stack, final BeanPropertyPath path, final BeanNamingStrategy naming, final Iterable<?> instance, final BeanVisitor visitor) {
+	private void inspectIterable(final List<Object> stack,
+			final BeanPropertyPath path,
+			final BeanNamingStrategy naming,
+			final Iterable<?> instance,
+			final BeanVisitor visitor,
+			final AtomicBoolean stop) {
 		logInspection(path, "Iterable", instance);
 		int seq = 0;
 		for (Object object : instance) {
 			BeanPropertyPath nextPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(Collection.class)) : path;
-			inspectObject(stack, nextPath.appendIndex(seq++), naming, object, visitor);
+			inspectObject(stack, nextPath.appendIndex(seq++), naming, object, visitor, stop);
 		}
 	}
 

@@ -16,39 +16,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MethodUtils {
 
-	private static final String SET_PREFIX = "set";
-	private static final String GET_PREFIX = "get";
-	private static final String IS_PREFIX = "is";
-
-	public static boolean isAccessor(final Method method) {
-		if (method.getParameterTypes().length == 0) {
-			return method.getName().startsWith(GET_PREFIX) || method.getName().startsWith(IS_PREFIX);
-		} else {
-			return false;
-		}
-	}
-
-	public static boolean isSetter(final Method method) {
-		return method.getName().startsWith(SET_PREFIX) && method.getParameterTypes().length == 1;
-	}
-
-	public static String toPropertyName(final Method method, final BeanNamingStrategy naming) {
-		if (isSetter(method)) {
-			return naming.describeProperty(method, SET_PREFIX);
-		} else if (isAccessor(method)) {
-			if (method.getName().startsWith(IS_PREFIX)) {
-				return naming.describeProperty(method, IS_PREFIX);
-			} else if (method.getName().startsWith(GET_PREFIX)) {
-				return naming.describeProperty(method, GET_PREFIX);
-			} else {
-				throw new RuntimeException("Getter which is not prefixed with is or get");
-			}
-		} else {
-			throw new IllegalArgumentException("Method does match the standards for bean properties");
-		}
-
-	}
-
 	public static Class<?>[] genericArgs(final Method accessor) {
 		Type type = accessor.getGenericReturnType();
 		if (type instanceof ParameterizedType) {
@@ -96,13 +63,4 @@ public class MethodUtils {
 		}
 		return true;
 	}
-
-	public static Method getMethod(final Class<?> type, final String methodName) {
-		try {
-			return type.getMethod(methodName);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 }

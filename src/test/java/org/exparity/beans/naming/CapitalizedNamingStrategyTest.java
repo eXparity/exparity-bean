@@ -1,11 +1,11 @@
+
 package org.exparity.beans.naming;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.exparity.beans.naming.CapitalizedNamingStrategy;
 import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
 import org.junit.Test;
-import static org.exparity.beans.core.MethodUtils.getMethod;
+import static org.exparity.beans.Type.type;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -17,6 +17,11 @@ public class CapitalizedNamingStrategyTest {
 	@Test
 	public void canDescribeAType() {
 		assertThat(new CapitalizedNamingStrategy().describeType(AllTypes.class), equalTo("AllTypes"));
+	}
+
+	@Test
+	public void canDescribeRoot() {
+		assertThat(new CapitalizedNamingStrategy().describeRoot(AllTypes.class), equalTo("AllTypes"));
 	}
 
 	@Test
@@ -36,6 +41,6 @@ public class CapitalizedNamingStrategyTest {
 
 	@Test
 	public void canDescribeAMethod() {
-		assertThat(new CapitalizedNamingStrategy().describeProperty(getMethod(AllTypes.class, "getBigDecimalValue"), "get"), equalTo("BigDecimalValue"));
+		assertThat(new CapitalizedNamingStrategy().describeProperty(type(AllTypes.class).getAccessor("BigDecimalValue"), "get"), equalTo("BigDecimalValue"));
 	}
 }

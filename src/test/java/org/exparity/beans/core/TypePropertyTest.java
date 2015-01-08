@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.exparity.beans.core.TypeProperty.typeProperty;
+import static org.exparity.beans.Type.typeProperty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -130,7 +130,7 @@ public class TypePropertyTest {
 	@Test
 	public void canWrapAArrayProperty() {
 		verifyProperty(new AllTypes(), "array", int[].class, null, new int[] {
-			0
+				0
 		});
 		TypeProperty instance = typeProperty(AllTypes.class, "array");
 		assertThat(instance.isArray(), equalTo(true));

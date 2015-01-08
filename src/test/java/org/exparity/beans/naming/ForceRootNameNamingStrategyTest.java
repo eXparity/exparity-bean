@@ -1,10 +1,12 @@
+
 package org.exparity.beans.naming;
 
 import java.lang.reflect.Method;
 import org.exparity.beans.core.BeanNamingStrategy;
-import org.exparity.beans.core.MethodUtils;
+import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
 import org.junit.Test;
+import static org.exparity.beans.Type.type;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
@@ -27,7 +29,7 @@ public class ForceRootNameNamingStrategyTest {
 	@Test
 	public void canDescribeProperty() {
 		BeanNamingStrategy delegate = mock(BeanNamingStrategy.class);
-		Method method = MethodUtils.getMethod(Car.class, "getEngine");
+		Method method = type(AllTypes.class).getAccessor("BigDecimalValue");
 		when(delegate.describeProperty(method, "car")).thenReturn("car.engine");
 		assertThat(new ForceRootNameNamingStrategy(delegate, "root").describeProperty(method, "car"), equalTo("car.engine"));
 	}

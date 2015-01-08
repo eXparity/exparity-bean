@@ -10,9 +10,6 @@ import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;
-import static org.exparity.beans.core.MethodUtils.isAccessor;
-import static org.exparity.beans.core.MethodUtils.isSetter;
-import static org.exparity.beans.core.MethodUtils.toPropertyName;
 
 /**
  * Helper class which inspects the bean and exposes the properties of the bean to support the visitor pattern
@@ -22,6 +19,10 @@ import static org.exparity.beans.core.MethodUtils.toPropertyName;
 public class TypeInspector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TypeInspector.class);
+
+	private static final String SET_PREFIX = "set";
+	private static final String GET_PREFIX = "get";
+	private static final String IS_PREFIX = "is";
 
 	/**
 	 * Inspect the supplied object and fire callbacks on the supplied {@link BeanVisitor} for every property exposed on the object
@@ -111,4 +112,34 @@ public class TypeInspector {
 		}
 		return mutatorMap;
 	}
+
+	private static boolean isAccessor(final Method method) {
+		if (method.getParameterTypes().length == 0) {
+			return method.getName().startsWith(GET_PREFIX) || method.getName().startsWith(IS_PREFIX);
+		} else {
+			return false;
+		}
+	}
+
+	private boolean isSetter(final Method method) {
+		return method.getName().startsWith(SET_PREFIX) && method.getParameterTypes().length == 1;
+	}
+
+	private String toPropertyName(final Method method, final BeanNamingStrategy naming) {
+		if (isSetter(method)) {
+			return naming.describeProperty(method, SET_PREFIX);
+		} else if (isAccessor(method)) {
+			if (method.getName().startsWith(IS_PREFIX)) {
+				return naming.describeProperty(method, IS_PREFIX);
+			} else if (method.getName().startsWith(GET_PREFIX)) {
+				return naming.describeProperty(method, GET_PREFIX);
+			} else {
+				throw new RuntimeException("Getter which is not prefixed with is or get");
+			}
+		} else {
+			throw new IllegalArgumentException("Method does match the standards for bean properties");
+		}
+
+	}
+
 }

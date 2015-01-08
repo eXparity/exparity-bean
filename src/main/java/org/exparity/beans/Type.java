@@ -1,6 +1,7 @@
 
 package org.exparity.beans;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,13 @@ public class Type implements Typed {
 
 	public static Type type(final Object instance, final BeanNamingStrategy namingStrategy) {
 		return new Type(instance.getClass(), namingStrategy);
+	}
+
+	/**
+	 * Static factory method for constructing a {@link TypeProperty} for the property name on the given class.</p>
+	 */
+	public static final TypeProperty typeProperty(final Class<?> instance, final String name) {
+		return type(instance).propertyNamed(name);
 	}
 
 	private final TypeInspector inspector = new TypeInspector();
@@ -205,10 +213,10 @@ public class Type implements Typed {
 	 * TypeProperty surname = type(MyObject.class).get(&quot;surname&quot;)
 	 * </pre>
 	 * 
-	 * @param propertyName the property name
+	 * @param name the property name
 	 */
-	public TypeProperty get(final String propertyName) {
-		return propertyNamed(propertyName);
+	public TypeProperty get(final String name) {
+		return propertyNamed(name);
 	}
 
 	/**
@@ -222,8 +230,29 @@ public class Type implements Typed {
 	 * 
 	 * @param name the property name
 	 */
-	public Class<?> propertyType(final String propertyName) {
-		return propertyNamed(propertyName).getType();
+	public Class<?> propertyType(final String name) {
+		return propertyNamed(name).getType();
+	}
+
+	/**
+	 * Return the accessor Method for the given property. For example</p>
+	 * 
+	 * <pre>
+	 * 
+	 * 
+	 * 
+	 * Method method = type(MyObject).getAccessor(&quot;surname&quot;);
+	 * </pre>
+	 * @param name the property name
+	 * @throws BeanPropertyNotFoundException if the property is not found
+	 */
+	public Method getAccessor(final String name) {
+		for (ImmutableTypeProperty property : accessorList()) {
+			if (property.hasName(name)) {
+				return property.getAccessor();
+			}
+		}
+		throw new BeanPropertyNotFoundException(type, name);
 	}
 
 	public Class<?>[] typeHierachy() {

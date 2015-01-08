@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.exparity.beans.core.functions.SetValue;
+import org.exparity.beans.core.visitors.ApplyFunctionIf;
+import org.exparity.beans.core.visitors.CapturePropertyIf;
+import org.exparity.beans.core.visitors.CapturePropertyToList;
+import org.exparity.beans.core.visitors.CapturePropertyToListIf;
+import org.exparity.beans.core.visitors.CapturePropertyToMap;
 import org.exparity.beans.core.visitors.Print;
 import static org.exparity.beans.BeanPredicates.*;
 
@@ -36,13 +42,8 @@ public abstract class Instance {
 	 * </pre>
 	 */
 	public List<BeanProperty> propertyList() {
-		final List<BeanProperty> propertyList = new ArrayList<BeanProperty>();
-		visit(new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-				propertyList.add(property);
-			}
-		});
+		List<BeanProperty> propertyList = new ArrayList<BeanProperty>();
+		visit(new CapturePropertyToList(propertyList));
 		return propertyList;
 	}
 
@@ -55,13 +56,8 @@ public abstract class Instance {
 	 * </pre>
 	 */
 	public Map<String, BeanProperty> propertyMap() {
-		final Map<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
-		visit(new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-				propertyMap.put(property.getName(), property);
-			}
-		});
+		HashMap<String, BeanProperty> propertyMap = new HashMap<String, BeanProperty>();
+		visit(new CapturePropertyToMap(propertyMap));
 		return propertyMap;
 	}
 
@@ -75,18 +71,8 @@ public abstract class Instance {
 	 * @param predicate a predicate to match the properties
 	 * @param value the property value
 	 */
-	public boolean setProperty(final BeanPropertyPredicate predicate, final Object value) {
-		final List<BeanProperty> valuesSet = new ArrayList<BeanProperty>();
-		visit(new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-				if (predicate.matches(property)) {
-					property.setValue(value);
-					valuesSet.add(property);
-				}
-			}
-		});
-		return !valuesSet.isEmpty();
+	public void setProperty(final BeanPropertyPredicate predicate, final Object value) {
+		apply(new SetValue(value), predicate);
 	}
 
 	/**
@@ -258,30 +244,9 @@ public abstract class Instance {
 	 * @param predicate a predicate to match the properties
 	 */
 	public BeanProperty findAny(final BeanPropertyPredicate predicate) {
-
-		@SuppressWarnings("serial")
-		class HaltVisitException extends RuntimeException {
-
-			BeanProperty property;
-
-			private HaltVisitException(final BeanProperty property) {
-				this.property = property;
-			}
-		}
-
-		try {
-			visit(new BeanVisitor() {
-
-				public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-					if (predicate.matches(property)) {
-						throw new HaltVisitException(property);
-					}
-				}
-			});
-		} catch (HaltVisitException e) {
-			return e.property;
-		}
-		return null;
+		CapturePropertyIf visitor = new CapturePropertyIf(predicate);
+		visit(visitor);
+		return visitor.getMatchedProperty();
 	}
 
 	/**
@@ -308,14 +273,7 @@ public abstract class Instance {
 	 * @param predicate a predicate to match the properties
 	 */
 	public void apply(final BeanPropertyFunction function, final BeanPropertyPredicate predicate) {
-		visit(new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-				if (predicate.matches(property)) {
-					function.apply(property);
-				}
-			}
-		});
+		visit(new ApplyFunctionIf(function, predicate));
 	}
 
 	/**
@@ -331,14 +289,7 @@ public abstract class Instance {
 	 */
 	public List<BeanProperty> find(final BeanPropertyPredicate predicate) {
 		final List<BeanProperty> collection = new ArrayList<BeanProperty>();
-		visit(new BeanVisitor() {
-
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack) {
-				if (predicate.matches(property)) {
-					collection.add(property);
-				}
-			}
-		});
+		visit(new CapturePropertyToListIf(predicate, collection));
 		return collection;
 	}
 

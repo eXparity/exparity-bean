@@ -1,7 +1,6 @@
 
 package org.exparity.beans.core;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -12,8 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.exparity.beans.Type;
-import static org.exparity.beans.Type.type;
-import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * Base type for all types in the BeanUtils library which represent a single property
@@ -26,11 +23,6 @@ public abstract class InstanceProperty {
 	private final String name;
 	private final Type type;
 	private final Class<?>[] params;
-
-	@Deprecated
-	protected InstanceProperty(final String propertyName, final Method accessor, final Method mutator) {
-		this(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
-	}
 
 	protected InstanceProperty(final Class<?> declaringType, final String name, final Type type, final Class<?>[] params) {
 		this.declaringType = declaringType;

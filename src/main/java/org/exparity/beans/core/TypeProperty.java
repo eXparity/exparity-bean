@@ -17,13 +17,6 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  */
 public class TypeProperty extends InstanceProperty {
 
-	/**
-	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given class.</p> Returns <code>null</code> if the property is not present.</p>
-	 */
-	public static final TypeProperty typeProperty(final Class<?> instance, final String name) {
-		return type(instance).propertyNamed(name);
-	}
-
 	private final Method accessor, mutator;
 
 	public TypeProperty(final String propertyName, final Method accessor, final Method mutator) {

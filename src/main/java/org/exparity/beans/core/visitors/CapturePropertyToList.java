@@ -1,7 +1,6 @@
 package org.exparity.beans.core.visitors;
 
-import java.io.PrintWriter;
-import java.io.Writer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyPath;
@@ -10,16 +9,15 @@ import org.exparity.beans.core.BeanVisitor;
 /**
  * @author Stewart Bissett
  */
-public class Print implements BeanVisitor {
+public class CapturePropertyToList implements BeanVisitor {
 
-	private final PrintWriter printer;
+	private final List<BeanProperty> propertyList;
 
-	public Print(final Writer writer) {
-		printer = new PrintWriter(writer);
+	public CapturePropertyToList(final List<BeanProperty> propertyList) {
+		this.propertyList = propertyList;
 	}
 
 	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, AtomicBoolean stop) {
-		printer.println("'" + path + "' = '" + property.getValue() + "'");
-		printer.flush();
+		propertyList.add(property);
 	}
 }

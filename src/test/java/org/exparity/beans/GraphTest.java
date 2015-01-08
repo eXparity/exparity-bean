@@ -2,6 +2,7 @@ package org.exparity.beans;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyFunction;
@@ -12,6 +13,7 @@ import org.exparity.beans.core.functions.SetValue;
 import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Thrower;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.exparity.beans.Bean.bean;
@@ -100,12 +102,9 @@ public class GraphTest {
 
 	@Test
 	public void canSetAPropertyByPredicate() {
-		assertThat(graph(new Person()).setProperty(named("firstname"), "Bob"), equalTo(true));
-	}
-
-	@Test
-	public void canSetAPropertyByPredicateNoMatch() {
-		assertThat(graph(new Person()).setProperty(named("missing"), "Bob"), equalTo(false));
+		Person instance = new Person();
+		graph(instance).setProperty(named("firstname"), "Bob");
+		assertThat(instance.getFirstname(), Matchers.equalTo("Bob"));
 	}
 
 	@Test
@@ -210,9 +209,17 @@ public class GraphTest {
 		final Object instance1 = instance;
 		final BeanVisitor visitor1 = visitor;
 		graph(instance1).visit(visitor1);
-		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")),
+				eq(instance),
+				eq(new BeanPropertyPath("person.firstname")),
+				any(Object[].class),
+				any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")),
+				eq(instance),
+				eq(new BeanPropertyPath("person.siblings")),
+				any(Object[].class),
+				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -231,7 +238,11 @@ public class GraphTest {
 		final Object instance1 = instance;
 		final BeanVisitor visitor1 = visitor;
 		graph(instance1).visit(visitor1);
-		verify(visitor).visit(eq(bean(instance).propertyNamed("property")), eq(instance), eq(new BeanPropertyPath("thrower.property")), any(Object[].class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("property")),
+				eq(instance),
+				eq(new BeanPropertyPath("thrower.property")),
+				any(Object[].class),
+				any(AtomicBoolean.class));
 		Mockito.verifyNoMoreInteractions(visitor);
 	}
 

@@ -16,7 +16,7 @@ import static org.exparity.beans.core.InstanceInspector.graphInspector;
 public class Graph extends Instance {
 
 	public static Graph graph(final Object instance) {
-		return graph(instance);
+		return graph(instance, new CamelCaseNamingStrategy());
 	}
 
 	public static Graph graph(final Object instance, final BeanNamingStrategy naming) {
