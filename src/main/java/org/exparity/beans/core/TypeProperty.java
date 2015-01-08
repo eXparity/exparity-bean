@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import static org.exparity.beans.Type.type;
-import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * Immutable value object to encapsulate a property on an Object which follows the get/set Java beans standard.</p>
@@ -17,10 +16,10 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  */
 public class TypeProperty extends AbstractProperty {
 
-	private final Method accessor, mutator;
+	private final MethodWrapper accessor, mutator;
 
-	public TypeProperty(final String propertyName, final Method accessor, final Method mutator) {
-		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
+	TypeProperty(final String propertyName, final MethodWrapper accessor, final MethodWrapper mutator) {
+		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), accessor.genericArgs());
 		this.accessor = accessor;
 		this.mutator = mutator;
 	}
@@ -29,6 +28,13 @@ public class TypeProperty extends AbstractProperty {
 	 * Return the accessor {@link Method} for this property
 	 */
 	public Method getAccessor() {
+		return accessor.getMethod();
+	}
+
+	/**
+	 * Return the accessor {@link MethodWrapper} for this property
+	 */
+	MethodWrapper getAccessorWrapper() {
 		return accessor;
 	}
 
@@ -36,6 +42,13 @@ public class TypeProperty extends AbstractProperty {
 	 * Return the mutator {@link Method} for this property
 	 */
 	public Method getMutator() {
+		return mutator.getMethod();
+	}
+
+	/**
+	 * Return the mutator {@link MethodWrapper} for this property
+	 */
+	MethodWrapper getMutatorWrapper() {
 		return mutator;
 	}
 
@@ -43,7 +56,7 @@ public class TypeProperty extends AbstractProperty {
 	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
 	public Object getValue(final Object instance) {
-		return MethodUtils.invoke(getAccessor(), instance);
+		return accessor.invoke(instance);
 	}
 
 	/**
@@ -63,7 +76,7 @@ public class TypeProperty extends AbstractProperty {
 	 * @param value the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object instance, final Object value) {
-		return MethodUtils.invoke(getMutator(), instance, value);
+		return mutator.invoke(instance, value);
 	}
 
 	@Override

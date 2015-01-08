@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import static org.exparity.beans.Type.type;
-import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * A {@link BeanProperty} which is bound to a particular instance
@@ -15,10 +14,10 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
 public class BeanProperty extends AbstractProperty {
 
 	private final Object instance;
-	private final Method accessor, mutator;
+	private final MethodWrapper accessor, mutator;
 
-	public BeanProperty(final String propertyName, final Method accessor, final Method mutator, final Object instance) {
-		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
+	BeanProperty(final String propertyName, final MethodWrapper accessor, final MethodWrapper mutator, final Object instance) {
+		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), accessor.genericArgs());
 		this.instance = instance;
 		this.accessor = accessor;
 		this.mutator = mutator;
@@ -35,14 +34,14 @@ public class BeanProperty extends AbstractProperty {
 	 * Return the accessor {@link Method} for this property
 	 */
 	public Method getAccessor() {
-		return accessor;
+		return accessor.getMethod();
 	}
 
 	/**
 	 * Return the mutator {@link Method} for this property
 	 */
 	public Method getMutator() {
-		return mutator;
+		return mutator.getMethod();
 	}
 
 	/**
@@ -61,7 +60,7 @@ public class BeanProperty extends AbstractProperty {
 	 * @param type the type to return the value as
 	 */
 	public Object getValue() {
-		return MethodUtils.invoke(getAccessor(), instance);
+		return accessor.invoke(instance);
 	}
 
 	/**
@@ -85,7 +84,7 @@ public class BeanProperty extends AbstractProperty {
 	 * @param value the value to set this property to on the instance
 	 */
 	public boolean setValue(final Object value) {
-		return MethodUtils.invoke(getMutator(), instance, value);
+		return mutator.invoke(instance, value);
 	}
 
 	@Override

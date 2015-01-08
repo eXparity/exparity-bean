@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import static org.exparity.beans.Type.type;
-import static org.exparity.beans.core.MethodUtils.genericArgs;
 
 /**
  * Immutable value object to encapsulate an property on an Object which follows the get/is Java beans standard for accessors.</p>
@@ -17,10 +16,10 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  */
 public class ImmutableTypeProperty extends AbstractProperty {
 
-	private final Method accessor;
+	private final MethodWrapper accessor;
 
-	public ImmutableTypeProperty(final String propertyName, final Method accessor) {
-		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), genericArgs(accessor));
+	public ImmutableTypeProperty(final String propertyName, final MethodWrapper accessor) {
+		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), accessor.genericArgs());
 		this.accessor = accessor;
 	}
 
@@ -28,14 +27,14 @@ public class ImmutableTypeProperty extends AbstractProperty {
 	 * Return the accessor {@link Method} for this property
 	 */
 	public Method getAccessor() {
-		return accessor;
+		return accessor.getMethod();
 	}
 
 	/**
 	 * Return the value of this property. Will throw a {@link BeanPropertyException} if the property is not found on the given instance
 	 */
 	public Object getValue(final Object instance) {
-		return MethodUtils.invoke(getAccessor(), instance);
+		return accessor.invoke(instance);
 	}
 
 	/**

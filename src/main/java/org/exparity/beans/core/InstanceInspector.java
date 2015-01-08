@@ -109,7 +109,7 @@ public class InstanceInspector {
 			return;
 		}
 
-		Type type = type(instance.getClass());
+		Type type = type(instance.getClass(), naming);
 		if (type.isArray()) {
 			inspectArray(new ArrayList<Object>(), path, naming, instance, visitor, stop);
 		} else if (type.is(Iterable.class)) {
@@ -119,9 +119,13 @@ public class InstanceInspector {
 		} else {
 			BeanPropertyPath rootPath = path.isEmpty() ? new BeanPropertyPath(naming.describeType(instance.getClass())) : path;
 			stack.add(instance);
-			for (TypeProperty property : type.setNamingStrategy(naming).propertyList()) {
+			for (TypeProperty property : type.propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
-				visitor.visit(new BeanProperty(property.getName(), property.getAccessor(), property.getMutator(), instance), instance, nextPath, stack.toArray(), stop);
+				visitor.visit(new BeanProperty(property.getName(), property.getAccessorWrapper(), property.getMutatorWrapper(), instance),
+						instance,
+						nextPath,
+						stack.toArray(),
+						stop);
 				if (stop.get()) {
 					LOG.debug("Stopped Visit of {}. Stop set to true", nextPath);
 					return;

@@ -53,7 +53,7 @@ public class TypeInspector {
 				String propertyName = toPropertyName(accessor, naming);
 				Method mutator = getMutatorFor(propertyName, accessor.getReturnType(), mutatorMap);
 				if (mutator != null) {
-					properties.add(new TypeProperty(propertyName, accessor, mutator));
+					properties.add(new TypeProperty(propertyName, new MethodWrapper(accessor), new MethodWrapper(mutator)));
 				}
 			}
 		}
@@ -64,7 +64,7 @@ public class TypeInspector {
 		List<ImmutableTypeProperty> properties = new ArrayList<ImmutableTypeProperty>();
 		for (Method accessor : type.getMethods()) {
 			if (isAccessor(accessor)) {
-				properties.add(new ImmutableTypeProperty(toPropertyName(accessor, naming), accessor));
+				properties.add(new ImmutableTypeProperty(toPropertyName(accessor, naming), new MethodWrapper(accessor)));
 			}
 		}
 		return properties;
