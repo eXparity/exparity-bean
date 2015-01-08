@@ -12,7 +12,7 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  * 
  * @author Stewart Bissett
  */
-public class BeanProperty extends InstanceProperty {
+public class BeanProperty extends AbstractProperty {
 
 	private final Object instance;
 	private final Method accessor, mutator;

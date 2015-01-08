@@ -15,7 +15,7 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  * 
  * @author Stewart Bissett
  */
-public class ImmutableTypeProperty extends InstanceProperty {
+public class ImmutableTypeProperty extends AbstractProperty {
 
 	private final Method accessor;
 

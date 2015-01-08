@@ -23,13 +23,32 @@ import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
 import org.exparity.beans.testutils.BeanUtilTestFixture.Thrower;
 import org.junit.Test;
+import static org.exparity.beans.Bean.beanProperty;
 
 public class BeanPropertyTest {
 
 	@Test
+	public void canTestForName() {
+		BeanProperty property = beanProperty(new AllTypes(), "stringValue");
+		assertThat(property.hasName("stringValue"), equalTo(true));
+	}
+
+	@Test
+	public void canTestForNameUsingAnyCase() {
+		BeanProperty property = beanProperty(new AllTypes(), "stringValue");
+		assertThat(property.hasName("STRingValUE"), equalTo(true));
+	}
+
+	@Test
+	public void canTestForWrongName() {
+		BeanProperty property = beanProperty(new AllTypes(), "stringValue");
+		assertThat(property.hasName("wrongName"), equalTo(false));
+	}
+
+	@Test
 	public void canWrapAStringProperty() {
 		verifyProperty(new AllTypes(), "stringValue", String.class, null, "sample");
-		BeanProperty property = Bean.bean(new AllTypes()).propertyNamed("stringValue");
+		BeanProperty property = beanProperty(new AllTypes(), "stringValue");
 		assertThat(property.isString(), equalTo(true));
 		assertThat(property.isPrimitive(), equalTo(false));
 	}
@@ -37,109 +56,109 @@ public class BeanPropertyTest {
 	@Test
 	public void canWrapAShortProperty() {
 		verifyProperty(new AllTypes(), "shortValue", short.class, (short) 0, Short.MAX_VALUE);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("shortValue").isShort());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("shortValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "shortValue").isShort());
+		assertTrue(beanProperty(new AllTypes(), "shortValue").isPrimitive());
 		verifyProperty(new AllTypes(), "shortObjectValue", Short.class, null, Short.MAX_VALUE);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("shortObjectValue").isShort());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("shortObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "shortObjectValue").isShort());
+		assertFalse(beanProperty(new AllTypes(), "shortObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapAIntegerProperty() {
 		verifyProperty(new AllTypes(), "integerValue", int.class, 0, 12345);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("integerValue").isInteger());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("integerValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "integerValue").isInteger());
+		assertTrue(beanProperty(new AllTypes(), "integerValue").isPrimitive());
 		verifyProperty(new AllTypes(), "integerObjectValue", Integer.class, null, 12345);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("integerObjectValue").isInteger());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("integerObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "integerObjectValue").isInteger());
+		assertFalse(beanProperty(new AllTypes(), "integerObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapALongProperty() {
 		verifyProperty(new AllTypes(), "longValue", long.class, 0L, 12345L);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("longValue").isLong());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("longValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "longValue").isLong());
+		assertTrue(beanProperty(new AllTypes(), "longValue").isPrimitive());
 		verifyProperty(new AllTypes(), "longObjectValue", Long.class, null, 12345L);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("longObjectValue").isLong());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("longObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "longObjectValue").isLong());
+		assertFalse(beanProperty(new AllTypes(), "longObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapADoubleProperty() {
 		verifyProperty(new AllTypes(), "doubleValue", double.class, 0.0, 1.1);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("doubleValue").isDouble());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("doubleValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "doubleValue").isDouble());
+		assertTrue(beanProperty(new AllTypes(), "doubleValue").isPrimitive());
 		verifyProperty(new AllTypes(), "doubleObjectValue", Double.class, null, 1.1);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("doubleObjectValue").isDouble());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("doubleObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "doubleObjectValue").isDouble());
+		assertFalse(beanProperty(new AllTypes(), "doubleObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapAFloatProperty() {
 		verifyProperty(new AllTypes(), "floatValue", float.class, 0.0f, 1.1f);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("floatValue").isFloat());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("floatValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "floatValue").isFloat());
+		assertTrue(beanProperty(new AllTypes(), "floatValue").isPrimitive());
 		verifyProperty(new AllTypes(), "floatObjectValue", Float.class, null, 1.1f);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("floatObjectValue").isFloat());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("floatObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "floatObjectValue").isFloat());
+		assertFalse(beanProperty(new AllTypes(), "floatObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapABooleanProperty() {
 		verifyProperty(new AllTypes(), "booleanValue", boolean.class, false, true);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("booleanValue").isBoolean());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("booleanValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "booleanValue").isBoolean());
+		assertTrue(beanProperty(new AllTypes(), "booleanValue").isPrimitive());
 		verifyProperty(new AllTypes(), "booleanObjectValue", Boolean.class, null, Boolean.TRUE);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("booleanObjectValue").isBoolean());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("booleanObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "booleanObjectValue").isBoolean());
+		assertFalse(beanProperty(new AllTypes(), "booleanObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapAByteProperty() {
 		verifyProperty(new AllTypes(), "byteValue", byte.class, (byte) 0, (byte) 1);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("byteValue").isByte());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("byteValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "byteValue").isByte());
+		assertTrue(beanProperty(new AllTypes(), "byteValue").isPrimitive());
 		verifyProperty(new AllTypes(), "byteObjectValue", Byte.class, null, Byte.MAX_VALUE);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("byteObjectValue").isByte());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("byteObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "byteObjectValue").isByte());
+		assertFalse(beanProperty(new AllTypes(), "byteObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapACharProperty() {
 		verifyProperty(new AllTypes(), "charValue", char.class, (char) 0, 'a');
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("charValue").isCharacter());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("charValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "charValue").isCharacter());
+		assertTrue(beanProperty(new AllTypes(), "charValue").isPrimitive());
 		verifyProperty(new AllTypes(), "charObjectValue", Character.class, null, Character.MAX_VALUE);
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("charObjectValue").isCharacter());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("charObjectValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "charObjectValue").isCharacter());
+		assertFalse(beanProperty(new AllTypes(), "charObjectValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapADateProperty() {
 		verifyProperty(new AllTypes(), "dateValue", Date.class, null, new Date());
-		assertTrue(Bean.bean(new AllTypes()).propertyNamed("dateValue").isDate());
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("dateValue").isPrimitive());
+		assertTrue(beanProperty(new AllTypes(), "dateValue").isDate());
+		assertFalse(beanProperty(new AllTypes(), "dateValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapABigDecimalProperty() {
 		verifyProperty(new AllTypes(), "bigDecimalValue", BigDecimal.class, null, new BigDecimal(0.0));
-		assertFalse(Bean.bean(new AllTypes()).propertyNamed("bigDecimalValue").isPrimitive());
+		assertFalse(beanProperty(new AllTypes(), "bigDecimalValue").isPrimitive());
 	}
 
 	@Test
 	public void canWrapAArrayProperty() {
 		verifyProperty(new AllTypes(), "array", int[].class, null, new int[] {
-			0
+				0
 		});
-		BeanProperty instance = Bean.bean(new AllTypes()).propertyNamed("array");
+		BeanProperty instance = beanProperty(new AllTypes(), "array");
 		assertThat(instance.isArray(), equalTo(true));
 	}
 
 	@Test
 	public void canWrapACollectionProperty() {
 		verifyProperty(new AllTypes(), "collection", Collection.class, null, asList("sample"), String.class);
-		BeanProperty instance = Bean.bean(new AllTypes()).propertyNamed("collection");
+		BeanProperty instance = beanProperty(new AllTypes(), "collection");
 		assertThat(instance.isCollection(), equalTo(true));
 		assertThat(instance.isIterable(), equalTo(true));
 	}
@@ -147,7 +166,7 @@ public class BeanPropertyTest {
 	@Test
 	public void canWrapAListProperty() {
 		verifyProperty(new AllTypes(), "list", List.class, null, asList("sample"), String.class);
-		BeanProperty instance = Bean.bean(new AllTypes()).propertyNamed("list");
+		BeanProperty instance = beanProperty(new AllTypes(), "list");
 		assertThat(instance.isList(), equalTo(true));
 		assertThat(instance.isIterable(), equalTo(true));
 	}
@@ -155,7 +174,7 @@ public class BeanPropertyTest {
 	@Test
 	public void canWrapASetProperty() {
 		verifyProperty(new AllTypes(), "set", Set.class, null, new HashSet<String>(asList("sample")), String.class);
-		BeanProperty instance = Bean.bean(new AllTypes()).propertyNamed("set");
+		BeanProperty instance = beanProperty(new AllTypes(), "set");
 		assertThat(instance.isSet(), equalTo(true));
 		assertThat(instance.isIterable(), equalTo(true));
 	}
@@ -163,13 +182,13 @@ public class BeanPropertyTest {
 	@Test
 	public void canWrapAMapProperty() {
 		verifyProperty(new AllTypes(), "map", Map.class, null, singletonMap(1L, "value"), Long.class, String.class);
-		BeanProperty instance = Bean.bean(new AllTypes()).propertyNamed("map");
+		BeanProperty instance = beanProperty(new AllTypes(), "map");
 		assertThat(instance.isMap(), equalTo(true));
 	}
 
 	@Test(expected = BeanPropertyException.class)
 	public void canHandleIllegalArgumentExceptionOnSet() throws Exception {
-		Bean.bean(new AllTypes()).propertyNamed("stringValue").setValue(Boolean.FALSE);
+		beanProperty(new AllTypes(), "stringValue").setValue(Boolean.FALSE);
 	}
 
 	@Test(expected = BeanPropertyException.class)
@@ -184,51 +203,51 @@ public class BeanPropertyTest {
 
 	@Test
 	public void canTestForInstanceEquality() {
-		BeanProperty lhs = Bean.bean(new AllTypes()).propertyNamed("stringValue");
+		BeanProperty lhs = beanProperty(new AllTypes(), "stringValue");
 		assertThat(lhs.equals(lhs), equalTo(true));
 		assertThat(lhs.hashCode(), equalTo(lhs.hashCode()));
 	}
 
 	@Test
 	public void canTestForInequalityOnInstance() {
-		BeanProperty lhs = Bean.bean(new AllTypes()).propertyNamed("stringValue"), rhs = Bean.bean(new AllTypes()).propertyNamed("stringValue");
+		BeanProperty lhs = beanProperty(new AllTypes(), "stringValue"), rhs = beanProperty(new AllTypes(), "stringValue");
 		assertThat(lhs.equals(rhs), equalTo(false));
 		assertThat(lhs.hashCode(), not(equalTo(rhs.hashCode())));
 	}
 
 	@Test
 	public void canTestForInequalityOnMethodName() {
-		BeanProperty lhs = Bean.bean(new AllTypes()).propertyNamed("stringValue"), rhs = Bean.bean(new AllTypes()).propertyNamed("integerValue");
+		BeanProperty lhs = beanProperty(new AllTypes(), "stringValue"), rhs = beanProperty(new AllTypes(), "integerValue");
 		assertThat(lhs.equals(rhs), equalTo(false));
 		assertThat(lhs.hashCode(), not(equalTo(rhs.hashCode())));
 	}
 
 	@Test
 	public void canTestForInequalityOnTypeName() {
-		BeanProperty lhs = Bean.bean(new AllTypes()).propertyNamed("stringValue"), rhs = Bean.bean(new Person()).propertyNamed("firstname");
+		BeanProperty lhs = beanProperty(new AllTypes(), "stringValue"), rhs = Bean.bean(new Person()).propertyNamed("firstname");
 		assertThat(lhs.equals(rhs), equalTo(false));
 	}
 
 	@Test
 	public void canTestForInequalityOnNull() {
-		assertThat(Bean.bean(new AllTypes()).propertyNamed("stringValue").equals(null), equalTo(false));
+		assertThat(beanProperty(new AllTypes(), "stringValue").equals(null), equalTo(false));
 	}
 
 	@Test
 	public void canTestForInequalityOnType() {
-		BeanProperty lhs = Bean.bean(new AllTypes()).propertyNamed("stringValue"), rhs = Bean.bean(new AllTypes()).propertyNamed("integerValue");
+		BeanProperty lhs = beanProperty(new AllTypes(), "stringValue"), rhs = beanProperty(new AllTypes(), "integerValue");
 		assertThat(lhs.equals(rhs), equalTo(false));
 		assertThat(lhs.hashCode(), not(equalTo(rhs.hashCode())));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void canThrowForIncorrectTypeParameterIndex() {
-		Bean.bean(new AllTypes()).propertyNamed("stringValue").getTypeParameter(1);
+		beanProperty(new AllTypes(), "stringValue").getTypeParameter(1);
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canThrowPropertyNotFoundForUnknownProperty() {
-		Bean.bean(new AllTypes()).propertyNamed("unknownValue");
+		beanProperty(new AllTypes(), "unknownValue");
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -15,7 +15,7 @@ import static org.exparity.beans.core.MethodUtils.genericArgs;
  * 
  * @author Stewart Bissett
  */
-public class TypeProperty extends InstanceProperty {
+public class TypeProperty extends AbstractProperty {
 
 	private final Method accessor, mutator;
 

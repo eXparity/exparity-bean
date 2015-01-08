@@ -17,14 +17,14 @@ import org.exparity.beans.Type;
  * 
  * @author Stewart Bissett
  */
-public abstract class InstanceProperty {
+public abstract class AbstractProperty {
 
 	private final Class<?> declaringType;
 	private final String name;
 	private final Type type;
 	private final Class<?>[] params;
 
-	protected InstanceProperty(final Class<?> declaringType, final String name, final Type type, final Class<?>[] params) {
+	protected AbstractProperty(final Class<?> declaringType, final String name, final Type type, final Class<?>[] params) {
 		this.declaringType = declaringType;
 		this.name = name;
 		this.type = type;
@@ -42,7 +42,7 @@ public abstract class InstanceProperty {
 	 * Test the name of the property to see if it matches the supplied name
 	 */
 	public boolean hasName(final String name) {
-		return StringUtils.equals(name, this.name);
+		return StringUtils.equalsIgnoreCase(name, this.name);
 	}
 
 	/**
@@ -289,7 +289,7 @@ public abstract class InstanceProperty {
 		if (!obj.getClass().equals(obj.getClass())) {
 			return false;
 		}
-		InstanceProperty rhs = (InstanceProperty) obj;
+		AbstractProperty rhs = (AbstractProperty) obj;
 		return new EqualsBuilder().append(declaringType, rhs.declaringType).append(name, rhs.name).isEquals();
 	}
 

@@ -27,6 +27,24 @@ import org.junit.Test;
 public class TypePropertyTest {
 
 	@Test
+	public void canTestForName() {
+		TypeProperty property = typeProperty(AllTypes.class, "stringValue");
+		assertThat(property.hasName("stringValue"), equalTo(true));
+	}
+
+	@Test
+	public void canTestForNameUsingAnyCase() {
+		TypeProperty property = typeProperty(AllTypes.class, "stringValue");
+		assertThat(property.hasName("STRingValUE"), equalTo(true));
+	}
+
+	@Test
+	public void canTestForWrongName() {
+		TypeProperty property = typeProperty(AllTypes.class, "stringValue");
+		assertThat(property.hasName("wrongName"), equalTo(false));
+	}
+
+	@Test
 	public void canWrapAStringProperty() {
 		verifyProperty(new AllTypes(), "stringValue", String.class, null, "sample");
 		TypeProperty property = typeProperty(AllTypes.class, "stringValue");

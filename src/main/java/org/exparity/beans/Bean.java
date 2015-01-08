@@ -2,7 +2,9 @@
 package org.exparity.beans;
 
 import org.exparity.beans.core.BeanNamingStrategy;
+import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.Instance;
+import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.Typed;
 import org.exparity.beans.naming.CamelCaseNamingStrategy;
 import static org.exparity.beans.Type.type;
@@ -30,6 +32,20 @@ public class Bean extends Instance implements Typed {
 	public Bean(final Object instance, final BeanNamingStrategy naming) {
 		super(beanInspector(), instance, naming);
 		this.type = type(instance);
+	}
+
+	/**
+	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given instance.</p>
+	 */
+	public static final BeanProperty beanProperty(final Object instance, final String name) {
+		return beanProperty(instance, name, new CamelCaseNamingStrategy());
+	}
+
+	/**
+	 * Static factory method for constructing a {@link BeanProperty} for the property name on the given instance.</p>
+	 */
+	public static final BeanProperty beanProperty(final Object instance, final String name, final BeanNamingStrategy naming) {
+		return bean(instance, naming).propertyNamed(name);
 	}
 
 	public String camelName() {
