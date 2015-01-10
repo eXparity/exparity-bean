@@ -1,6 +1,8 @@
 
 package org.exparity.beans;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,8 +14,13 @@ import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanVisitor;
 import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.functions.SetValue;
-import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
+import org.exparity.beans.testutils.types.AllTypes;
+import org.exparity.beans.testutils.types.AllTypes.EnumValues;
+import org.exparity.beans.testutils.types.Car;
+import org.exparity.beans.testutils.types.Engine;
+import org.exparity.beans.testutils.types.NameMismatch;
+import org.exparity.beans.testutils.types.Person;
+import org.exparity.beans.testutils.types.Wheel;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -358,5 +365,70 @@ public class BeanTest {
 		bean(instance1).apply(new SetValue("Applied"), ofType(String.class));
 		assertThat(instance.getFirstname(), equalTo("Applied"));
 		assertThat(instance.getSurname(), equalTo("Applied"));
+	}
+
+	@Test
+	public void canGetNameInCamelCase() {
+		assertThat(bean(new AllTypes()).camelName(), equalTo("allTypes"));
+	}
+
+	@Test
+	public void canGetSimpleName() {
+		assertThat(bean(new AllTypes()).simpleName(), equalTo("AllTypes"));
+	}
+
+	@Test
+	public void canGetCanonicalName() {
+		assertThat(bean(new AllTypes()).canonicalName(), equalTo("org.exparity.beans.testutils.types.AllTypes"));
+	}
+
+	@Test
+	public void canGetPackageName() {
+		assertThat(bean(new AllTypes()).packageName(), equalTo("org.exparity.beans.testutils.types"));
+	}
+
+	@Test
+	public void canGetType() {
+		assertThat(bean(new AllTypes()).getType(), Matchers.<Class> equalTo(AllTypes.class));
+	}
+
+	@Test
+	public void canCheckType() {
+		assertThat(bean(new AllTypes()).is(AllTypes.class), equalTo(true));
+	}
+
+	@Test
+	public void canCheckIsNotType() {
+		assertThat(bean(new AllTypes()).is(String.class), equalTo(false));
+	}
+
+	@Test
+	public void canCheckIsEnum() {
+		assertThat(bean(EnumValues.VALUE_1).isEnum(), equalTo(true));
+	}
+
+	@Test
+	public void canCheckIsNotEnum() {
+		assertThat(bean(new AllTypes()).isEnum(), equalTo(false));
+	}
+
+	@Test
+	public void canCheckIsNotPrimitiveEvenWithPrimitive() {
+		assertThat(bean(1L).isPrimitive(), equalTo(false));
+	}
+
+	@Test
+	public void canCheckIsNotPrimitive() {
+		assertThat(bean("AString").isPrimitive(), equalTo(false));
+	}
+
+	@Test
+	public void canDumpPropertiesToStringBuffer() {
+		StringBuffer buffer = new StringBuffer();
+		Engine engine = new Engine(new BigDecimal("1.1"));
+		Wheel wheel1 = new Wheel(5), wheel2 = new Wheel(6);
+		Car car = new Car(engine, Arrays.asList(wheel1, wheel2));
+		bean(car).dump(buffer);
+		assertThat(buffer.toString(), equalTo("car.engine='Engine [1.1]'\r\ncar.wheels='[Wheel [5], Wheel [6]]'\r\n"));
 	}
 }

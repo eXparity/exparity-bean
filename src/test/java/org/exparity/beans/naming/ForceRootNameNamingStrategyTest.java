@@ -3,8 +3,9 @@ package org.exparity.beans.naming;
 
 import java.lang.reflect.Method;
 import org.exparity.beans.core.BeanNamingStrategy;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
+import org.exparity.beans.core.naming.ForceRootNameNamingStrategy;
+import org.exparity.beans.testutils.types.AllTypes;
+import org.exparity.beans.testutils.types.Car;
 import org.junit.Test;
 import static org.exparity.beans.Type.type;
 import static org.hamcrest.MatcherAssert.assertThat;

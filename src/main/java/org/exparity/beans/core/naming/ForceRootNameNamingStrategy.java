@@ -1,4 +1,4 @@
-package org.exparity.beans.naming;
+package org.exparity.beans.core.naming;
 
 import java.lang.reflect.Method;
 import org.exparity.beans.core.BeanNamingStrategy;

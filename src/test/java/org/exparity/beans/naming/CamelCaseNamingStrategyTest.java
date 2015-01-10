@@ -3,7 +3,8 @@ package org.exparity.beans.naming;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
+import org.exparity.beans.core.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.testutils.types.AllTypes;
 import org.junit.Test;
 import static org.exparity.beans.Type.type;
 import static org.hamcrest.MatcherAssert.assertThat;

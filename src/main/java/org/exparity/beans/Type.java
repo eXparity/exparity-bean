@@ -9,13 +9,14 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.exparity.beans.core.BeanNamingStrategy;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
+import org.exparity.beans.core.BeanPropertyOrderingStrategy;
 import org.exparity.beans.core.ImmutableTypeProperty;
 import org.exparity.beans.core.TypeInspector;
 import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.TypeVisitor;
 import org.exparity.beans.core.Typed;
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
-import org.exparity.beans.naming.CapitalizedNamingStrategy;
+import org.exparity.beans.core.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.core.ordering.InAlphabeticalOrder;
 import static org.apache.commons.lang.StringUtils.uncapitalize;
 
 /**
@@ -24,19 +25,19 @@ import static org.apache.commons.lang.StringUtils.uncapitalize;
 public class Type implements Typed {
 
 	public static Type type(final Class<?> type) {
-		return new Type(type, new CamelCaseNamingStrategy());
+		return new Type(type, new CamelCaseNamingStrategy(), new InAlphabeticalOrder());
 	}
 
-	public static Type type(final Class<?> type, final BeanNamingStrategy namingStrategy) {
-		return new Type(type, namingStrategy);
+	public static Type type(final Class<?> type, final BeanNamingStrategy naming) {
+		return new Type(type, naming, new InAlphabeticalOrder());
 	}
 
 	public static Type type(final Object instance) {
-		return new Type(instance.getClass(), new CamelCaseNamingStrategy());
+		return new Type(instance.getClass(), new CamelCaseNamingStrategy(), new InAlphabeticalOrder());
 	}
 
-	public static Type type(final Object instance, final BeanNamingStrategy namingStrategy) {
-		return new Type(instance.getClass(), namingStrategy);
+	public static Type type(final Object instance, final BeanNamingStrategy naming) {
+		return new Type(instance.getClass(), naming, new InAlphabeticalOrder());
 	}
 
 	/**
@@ -48,18 +49,20 @@ public class Type implements Typed {
 
 	private final TypeInspector inspector = new TypeInspector();
 	private final Class<?> type;
-	private BeanNamingStrategy naming;
+	private final BeanPropertyOrderingStrategy orderBy;
+	private final BeanNamingStrategy naming;
 
 	public Type(final Class<?> type) {
-		this(type, new CapitalizedNamingStrategy());
+		this(type, new CamelCaseNamingStrategy(), new InAlphabeticalOrder());
 	}
 
-	public Type(final Class<?> type, final BeanNamingStrategy namingStrategy) {
+	public Type(final Class<?> type, final BeanNamingStrategy naming, final BeanPropertyOrderingStrategy orderBy) {
 		if (type == null) {
 			throw new IllegalArgumentException("Type cannot be null");
 		}
 		this.type = type;
-		this.naming = namingStrategy;
+		this.naming = naming;
+		this.orderBy = orderBy;
 	}
 
 	public String camelName() {
@@ -139,11 +142,6 @@ public class Type implements Typed {
 		inspector.inspect(type, naming, visitor);
 	}
 
-	public Type setNamingStrategy(final BeanNamingStrategy naming) {
-		this.naming = naming;
-		return this;
-	}
-
 	/**
 	 * Return a list of the publicly exposes get/set properties on a class. For example:
 	 * <p/>
@@ -160,6 +158,7 @@ public class Type implements Typed {
 				propertyList.add(property);
 			}
 		});
+		orderBy.sort(propertyList);
 		return propertyList;
 	}
 
@@ -238,10 +237,7 @@ public class Type implements Typed {
 	 * Return the accessor Method for the given property. For example</p>
 	 * 
 	 * <pre>
-	 * 
-	 * 
-	 * 
-	 * Method method = type(MyObject).getAccessor(&quot;surname&quot;);
+	 * Method method = type(MyObject).getAccessor(&quot;surname&quot;)
 	 * </pre>
 	 * @param name the property name
 	 * @throws BeanPropertyNotFoundException if the property is not found

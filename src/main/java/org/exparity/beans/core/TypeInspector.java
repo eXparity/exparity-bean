@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.core.naming.CamelCaseNamingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.lang.System.identityHashCode;

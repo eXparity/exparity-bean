@@ -6,8 +6,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyPredicate;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Car;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
+import org.exparity.beans.testutils.types.Car;
+import org.exparity.beans.testutils.types.Person;
 import org.junit.Test;
 
 /**
@@ -103,6 +103,16 @@ public class BeanPredicatesTest {
 	@Test
 	public void canMatchWithNameAndTypeWrongName() {
 		assertMatch(named("lastname", String.class), false);
+	}
+
+	@Test
+	public void canMatchPattern() {
+		assertMatch(BeanPredicates.matchesPattern("firstname", "B.*"), true);
+	}
+
+	@Test
+	public void canFailToMatchPattern() {
+		assertMatch(BeanPredicates.matchesPattern("firstname", "St.*"), false);
 	}
 
 	private void assertMatch(final BeanPropertyPredicate predicate, final boolean expected) {

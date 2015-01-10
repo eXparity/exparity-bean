@@ -1,4 +1,4 @@
-package org.exparity.beans.naming;
+package org.exparity.beans.core.naming;
 
 import static org.exparity.beans.Type.type;
 import java.util.Collection;

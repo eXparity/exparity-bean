@@ -19,9 +19,9 @@ import java.util.Set;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
 import org.exparity.beans.core.TypeProperty;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Thrower;
+import org.exparity.beans.testutils.types.AllTypes;
+import org.exparity.beans.testutils.types.Person;
+import org.exparity.beans.testutils.types.Thrower;
 import org.junit.Test;
 
 public class TypePropertyTest {

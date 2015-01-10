@@ -1,18 +1,18 @@
+
 package org.exparity.beans;
 
 import java.util.List;
 import java.util.Map;
-import org.exparity.beans.Type;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
 import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.TypeVisitor;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Employee;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Manager;
-import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes.EnumValues;
+import org.exparity.beans.testutils.types.AllTypes;
+import org.exparity.beans.testutils.types.AllTypes.EnumValues;
+import org.exparity.beans.testutils.types.Employee;
+import org.exparity.beans.testutils.types.Manager;
+import org.exparity.beans.testutils.types.NameMismatch;
+import org.exparity.beans.testutils.types.Person;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.exparity.beans.Type.type;
@@ -147,12 +147,12 @@ public class TypeTest {
 
 	@Test
 	public void canGetACanonicalNameForAType() {
-		assertThat(type(AllTypes.class).canonicalName(), equalTo("org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes"));
+		assertThat(type(AllTypes.class).canonicalName(), equalTo("org.exparity.beans.testutils.types.AllTypes"));
 	}
 
 	@Test
 	public void canGetAPackageNameForAType() {
-		assertThat(type(AllTypes.class).packageName(), equalTo("org.exparity.beans.testutils"));
+		assertThat(type(AllTypes.class).packageName(), equalTo("org.exparity.beans.testutils.types"));
 	}
 
 	@Test(expected = IllegalArgumentException.class)

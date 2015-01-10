@@ -19,9 +19,9 @@ import org.exparity.beans.Bean;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
-import org.exparity.beans.testutils.BeanUtilTestFixture.AllTypes;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Thrower;
+import org.exparity.beans.testutils.types.AllTypes;
+import org.exparity.beans.testutils.types.Person;
+import org.exparity.beans.testutils.types.Thrower;
 import org.junit.Test;
 import static org.exparity.beans.Bean.beanProperty;
 

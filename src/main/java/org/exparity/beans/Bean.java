@@ -4,10 +4,8 @@ package org.exparity.beans;
 import org.exparity.beans.core.BeanNamingStrategy;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.Instance;
-import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.Typed;
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
-import static org.exparity.beans.Type.type;
+import org.exparity.beans.core.naming.CamelCaseNamingStrategy;
 import static org.exparity.beans.core.InstanceInspector.beanInspector;
 
 /**
@@ -31,7 +29,7 @@ public class Bean extends Instance implements Typed {
 
 	public Bean(final Object instance, final BeanNamingStrategy naming) {
 		super(beanInspector(), instance, naming);
-		this.type = type(instance);
+		this.type = Type.type(instance, naming);
 	}
 
 	/**
@@ -49,46 +47,50 @@ public class Bean extends Instance implements Typed {
 	}
 
 	public String camelName() {
-		return type.camelName();
+		return type().camelName();
+	}
+
+	public Type type() {
+		return type;
 	}
 
 	public String simpleName() {
-		return type.simpleName();
+		return type().simpleName();
 	}
 
 	public String canonicalName() {
-		return type.canonicalName();
+		return type().canonicalName();
 	}
 
 	public Class<?>[] typeHierachy() {
-		return type.typeHierachy();
+		return type().typeHierachy();
 	}
 
 	public Class<?>[] superTypes() {
-		return type.superTypes();
+		return type().superTypes();
 	}
 
 	public boolean is(final Class<?> otherType) {
-		return type.is(otherType);
+		return type().is(otherType);
 	}
 
 	public boolean isArray() {
-		return type.isArray();
+		return type().isArray();
 	}
 
 	public String packageName() {
-		return type.packageName();
+		return type().packageName();
 	}
 
 	public boolean isPrimitive() {
-		return type.isPrimitive();
+		return type().isPrimitive();
 	}
 
 	public boolean isEnum() {
-		return type.isEnum();
+		return type().isEnum();
 	}
 
 	public Class<?> getType() {
-		return type.getType();
+		return type().getType();
 	}
 }

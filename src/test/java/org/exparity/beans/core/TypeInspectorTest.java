@@ -5,12 +5,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.exparity.beans.core.TypeInspector;
 import org.exparity.beans.core.TypeVisitor;
-import org.exparity.beans.testutils.BeanUtilTestFixture.GetterWithArgs;
-import org.exparity.beans.testutils.BeanUtilTestFixture.NameMismatch;
-import org.exparity.beans.testutils.BeanUtilTestFixture.OverloadedSetter;
-import org.exparity.beans.testutils.BeanUtilTestFixture.Person;
-import org.exparity.beans.testutils.BeanUtilTestFixture.SetterWithNoArgs;
-import org.exparity.beans.testutils.BeanUtilTestFixture.TypeMismatch;
+import org.exparity.beans.testutils.types.GetterWithArgs;
+import org.exparity.beans.testutils.types.NameMismatch;
+import org.exparity.beans.testutils.types.OverloadedSetter;
+import org.exparity.beans.testutils.types.Person;
+import org.exparity.beans.testutils.types.SetterWithNoArgs;
+import org.exparity.beans.testutils.types.TypeMismatch;
 import org.junit.Test;
 import org.mockito.Mockito;
 

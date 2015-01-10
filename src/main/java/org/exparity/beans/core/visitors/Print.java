@@ -18,8 +18,8 @@ public class Print implements BeanVisitor {
 		printer = new PrintWriter(writer);
 	}
 
-	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, AtomicBoolean stop) {
-		printer.println("'" + path + "' = '" + property.getValue() + "'");
+	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, final AtomicBoolean stop) {
+		printer.println(path.fullPath() + "='" + property.getValue() + "'");
 		printer.flush();
 	}
 }

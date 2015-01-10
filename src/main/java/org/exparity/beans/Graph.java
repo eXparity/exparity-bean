@@ -3,7 +3,7 @@ package org.exparity.beans;
 
 import org.exparity.beans.core.BeanNamingStrategy;
 import org.exparity.beans.core.Instance;
-import org.exparity.beans.naming.CamelCaseNamingStrategy;
+import org.exparity.beans.core.naming.CamelCaseNamingStrategy;
 import static org.exparity.beans.core.InstanceInspector.graphInspector;
 
 /**
