@@ -1,11 +1,14 @@
-
 package org.exparity.beans;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.lang.SystemUtils;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyFunction;
@@ -22,6 +25,7 @@ import org.exparity.beans.testutils.types.NameMismatch;
 import org.exparity.beans.testutils.types.Person;
 import org.exparity.beans.testutils.types.Wheel;
 import org.hamcrest.Matchers;
+import org.hamcrest.generator.qdox.model.JavaClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.exparity.beans.Bean.bean;
@@ -256,9 +260,12 @@ public class BeanTest {
 		Person instance = new Person();
 		Bean bean = Bean.bean(instance);
 		bean(instance).visit(visitor);
-		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class),
+				any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class),
+				any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class),
+				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -424,11 +431,12 @@ public class BeanTest {
 
 	@Test
 	public void canDumpPropertiesToStringBuffer() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer actual = new StringBuffer();
 		Engine engine = new Engine(new BigDecimal("1.1"));
 		Wheel wheel1 = new Wheel(5), wheel2 = new Wheel(6);
 		Car car = new Car(engine, Arrays.asList(wheel1, wheel2));
-		bean(car).dump(buffer);
-		assertThat(buffer.toString(), equalTo("car.engine='Engine [1.1]'\r\ncar.wheels='[Wheel [5], Wheel [6]]'\r\n"));
+		bean(car).dump(actual);
+		assertThat(actual.toString(), equalTo("car.engine='Engine [1.1]'" + SystemUtils.LINE_SEPARATOR + "car.wheels='[Wheel [5], Wheel [6]]'"
+				+ SystemUtils.LINE_SEPARATOR));
 	}
 }
