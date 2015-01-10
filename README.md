@@ -14,27 +14,26 @@ A maven project
     <dependency>
         <groupId>org.exparity</groupId>
         <artifactId>exparity-bean</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </dependency>
 
 A project which uses ivy for dependency management
 
-    <dependency org="org.exparity" name="exparity-bean" rev="1.0.0"/>
+    <dependency org="org.exparity" name="exparity-bean" rev="1.0.1"/>
             
 Usage
 -------------
 
-The utilites are exposed from three class, for *Type*, *Bean*, and *Graph* with convenience classes called *BeanUtils* and *GraphUtils*. To clarify the difference between Bean and a Graph in the library is that Bean will limit it's scope to just the instance passed into into, Graph will descend into the children of the instance as well i.e. perform a deep inspection.
+The utilites are exposed from three class, for *Type*, *Bean*, and *Graph*. To clarify the difference between Bean and a Graph in the library is that Bean will limit it's scope to just the instance passed into into, Graph will descend into the children of the instance as well i.e. perform a deep inspection.
 
 Property level operations are exposed by two classes, *BeanProperty* or *TypeProperty*, depending on if you're inspecting an Instance or a Class respectively.
 
 Some example usages are below. 
 
-To get a list of the get/set properties on a Class you can use any of the 3 approaches below.
+To get a list of the get/set properties on a Class you can use any of the 2 approaches below.
 
     List<TypeProperty> properties = Type.type(MyClass.class).propertyList();
     List<TypeProperty> properties = new Type(MyClass.class).propertyList();
-    List<TypeProperty> properties = BeanUtils.propertyList(MyClass.class);
 
 which after static importing will look like this
 
@@ -46,7 +45,6 @@ A similar operation can be performed on an instance. For example
 
     List<BeanProperty> properties = Bean.bean(new MyClass()).propertyList();
     List<BeanProperty> properties = new Bean(new MyClass()).propertyList();
-    List<BeanProperty> properties = BeanUtils.propertyList(new MyClass());
 
 which after static importing will look like this
 
@@ -58,7 +56,6 @@ Lastly the same operations are available on an entire object graph. For example
 
     List<BeanProperty> properties = Graph.graph(new MyClass()).propertyList();
     List<BeanProperty> properties = new Graph(new MyClass()).propertyList();
-    List<BeanProperty> properties = GraphUtils.propertyList(new MyClass());
 
 which after static importing will look like this
 
@@ -68,7 +65,7 @@ which after static importing will look like this
 
 To get an individual property on a Class you can use the TypeProperty class directly. For example:
 
-    TypeProperty property = TypeProperty.typeProperty(MyClass.class, "myProperty");
+    TypeProperty property = Type.typeProperty(MyClass.class, "myProperty");
 
 which after static importing can be used like this
 
@@ -78,7 +75,7 @@ which after static importing can be used like this
 
 To get an individual property on an instance you can use the BeanProperty class directly. For example:
 
-    BeanProperty property = BeanProperty.beanProperty(new MyClass(), "myProperty");
+    BeanProperty property = Bean.beanProperty(new MyClass(), "myProperty");
 
 which after static importing can be used like this
 
@@ -158,6 +155,15 @@ The source is structured along the lines of the maven standard folder structure 
   * Unit tests [src/test/java]
 
 The source includes a pom.xml for building with Maven 
+
+Release Notes
+-------------
+
+Changes 1.0.0 -> 1.0.1
+  * Add dump methods to print out properties and their values
+  * Add ordering of methods to make order consistent
+  * Remove BeanUtils to simpligy API to use Bean.bean(..)
+  * Remove GraphUtils to simplify API to use Graph.graph(..)
 
 Acknowledgements
 ----------------
