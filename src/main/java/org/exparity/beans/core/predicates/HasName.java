@@ -7,11 +7,11 @@ import org.exparity.beans.core.BeanPropertyPredicate;
 /**
  * @author Stewart Bissett
  */
-public class Named implements BeanPropertyPredicate {
+public class HasName implements BeanPropertyPredicate {
 
 	private final String name;
 
-	public Named(final String name) {
+	public HasName(final String name) {
 		this.name = name;
 	}
 

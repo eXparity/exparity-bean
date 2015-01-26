@@ -9,7 +9,7 @@ import org.exparity.beans.core.predicates.MatchersPattern;
 import org.exparity.beans.core.predicates.MatchesAll;
 import org.exparity.beans.core.predicates.MatchesAlways;
 import org.exparity.beans.core.predicates.MatchesOneOf;
-import org.exparity.beans.core.predicates.Named;
+import org.exparity.beans.core.predicates.HasName;
 import org.exparity.beans.core.predicates.OfDeclaringType;
 import org.exparity.beans.core.predicates.WithPropertyValue;
 import org.exparity.beans.core.predicates.WithValue;
@@ -46,7 +46,7 @@ public abstract class BeanPredicates {
 	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied name
 	 */
 	public static BeanPropertyPredicate named(final String name) {
-		return new Named(name);
+		return new HasName(name);
 	}
 
 	/**
