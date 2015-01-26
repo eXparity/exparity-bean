@@ -2,6 +2,8 @@
 package org.exparity.beans;
 
 import org.exparity.beans.core.BeanPropertyPredicate;
+import org.exparity.beans.core.predicates.HasPath;
+import org.exparity.beans.core.predicates.HasPathIgnoreOrdinal;
 import org.exparity.beans.core.predicates.HasType;
 import org.exparity.beans.core.predicates.MatchersPattern;
 import org.exparity.beans.core.predicates.MatchesAll;
@@ -87,5 +89,19 @@ public abstract class BeanPredicates {
 	 */
 	public static BeanPropertyPredicate named(final String propertyName, final Class<?>... types) {
 		return matchesAll(named(propertyName), ofType(types));
+	}
+
+	/**
+	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied path
+	 */
+	public static BeanPropertyPredicate hasPath(final String path) {
+		return new HasPath(path);
+	}
+
+	/**
+	 * Return a {@link BeanPropertyPredicate} which returns <code>true</code> if the property has the supplied path regardless of any ordinals
+	 */
+	public static BeanPropertyPredicate hasPathIgnoreOrdinal(final String path) {
+		return new HasPathIgnoreOrdinal(path);
 	}
 }

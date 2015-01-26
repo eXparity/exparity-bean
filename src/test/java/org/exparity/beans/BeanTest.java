@@ -1,22 +1,19 @@
 package org.exparity.beans;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.lang.SystemUtils;
 import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyFunction;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
-import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanVisitor;
 import org.exparity.beans.core.TypeProperty;
 import org.exparity.beans.core.functions.SetValue;
+import org.exparity.beans.core.naming.CapitalizedNamingStrategy;
 import org.exparity.beans.testutils.types.AllTypes;
 import org.exparity.beans.testutils.types.AllTypes.EnumValues;
 import org.exparity.beans.testutils.types.Car;
@@ -25,7 +22,6 @@ import org.exparity.beans.testutils.types.NameMismatch;
 import org.exparity.beans.testutils.types.Person;
 import org.exparity.beans.testutils.types.Wheel;
 import org.hamcrest.Matchers;
-import org.hamcrest.generator.qdox.model.JavaClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.exparity.beans.Bean.bean;
@@ -47,7 +43,10 @@ public class BeanTest {
 
 	@Test
 	public void canGetAPropertyByName() {
-		assertThat(bean(new Person()).propertyNamed("firstname"), notNullValue());
+		BeanProperty property = bean(new Person()).propertyNamed("firstname");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("firstname"));
+		assertThat(property.getPath().fullPath(), equalTo("person.firstname"));
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
@@ -260,12 +259,9 @@ public class BeanTest {
 		Person instance = new Person();
 		Bean bean = Bean.bean(instance);
 		bean(instance).visit(visitor);
-		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), eq(new BeanPropertyPath("person.firstname")), any(Object[].class),
-				any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class),
-				any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), any(Object[].class),
-				any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("firstname")), eq(instance), any(Object[].class), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("surname")), eq(instance), any(Object[].class), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean.propertyNamed("siblings")), eq(instance), any(Object[].class), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -347,7 +343,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void canNotFindAPropertyOnABean() {
+	public void canFailToFindAPropertyOnABean() {
 		assertThat(bean(new Person()).find(named("missing")), hasSize(0));
 	}
 
@@ -359,7 +355,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void canNotFindFirstInstanceOfAPropertyOnABean() {
+	public void canFailToFindFirstInstanceOfAPropertyOnABean() {
 		assertThat(bean(new Person()).findAny(named("missing")), nullValue());
 	}
 
@@ -439,4 +435,13 @@ public class BeanTest {
 		assertThat(actual.toString(), equalTo("car.engine='Engine [1.1]'" + SystemUtils.LINE_SEPARATOR + "car.wheels='[Wheel [5], Wheel [6]]'"
 				+ SystemUtils.LINE_SEPARATOR));
 	}
+
+	@Test
+	public void canOverrideNaming() {
+		BeanProperty property = bean(new Person(), new CapitalizedNamingStrategy()).propertyNamed("firstname");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("Firstname"));
+		assertThat(property.getPath().fullPath(), equalTo("Person.Firstname"));
+	}
+
 }

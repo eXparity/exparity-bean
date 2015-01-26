@@ -15,12 +15,14 @@ public class BeanProperty extends AbstractProperty {
 
 	private final Object instance;
 	private final MethodWrapper accessor, mutator;
+	private final BeanPropertyPath path;
 
-	BeanProperty(final String propertyName, final MethodWrapper accessor, final MethodWrapper mutator, final Object instance) {
+	public BeanProperty(final String propertyName, final BeanPropertyPath path, final MethodWrapper accessor, final MethodWrapper mutator, final Object instance) {
 		super(accessor.getDeclaringClass(), propertyName, type(accessor.getReturnType()), accessor.genericArgs());
 		this.instance = instance;
 		this.accessor = accessor;
 		this.mutator = mutator;
+		this.path = path;
 	}
 
 	/**
@@ -28,6 +30,13 @@ public class BeanProperty extends AbstractProperty {
 	 */
 	public Object getInstance() {
 		return instance;
+	}
+
+	/**
+	 * Return the path this property is at
+	 */
+	public BeanPropertyPath getPath() {
+		return path;
 	}
 
 	/**

@@ -121,9 +121,8 @@ public class InstanceInspector {
 			stack.add(instance);
 			for (TypeProperty property : type.propertyList()) {
 				BeanPropertyPath nextPath = rootPath.append(property.getName());
-				visitor.visit(new BeanProperty(property.getName(), property.getAccessorWrapper(), property.getMutatorWrapper(), instance),
+				visitor.visit(new BeanProperty(property.getName(), nextPath, property.getAccessorWrapper(), property.getMutatorWrapper(), instance),
 						instance,
-						nextPath,
 						stack.toArray(),
 						stop);
 				if (stop.get()) {

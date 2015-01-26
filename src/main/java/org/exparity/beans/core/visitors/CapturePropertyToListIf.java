@@ -4,7 +4,6 @@ package org.exparity.beans.core.visitors;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.exparity.beans.core.BeanProperty;
-import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanPropertyPredicate;
 
 /**
@@ -20,9 +19,9 @@ public class CapturePropertyToListIf extends CapturePropertyToList {
 	}
 
 	@Override
-	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, final AtomicBoolean stop) {
+	public void visit(final BeanProperty property, final Object current, final Object[] stack, final AtomicBoolean stop) {
 		if (predicate.matches(property)) {
-			super.visit(property, current, path, stack, stop);
+			super.visit(property, current, stack, stop);
 		}
 	}
 }

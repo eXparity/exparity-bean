@@ -48,11 +48,10 @@ public class InstanceInspectorTest {
 		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")),
 				eq(instance),
-				eq(new BeanPropertyPath("person.firstname")),
 				aStackOf(instance),
 				any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), aStackOf(instance), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), aStackOf(instance), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), aStackOf(instance), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), aStackOf(instance), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -65,11 +64,10 @@ public class InstanceInspectorTest {
 		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")),
 				eq(instance),
-				eq(new BeanPropertyPath("person.firstname")),
 				aStackOf(instance),
 				any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), aStackOf(instance), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), eq(new BeanPropertyPath("person.siblings")), aStackOf(instance), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), aStackOf(instance), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")), eq(instance), aStackOf(instance), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -90,27 +88,23 @@ public class InstanceInspectorTest {
 		final Object instance = car;
 		final BeanVisitor visitor1 = visitor;
 		graphInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
-		verify(visitor).visit(eq(bean(car).get("engine")), eq(car), eq(new BeanPropertyPath("car.engine")), aStackOf(car), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(engine).get("capacity")), eq(engine), eq(new BeanPropertyPath("car.engine.capacity")), aStackOf(car, engine), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(car).get("wheels")), eq(car), eq(new BeanPropertyPath("car.wheels")), aStackOf(car), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(car).get("engine")), eq(car), aStackOf(car), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(engine).get("capacity")), eq(engine), aStackOf(car, engine), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(car).get("wheels")), eq(car), aStackOf(car), any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(wheels.get(0)).get("diameter")),
 				eq(wheels.get(0)),
-				eq(new BeanPropertyPath("car.wheels[0].diameter")),
 				aStackOf(car, wheels.get(0)),
 				any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(wheels.get(1)).get("diameter")),
 				eq(wheels.get(1)),
-				eq(new BeanPropertyPath("car.wheels[1].diameter")),
 				aStackOf(car, wheels.get(1)),
 				any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(wheels.get(2)).get("diameter")),
 				eq(wheels.get(2)),
-				eq(new BeanPropertyPath("car.wheels[2].diameter")),
 				aStackOf(car, wheels.get(2)),
 				any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(wheels.get(3)).get("diameter")),
 				eq(wheels.get(3)),
-				eq(new BeanPropertyPath("car.wheels[3].diameter")),
 				aStackOf(car, wheels.get(3)),
 				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
@@ -125,22 +119,19 @@ public class InstanceInspectorTest {
 		final Object instance = brother;
 		final BeanVisitor visitor1 = visitor;
 		graphInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
-		verify(visitor).visit(eq(bean(brother).get("firstname")), eq(brother), eq(new BeanPropertyPath("person.firstname")), aStackOf(brother), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(brother).get("surname")), eq(brother), eq(new BeanPropertyPath("person.surname")), aStackOf(brother), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(brother).get("siblings")), eq(brother), eq(new BeanPropertyPath("person.siblings")), aStackOf(brother), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(brother).get("firstname")), eq(brother), aStackOf(brother), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(brother).get("surname")), eq(brother), aStackOf(brother), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(brother).get("siblings")), eq(brother), aStackOf(brother), any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(sister).get("firstname")),
 				eq(sister),
-				eq(new BeanPropertyPath("person.siblings[0].firstname")),
 				aStackOf(brother, sister),
 				any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(sister).get("surname")),
 				eq(sister),
-				eq(new BeanPropertyPath("person.siblings[0].surname")),
 				aStackOf(brother, sister),
 				any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(sister).get("siblings")),
 				eq(sister),
-				eq(new BeanPropertyPath("person.siblings[0].siblings")),
 				aStackOf(brother, sister),
 				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
@@ -155,8 +146,8 @@ public class InstanceInspectorTest {
 		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("property")),
 				eq(instance),
-				eq(new BeanPropertyPath("overloadedSetter.property")),
-				argThat(arrayContaining(((Object) instance))), any(AtomicBoolean.class));
+				argThat(arrayContaining(((Object) instance))),
+				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -166,7 +157,7 @@ public class InstanceInspectorTest {
 		final Object instance1 = instance;
 		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), new BeanVisitor() {
 		
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, final AtomicBoolean stop) {
+			public void visit(final BeanProperty property, final Object current, final Object[] stack, final AtomicBoolean stop) {
 				MatcherAssert.assertThat(property.getValue(), org.hamcrest.Matchers.notNullValue());
 			}
 		});
@@ -182,7 +173,7 @@ public class InstanceInspectorTest {
 		final Object instance2 = instance;
 		beanInspector().inspect(instance2, new CamelCaseNamingStrategy(), new BeanVisitor() {
 		
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, final AtomicBoolean stop) {
+			public void visit(final BeanProperty property, final Object current, final Object[] stack, final AtomicBoolean stop) {
 				if (property.isCollection() || property.isMap() || property.isArray()) {
 					MatcherAssert.assertThat(property.getValue(), org.hamcrest.Matchers.notNullValue());
 				}
@@ -200,7 +191,7 @@ public class InstanceInspectorTest {
 		final Object instance2 = instance;
 		beanInspector().inspect(instance2, new CamelCaseNamingStrategy(), new BeanVisitor() {
 		
-			public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, final AtomicBoolean stop) {
+			public void visit(final BeanProperty property, final Object current, final Object[] stack, final AtomicBoolean stop) {
 				if (!property.isPrimitive()) {
 					MatcherAssert.assertThat(property.getValue(), org.hamcrest.Matchers.nullValue());
 				}
@@ -221,12 +212,12 @@ public class InstanceInspectorTest {
 		final Object instance1 = instance;
 		final BeanVisitor visitor1 = visitor;
 		beanInspector().inspect(instance1, new CamelCaseNamingStrategy(), visitor1);
-		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("map[Bob].firstname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("map[Bob].surname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("map[Bob].siblings")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), eq(new BeanPropertyPath("map[Tina].firstname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), eq(new BeanPropertyPath("map[Tina].surname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), eq(new BeanPropertyPath("map[Tina].siblings")), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -243,12 +234,12 @@ public class InstanceInspectorTest {
 		final Object instance = people;
 		final BeanVisitor visitor1 = visitor;
 		beanInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
-		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("person[0].firstname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("person[0].surname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("person[0].siblings")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), eq(new BeanPropertyPath("person[1].firstname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), eq(new BeanPropertyPath("person[1].surname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), eq(new BeanPropertyPath("person[1].siblings")), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 
@@ -263,12 +254,12 @@ public class InstanceInspectorTest {
 		final Object instance = people;
 		final BeanVisitor visitor1 = visitor;
 		beanInspector().inspect(instance, new CamelCaseNamingStrategy(), visitor1);
-		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), eq(new BeanPropertyPath("collection[0].firstname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), eq(new BeanPropertyPath("collection[0].surname")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), eq(new BeanPropertyPath("collection[0].siblings")), aStackOf(bob), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), eq(new BeanPropertyPath("collection[1].firstname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), eq(new BeanPropertyPath("collection[1].surname")), aStackOf(tina), any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), eq(new BeanPropertyPath("collection[1].siblings")), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("firstname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("surname")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(bob).propertyNamed("siblings")), eq(bob), aStackOf(bob), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("firstname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("surname")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(tina).propertyNamed("siblings")), eq(tina), aStackOf(tina), any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
 	}
 

@@ -1,5 +1,8 @@
+
 package org.exparity.beans;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,12 +10,15 @@ import org.exparity.beans.core.BeanProperty;
 import org.exparity.beans.core.BeanPropertyException;
 import org.exparity.beans.core.BeanPropertyFunction;
 import org.exparity.beans.core.BeanPropertyNotFoundException;
-import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanVisitor;
 import org.exparity.beans.core.functions.SetValue;
+import org.exparity.beans.core.naming.CapitalizedNamingStrategy;
+import org.exparity.beans.testutils.types.Car;
+import org.exparity.beans.testutils.types.Engine;
 import org.exparity.beans.testutils.types.NameMismatch;
 import org.exparity.beans.testutils.types.Person;
 import org.exparity.beans.testutils.types.Thrower;
+import org.exparity.beans.testutils.types.Wheel;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -35,12 +41,54 @@ public class GraphTest {
 
 	@Test
 	public void canGetAPropertyByName() {
-		assertThat(graph(new Person()).propertyNamed("firstname"), notNullValue());
+		BeanProperty property = graph(new Person()).propertyNamed("firstname");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("firstname"));
+		assertThat(property.getPath().fullPath(), equalTo("person.firstname"));
+	}
+
+	@Test
+	public void canGetAGraphPropertyByName() {
+		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
+		BeanProperty property = graph(person).propertyNamed("diameter");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("diameter"));
+		assertThat(property.getPath().fullPath(), equalTo("car.wheels[0].diameter"));
+		assertThat(property.getPath().fullPathWithNoIndexes(), equalTo("car.wheels.diameter"));
 	}
 
 	@Test(expected = BeanPropertyNotFoundException.class)
 	public void canGetAPropertyByNameIncorrectProperty() {
 		graph(new Person()).propertyNamed("missing");
+	}
+
+	@Test
+	public void canGetAPropertyByPath() {
+		BeanProperty property = graph(new Person()).getPath("person.firstname");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("firstname"));
+		assertThat(property.getPath().fullPath(), equalTo("person.firstname"));
+	}
+
+	@Test
+	public void canGetAGraphPropertyByPath() {
+		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
+		BeanProperty property = graph(person).getPath("car.wheels[0].diameter");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("diameter"));
+		assertThat(property.getPath().fullPath(), equalTo("car.wheels[0].diameter"));
+		assertThat(property.getPath().fullPathWithNoIndexes(), equalTo("car.wheels.diameter"));
+	}
+
+	@Test
+	public void canGetAGraphPropertyByPathIgnoreOrdinal() {
+		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
+		assertThat(graph(person).getPath("car.wheels.diameter"), nullValue());
+		BeanProperty property = graph(person).getPathIgnoreOrdinal("car.wheels.diameter");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("diameter"));
+		assertThat(property.getPath().fullPath(), equalTo("car.wheels[0].diameter"));
+		assertThat(property.getPath().fullPathWithNoIndexes(), equalTo("car.wheels.diameter"));
 	}
 
 	@Test
@@ -211,13 +259,11 @@ public class GraphTest {
 		graph(instance1).visit(visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("firstname")),
 				eq(instance),
-				eq(new BeanPropertyPath("person.firstname")),
 				any(Object[].class),
 				any(AtomicBoolean.class));
-		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), eq(new BeanPropertyPath("person.surname")), any(Object[].class), any(AtomicBoolean.class));
+		verify(visitor).visit(eq(bean(instance).propertyNamed("surname")), eq(instance), any(Object[].class), any(AtomicBoolean.class));
 		verify(visitor).visit(eq(bean(instance).propertyNamed("siblings")),
 				eq(instance),
-				eq(new BeanPropertyPath("person.siblings")),
 				any(Object[].class),
 				any(AtomicBoolean.class));
 		verifyNoMoreInteractions(visitor);
@@ -240,7 +286,6 @@ public class GraphTest {
 		graph(instance1).visit(visitor1);
 		verify(visitor).visit(eq(bean(instance).propertyNamed("property")),
 				eq(instance),
-				eq(new BeanPropertyPath("thrower.property")),
 				any(Object[].class),
 				any(AtomicBoolean.class));
 		Mockito.verifyNoMoreInteractions(visitor);
@@ -285,7 +330,7 @@ public class GraphTest {
 		assertThat(instance.getSurname(), not(equalTo("Applied")));
 		final Object instance1 = instance;
 		graph(instance1).apply(new BeanPropertyFunction() {
-		
+
 			public void apply(final BeanProperty property) {
 				if (property.isType(String.class)) {
 					property.setValue("Applied");
@@ -330,4 +375,15 @@ public class GraphTest {
 		assertThat(instance.getFirstname(), equalTo("Applied"));
 		assertThat(instance.getSurname(), equalTo("Applied"));
 	}
+
+	@Test
+	public void canOverrideNaming() {
+		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
+		BeanProperty property = graph(person, new CapitalizedNamingStrategy()).propertyNamed("diameter");
+		assertThat(property, notNullValue());
+		assertThat(property.getName(), equalTo("Diameter"));
+		assertThat(property.getPath().fullPath(), equalTo("Car.Wheels[0].Diameter"));
+		assertThat(property.getPath().fullPathWithNoIndexes(), equalTo("Car.Wheels.Diameter"));
+	}
+
 }

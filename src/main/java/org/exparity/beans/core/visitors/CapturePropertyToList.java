@@ -3,7 +3,6 @@ package org.exparity.beans.core.visitors;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.exparity.beans.core.BeanProperty;
-import org.exparity.beans.core.BeanPropertyPath;
 import org.exparity.beans.core.BeanVisitor;
 
 /**
@@ -17,7 +16,7 @@ public class CapturePropertyToList implements BeanVisitor {
 		this.propertyList = propertyList;
 	}
 
-	public void visit(final BeanProperty property, final Object current, final BeanPropertyPath path, final Object[] stack, AtomicBoolean stop) {
+	public void visit(final BeanProperty property, final Object current, final Object[] stack, AtomicBoolean stop) {
 		propertyList.add(property);
 	}
 }
