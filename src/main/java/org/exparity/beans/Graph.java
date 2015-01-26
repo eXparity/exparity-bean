@@ -36,12 +36,12 @@ public class Graph extends Instance {
 	 * Get the requested property by its path from the instance or return <code>null</code> if the property is not present. For example:</p>
 	 * 
 	 * <pre>
-	 * BeanPropertyInstance surname = bean(myObject).getPath("person.surname")
+	 * BeanPropertyInstance surname = bean(myObject).propertyAtPath("person.surname")
 	 * </pre>
 	 * 
 	 * @param path the property path
 	 */
-	public BeanProperty getPath(final String path) {
+	public BeanProperty propertyAtPath(final String path) {
 		return findAny(BeanPredicates.hasPath(path));
 	}
 
@@ -50,12 +50,12 @@ public class Graph extends Instance {
 	 * not present. For example:</p>
 	 * 
 	 * <pre>
-	 * BeanPropertyInstance nameOfFirstSibling = bean(myObject).getPath("person.siblings.firstname")
+	 * BeanPropertyInstance nameOfFirstSibling = bean(myObject).propertyAtPathIgnoreOrdinal("person.siblings.firstname")
 	 * </pre>
 	 * 
 	 * @param path the property path
 	 */
-	public BeanProperty getPathIgnoreOrdinal(final String path) {
+	public BeanProperty propertyAtPathIgnoreOrdinal(final String path) {
 		return findAny(BeanPredicates.hasPathIgnoreOrdinal(path));
 	}
 }

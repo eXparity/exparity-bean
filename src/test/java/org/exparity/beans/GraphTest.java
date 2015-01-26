@@ -64,7 +64,7 @@ public class GraphTest {
 
 	@Test
 	public void canGetAPropertyByPath() {
-		BeanProperty property = graph(new Person()).getPath("person.firstname");
+		BeanProperty property = graph(new Person()).propertyAtPath("person.firstname");
 		assertThat(property, notNullValue());
 		assertThat(property.getName(), equalTo("firstname"));
 		assertThat(property.getPath().fullPath(), equalTo("person.firstname"));
@@ -73,7 +73,7 @@ public class GraphTest {
 	@Test
 	public void canGetAGraphPropertyByPath() {
 		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
-		BeanProperty property = graph(person).getPath("car.wheels[0].diameter");
+		BeanProperty property = graph(person).propertyAtPath("car.wheels[0].diameter");
 		assertThat(property, notNullValue());
 		assertThat(property.getName(), equalTo("diameter"));
 		assertThat(property.getPath().fullPath(), equalTo("car.wheels[0].diameter"));
@@ -83,8 +83,8 @@ public class GraphTest {
 	@Test
 	public void canGetAGraphPropertyByPathIgnoreOrdinal() {
 		Car person = new Car(new Engine(new BigDecimal("3.8")), Arrays.asList(new Wheel(1)));
-		assertThat(graph(person).getPath("car.wheels.diameter"), nullValue());
-		BeanProperty property = graph(person).getPathIgnoreOrdinal("car.wheels.diameter");
+		assertThat(graph(person).propertyAtPath("car.wheels.diameter"), nullValue());
+		BeanProperty property = graph(person).propertyAtPathIgnoreOrdinal("car.wheels.diameter");
 		assertThat(property, notNullValue());
 		assertThat(property.getName(), equalTo("diameter"));
 		assertThat(property.getPath().fullPath(), equalTo("car.wheels[0].diameter"));
