@@ -14,12 +14,12 @@ A maven project
     <dependency>
         <groupId>org.exparity</groupId>
         <artifactId>exparity-bean</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3</version>
     </dependency>
 
 A project which uses ivy for dependency management
 
-    <dependency org="org.exparity" name="exparity-bean" rev="1.0.1"/>
+    <dependency org="org.exparity" name="exparity-bean" rev="1.0.3"/>
             
 Usage
 -------------
@@ -158,6 +158,9 @@ The source includes a pom.xml for building with Maven
 
 Release Notes
 -------------
+
+Changes 1.0.2 -> 1.0.3
+  * Drop dependency on exparity-stub
 
 Changes 1.0.0 -> 1.0.1
   * Add dump methods to print out properties and their values
