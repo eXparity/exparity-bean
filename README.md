@@ -175,4 +175,4 @@ Developers:
 
 
 [BSD License]: http://opensource.org/licenses/BSD-3-Clause
-[Maven central]: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22bean-utils%22
+[Maven central]: http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22exparity-bean%22
